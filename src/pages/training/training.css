@@ -1,0 +1,4 @@
+.select-visible {
+  overflow: visible !important;
+  z-index: 1050 !important; /* keep dropdown on top */
+}
