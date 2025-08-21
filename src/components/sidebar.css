@@ -1,0 +1,188 @@
+.sidebar {
+  width: 225px;
+  height: calc(100vh - 60px);
+  background-color: rgba(65, 114, 188, 0.7);
+  color: rgb(221, 221, 221);
+  position: fixed;
+  top: 60px;
+  left: 0;
+  transition: width 0.3s ease;
+  z-index: 1000;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+
+.sidebar-item {
+  text-decoration: none;
+}
+
+.sidebar-item a {
+  color: white;
+  text-decoration: none;
+}
+
+
+.sidebar .label {
+  color: white;
+}
+
+.sidebar .label:hover {
+  color: rgb(230, 230, 230);
+}
+
+
+.sidebar.collapsed {
+  overflow-y: auto;
+  overflow-x: visible;
+  max-height: 100vh;
+  position: relative; /* Required for flyout absolute positioning */
+  width: 70px;
+  z-index: 1000; /* Ensure it's under the flyout, not above it */
+}
+
+
+
+.sidebar-item ul li {
+  padding: 6px;
+  margin-top: 7px;
+  margin-left: 10px;
+  font-size: 14px;
+}
+
+.sidebar-item {
+  position: relative;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.sideicon {
+  font-size: 18px;
+  min-width: 22px;
+  color: #fff;
+}
+
+.sidebar.collapsed .sideicon {
+  font-size: 22px;
+}
+
+.label {
+  font-size: 14px;
+}
+
+.sidebar.collapsed .label {
+  display: none;
+}
+
+
+.dropdown {
+  list-style: none;
+  margin: 0;
+  padding-left: 15px;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+
+.sidebar:not(.collapsed) .dropdown.open {
+  max-height: 1000px;
+  opacity: 1;
+}
+
+.sidebar.collapsed .dropdown.flyout {
+  display: none;
+  position: fixed; /* ⬅️ Changed from absolute to fixed */
+  top: auto; /* We'll position it dynamically */
+  left: 70px; /* Exactly next to the collapsed sidebar */
+  background-color: rgba(65, 114, 188, 0.95);
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 3000; /* ⬅️ Must be higher than sidebar */
+}
+
+
+.sidebar.collapsed .sidebar-item:hover .dropdown.flyout {
+  display: block;
+  opacity: 1;
+  pointer-events: auto;
+  /* Position based on hovered item */
+  top: calc(var(--hover-top, 0px));
+}
+
+
+/* Optional: open animation */
+.dropdown.flyout.open {
+  max-height: none !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+}
+.sidebar.collapsed .sidebar-item {
+  position: relative;
+}
+
+
+
+.sidebar.collapsed .dropdown.flyout li {
+  color: #fff;
+  font-size: 14px;
+  margin: 8px 0;
+  padding-left: 5px;
+}
+
+
+.dropdown.flyout.open {
+  max-height: none !important;
+  opacity: 1 !important;
+  overflow: visible !important;
+}
+
+.main-more {
+  font-size: 10px !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgb(231, 231, 231);
+  padding: 10px 15px;
+}
+
+
+
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: rgba(65, 114, 188, 0.95); 
+  }
+
+  
+  .sidebar.expanded {
+    width: 225px;
+    padding: 10px 0;
+    overflow-y: auto;
+  }
+
+  
+  .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+}
+
+
+@media (min-width: 769px) {
+  .main-content {
+    margin-left: 225px;
+    transition: margin-left 0.3s ease;
+  }
+
+  .sidebar.collapsed ~ .main-content {
+    margin-left: 60px;
+  }
+}
