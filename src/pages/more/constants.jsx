@@ -21,11 +21,95 @@ const Constants = ({ type, columnName }) => {
         Language: [{ key: "language", label: "Language Type", type: "text" }],
         Skill: [{ key: "skill", label: "Skill Type", type: "text" }],
         "Document type": [
-            { key: "category", label: "Category", type: "text" },
+            {
+                key: "category",
+                label: "Category",
+                type: "select",
+                options: ["Personal", "Family", "Education", "Immigration", "Others"]
+            },
             { key: "documentType", label: "Document Type", type: "text" }
         ],
         "Award type": [{ key: "awardType", label: "Award Type", type: "text" }],
+        "Employee Category": [{ key: "empCategory", label: "Employee Category", type: "text" }],
 
+        "Leave Type": [
+            {
+                key: "leaveEmpCategory",
+                label: "Employee Category",
+                type: "select",
+                options: ["Management Trainee", "Permanent Employee"]
+            },
+            { key: "leaveType", label: "Leave Type", type: "text" },
+            { key: "daysPerYear", label: "Days Per Year", type: "text" }],
+
+        "Warning Type": [{ key: "warningType", label: "Warning Type", type: "text" }],
+        "Termination Type": [{ key: "terminationType", label: "Termination Type", type: "text" }],
+        "Edit Expense Type": [{ key: "editExpenseType", label: "Edit Expense Type", type: "text" }],
+        "Job Type": [{ key: "jobType", label: "Job Type", type: "text" }],
+        "Employee Exit Type": [{ key: "employeeExitType", label: "Employee Exit Type", type: "text" }],
+        "Employee Exit Checklist": [{ key: "employeeExitChecklist", label: "Employee Exit Checklist", type: "text" }],
+        "Travel Arrangement Type": [{ key: "travelArrangementType", label: "Travel Arrangement Type", type: "text" }],
+        "Payment Methods": [{ key: "paymentMethod", label: "Payment Method", type: "text" }],
+
+        "Currency Type": [{ key: "currancyName", label: "Currency Name", type: "text" },
+        { key: "currancyCode", label: "Currency Code", type: "text" },
+        { key: "currancySymbol", label: "Currency Symbol", type: "text" }],
+
+        "Assets Type": [{ key: "assetsType", label: "Assets Type", type: "text" }],
+
+        "Payroll Deduction": [{ key: "deduction", label: "Deduction", type: "text" },
+        { key: "remark", label: "Remark", type: "text" }],
+
+        "Allowance": [
+            { key: "allowanceType", label: "Allowance", type: "text" },
+            {
+                key: "allowance",
+                label: "Allowance Mode",
+                type: "select",
+                options: ["Fixed", "Percentage"]
+            },
+            { key: "value", label: "Value", type: "text" }],
+
+        "Grade": [{ key: "grade", label: "Grade", type: "text" },
+        { key: "NoticePeriod", label: "notice Period", type: "text" }],
+
+        "Payroll Deduction Slab": [
+            {
+                key: "payrollDeduction",
+                label: "Payroll Deduction",
+                type: "select",
+                options: ["PF", "ESIC", "Pofessional Tax"]
+            },
+            { key: "account", label: "Account of Deduction", type: "text" },
+            {
+                key: "type",
+                label: "Type",
+                type: "select",
+                options: ["Fixed", "Percentage"]
+            },
+            { key: "fromValue", label: "Deduction Slab Applicable From Value", type: "text" },
+            { key: "toValue", label: "Deduction Slab Applicable To Value", type: "text" },
+            { key: "applyValue", label: "Applies Fixed Value / % on given Range", type: "text" },
+            {
+                key: "gender",
+                label: "Gender",
+                type: "select",
+                options: ["Male", "Female"]
+            },
+            { key: "agrFrom", label: "Deduction Applicable From Age", type: "text" },
+            { key: "agrTo", label: "Deduction Applicable Upto Age", type: "text" },
+            { key: "month", label: "Select Month", type: "date" },
+            {
+                key: "calculation",
+                label: "calculation",
+                type: "select",
+                options: ["Basic Salary", "Gross Salary"]
+            }, {
+                key: "prYear",
+                label: "Gender",
+                type: "select",
+                options: ["1 Year", "2 Year", "3 Year", "4 Year", "5 Year"]
+            }],
     };
 
 
@@ -65,14 +149,6 @@ const Constants = ({ type, columnName }) => {
     const startEntry = (currentPage - 1) * rowsPerPage + 1;
     const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
 
-    // useEffect(() => {
-    //     if (Array.isArray(data)) {
-    //         paginate(data, currentPage);
-    //     }
-    // }, [data, currentPage]);
-
-
-
     const toggleAddForm = () => {
         setShowAddForm((prev) => !prev);
     };
@@ -93,17 +169,6 @@ const Constants = ({ type, columnName }) => {
         }
         setInput('');
     };
-
-    // const handleRemove = (format) => {
-    //     setFormats(formats.filter(f => f !== format));
-    // };
-
-    // const handleKeyDown = (e) => {
-    //     if (e.key === 'Enter') {
-    //         e.preventDefault();
-    //         handleAddFormat();
-    //     }
-    // };
 
     const departmentConfigs = {
         'Contract': {
@@ -554,7 +619,7 @@ const Constants = ({ type, columnName }) => {
             ]
         },
 
-        'Currancy Type': {
+        'Currency Type': {
             data: [
                 { CurrencyName: 'Dollars', CurrencyCode: 'USD', CurrencySymbol: '$' },
                 { CurrencyName: 'Dollars', CurrencyCode: 'AUD', CurrencySymbol: '$' },
@@ -755,13 +820,9 @@ const Constants = ({ type, columnName }) => {
         }
     };
 
-    // Call in useEffect
     useEffect(() => {
         fetchData(selectedDepartment);
     }, [selectedDepartment]);
-
-
-
 
     const handleAdd = async () => {
         if (!selectedDepartment) return;
@@ -769,9 +830,13 @@ const Constants = ({ type, columnName }) => {
         // Build value object from formValues, only include non-empty
         const value = {};
         (columnsByDepartment[selectedDepartment] || []).forEach(f => {
-            if (f.key !== "action" && formValues[f.key]?.trim()) {
-                value[f.key] = formValues[f.key].trim();
+            if (f.key !== "action" && formValues[f.key] != null && formValues[f.key] !== "") {
+                const fieldValue = typeof formValues[f.key] === "string"
+                    ? formValues[f.key].trim()
+                    : formValues[f.key]; // keep numbers as-is
+                value[f.key] = fieldValue;
             }
+
         });
 
         if (Object.keys(value).length === 0) {
@@ -780,7 +845,7 @@ const Constants = ({ type, columnName }) => {
         }
 
         try {
-                toast.success("Data saved successfully!");
+            toast.success("Data saved successfully!");
             const res = await fetch(`http://localhost:3000/constants`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -803,22 +868,16 @@ const Constants = ({ type, columnName }) => {
         }
     };
 
-
-
-    // const getDepartmentFieldKeys = () => {
-    //     const fields = columnsByDepartment[selectedDepartment] || [];
-    //     return fields.filter(f => f.key && f.key !== "action").map(f => f.key);
-    // };
-
-
     const currentConfig = departmentConfigs[selectedDepartment] || { columns: [] };
-    // const currentData = data;
 
     const filteredData = currentData.filter(item => {
         const fields = columnsByDepartment[selectedDepartment];
         if (!fields) return false;
-        return fields.some(f => item[f.key] && item[f.key].trim() !== "");
+        return fields.some(f =>
+            item[f.key] && String(item[f.key]).trim() !== ""
+        );
     });
+
 
     const [editValues, setEditValues] = useState({});
 
@@ -830,7 +889,7 @@ const Constants = ({ type, columnName }) => {
 
     const handleUpdate = async (id) => {
         try {
-                toast.success("Data updated successfully!");
+            toast.success("Data updated successfully!");
 
             const res = await fetch(`http://localhost:3000/constants/${id}`, {
                 method: "PUT",
@@ -948,15 +1007,31 @@ const Constants = ({ type, columnName }) => {
                     .map(f => (
                         <div className="mb-3" key={f.key}>
                             <label>{f.label}</label>
-                            <input
-                                type={f.type || "text"}
-                                className="form-control"
-                                placeholder={`Enter ${f.label}`}
-                                value={formValues[f.key] || ""}
-                                onChange={e =>
-                                    setFormValues(prev => ({ ...prev, [f.key]: e.target.value }))
-                                }
-                            />
+
+                            {f.type === "select" ? (
+                                <select
+                                    className="form-control"
+                                    value={formValues[f.key] || ""}
+                                    onChange={(e) =>
+                                        setFormValues(prev => ({ ...prev, [f.key]: e.target.value }))
+                                    }
+                                >
+                                    <option value="">Select {f.label}</option>
+                                    {f.options.map(opt => (
+                                        <option key={opt} value={opt}>{opt}</option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <input
+                                    type={f.type || "text"}
+                                    className="form-control"
+                                    placeholder={`Enter ${f.label}`}
+                                    value={formValues[f.key] || ""}
+                                    onChange={(e) =>
+                                        setFormValues(prev => ({ ...prev, [f.key]: e.target.value }))
+                                    }
+                                />
+                            )}
                         </div>
                     ))}
                 <div className="text-start mb-2">
@@ -1010,8 +1085,8 @@ const Constants = ({ type, columnName }) => {
 
         return (
             <>
-                <div className="card no-radius mt-3">
-                    <div className="px-3 pt-4">
+                <div className="card no-radius">
+                    <div className="px-3">
                         <DataTable
                             columns={currentColumns}
                             data={departmentData[selectedDepartment] || []}
@@ -1038,10 +1113,8 @@ const Constants = ({ type, columnName }) => {
 
                 {showEditModal && selectedRow && (
                     <>
-                        {/* Custom backdrop */}
                         <div className="custom-backdrop"></div>
 
-                        {/* Modal */}
                         <div className="modal show fade d-block" tabIndex="-1">
                             <div className="modal-dialog modal-dialog-centered edit-modal">
                                 <div className="modal-content">
@@ -1065,18 +1138,36 @@ const Constants = ({ type, columnName }) => {
                                                 {(columnsByDepartment[selectedDepartment] || []).map(f => (
                                                     <div className="col-md-12 mb-3" key={f.key}>
                                                         <label>{f.label}</label>
-                                                        <input
-                                                            type={f.type || "text"}
-                                                            className="form-control"
-                                                            value={editValues[f.key] || ""}
-                                                            onChange={(e) =>
-                                                                setEditValues(prev => ({ ...prev, [f.key]: e.target.value }))
-                                                            }
-                                                            placeholder={`Enter ${f.label}`}
-                                                            required
-                                                        />
+
+                                                        {f.options ? (
+                                                            <select
+                                                                className="form-control"
+                                                                value={editValues[f.key] || ""}
+                                                                onChange={(e) =>
+                                                                    setEditValues(prev => ({ ...prev, [f.key]: e.target.value }))
+                                                                }
+                                                                required
+                                                            >
+                                                                <option value="">Select {f.label}</option>
+                                                                {f.options.map(opt => (
+                                                                    <option key={opt} value={opt}>{opt}</option>
+                                                                ))}
+                                                            </select>
+                                                        ) : (
+                                                            <input
+                                                                type={f.type || "text"}
+                                                                className="form-control"
+                                                                value={editValues[f.key] || ""}
+                                                                onChange={(e) =>
+                                                                    setEditValues(prev => ({ ...prev, [f.key]: e.target.value }))
+                                                                }
+                                                                placeholder={`Enter ${f.label}`}
+                                                                required
+                                                            />
+                                                        )}
                                                     </div>
                                                 ))}
+
 
 
 
@@ -1116,7 +1207,7 @@ const Constants = ({ type, columnName }) => {
                                     'Contract Type', 'Education', 'Language', 'Skill', 'Document type', 'Award type',
                                     'Employee Category', 'Leave Type', 'Warning Type', 'Termination Type',
                                     'Edit Expense Type', 'Job Type', 'Employee Exit Type', 'Employee Exit Checklist',
-                                    'Travel Arrangement Type', 'Payment Methods', 'Currancy Type', 'Assets Type', 'Payroll Deduction',
+                                    'Travel Arrangement Type', 'Payment Methods', 'Currency Type', 'Assets Type', 'Payroll Deduction',
                                     'Payroll Deduction Slab', 'Allowance', 'Grade'
                                 ].map((dept, index) => {
                                     const icons = {
@@ -1136,7 +1227,7 @@ const Constants = ({ type, columnName }) => {
                                         'Employee Exit Checklist': 'fas fa-clipboard-check',
                                         'Travel Arrangement Type': 'fas fa-suitcase-rolling',
                                         'Payment Methods': 'fas fa-credit-card',
-                                        'Currancy Type': 'fas fa-coins',
+                                        'Currency Type': 'fas fa-coins',
                                         'Assets Type': 'fas fa-boxes',
                                         'Payroll Deduction': 'fas fa-minus-circle',
                                         'Payroll Deduction Slab': 'fas fa-chart-line',

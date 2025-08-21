@@ -28,7 +28,7 @@ const SupportRequest = () => {
         employee: '',
         priority: '',
         remarks: '',
-        ticketCode: '',
+        // ticketCode: '',
         // assignedTo: '',
         // status: '',
         date: ''
@@ -88,9 +88,9 @@ const SupportRequest = () => {
                 if (!value.trim()) error = `${displayName} is required`;
                 break;
 
-            case "ticketCode":
-                if (!value.trim()) error = `${displayName} is required`;
-                break;
+            // case "ticketCode":
+            //     if (!value.trim()) error = `${displayName} is required`;
+            //     break;
 
             //  case "assignedTo":
             //     if (!value.trim()) error = `${displayName} is required`;
@@ -134,7 +134,7 @@ const SupportRequest = () => {
                     employee: '',
                     priority: '',
                     remarks: '',
-                    ticketCode: '',
+                    // ticketCode: '',
                     // assignedTo: '',
                     // status: '',
                     date: ''
@@ -158,7 +158,7 @@ const SupportRequest = () => {
             employee: row.employee,
             priority: row.priority,
             remarks: row.remarks,
-            ticketCode: row.ticketCode,
+            // ticketCode: row.ticketCode,
             // assignedTo: row.assignedTo,
             // status: row.status,
             date: row.date
@@ -190,7 +190,7 @@ const SupportRequest = () => {
         employee: '',
         priority: '',
         remarks: '',
-        ticketCode: '',
+        // ticketCode: '',
         // assignedTo: '',
         // status: '',
         date: ''
@@ -341,6 +341,11 @@ const SupportRequest = () => {
     const toggleAddForm = () => {
         setShowAddForm((prev) => !prev);
     };
+    const generateTicketCode = () => {
+        return "TKT-" + Math.floor(1000 + Math.random() * 9000); // simple random code
+    };
+
+
 
     return (
         <div className="custom-container">
@@ -363,22 +368,40 @@ const SupportRequest = () => {
                         <form onSubmit={handleSubmit}>
                             <div className="row">
                                 {/* Left Column */}
-                                <div className="col-md-12">
-                                    <div className=" mb-3">
-                                        <label>Subject</label>
-                                        <input type="text" value={form.subject} Placeholder="Enter Subject"
-                                            onChange={(e) => {
-                                                const { value } = e.target;
-                                                setForm({ ...form, subject: value });
-                                                validateField("subject", value);
-                                            }}
-                                            className={`form-control ${errors.subject ? "is-invalid" : ""}`}
-                                            onBlur={(e) => validateField("subject", e.target.value)}
+                                <div className='row'>
 
-                                        />
-                                        {errors.subject && (
-                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.subject}</p>)}
+                                    <div className='row'>
+                                        <div className="col-md-6 mb-3">
+                                            <label>Subject</label>
+                                            <input type="text" value={form.subject} Placeholder="Enter Subject"
+                                                onChange={(e) => {
+                                                    const { value } = e.target;
+                                                    setForm({ ...form, subject: value });
+                                                    validateField("subject", value);
+                                                }}
+                                                className={`form-control ${errors.subject ? "is-invalid" : ""}`}
+                                                onBlur={(e) => validateField("subject", e.target.value)}
 
+                                            />
+                                            {errors.subject && (
+                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.subject}</p>)}
+                                        </div>
+
+                                        <div className="col-md-6 mb-3">
+                                            <label>Date</label>
+                                            <input type="date" value={form.date}
+                                                onChange={(e) => {
+                                                    const { value } = e.target;
+                                                    setForm({ ...form, date: value });
+                                                    validateField("date", value);
+                                                }}
+                                                className={`form-control ${errors.date ? "is-invalid" : ""}`}
+                                                onBlur={(e) => validateField("date", e.target.value)}
+
+                                            />
+                                            {errors.date && (
+                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.date}</p>)}
+                                        </div>
                                     </div>
 
                                     <div className='row'>
@@ -432,42 +455,6 @@ const SupportRequest = () => {
                                         </div>
                                     </div>
 
-                                    <div className='row'>
-                                        <div className="col-md-6 mb-3">
-                                            <label>Ticket Code</label>
-                                            <input type="text" value={form.ticketCode} Placeholder="Enter Ticket Code"
-                                                onChange={(e) => {
-                                                    const { value } = e.target;
-                                                    setForm({ ...form, ticketCode: value });
-                                                    validateField("ticketCode", value);
-                                                }}
-                                                className={`form-control ${errors.ticketCode ? "is-invalid" : ""}`}
-                                                onBlur={(e) => validateField("ticketCode", e.target.value)}
-
-                                            />
-                                            {errors.ticketCode && (
-                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.ticketCode}</p>)}
-
-                                        </div>
-
-                                        <div className="col-md-6 mb-3">
-                                            <label>Date</label>
-                                            <input type="date" value={form.date}
-                                                onChange={(e) => {
-                                                    const { value } = e.target;
-                                                    setForm({ ...form, date: value });
-                                                    validateField("date", value);
-                                                }}
-                                                className={`form-control ${errors.date ? "is-invalid" : ""}`}
-                                                onBlur={(e) => validateField("date", e.target.value)}
-
-                                            />
-                                            {errors.date && (
-                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.date}</p>)}
-
-
-                                        </div>
-                                    </div>
                                 </div>
 
                                 {/* Right Column */}
@@ -662,7 +649,7 @@ const SupportRequest = () => {
                                                             }}
                                                             className={`form-control ${errors.ticketCode ? "is-invalid" : ""}`}
                                                             onBlur={(e) => validateField("ticketCode", e.target.value)}
-
+                                                            disabled
                                                         />
                                                         {errors.ticketCode && (
                                                             <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.ticketCode}</p>)}
