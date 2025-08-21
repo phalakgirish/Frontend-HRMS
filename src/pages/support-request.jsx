@@ -35,18 +35,18 @@ const SupportRequest = () => {
     });
 
     const [errors, setErrors] = useState({});
-    const validateForm = () => {
-        let newErrors = {};
+    // const validateForm = () => {
+    //     let newErrors = {};
 
-        Object.keys(form).forEach((field) => {
-            if (!form[field] || form[field].toString().trim() === "") {
-                newErrors[field] = `${field.replace(/([A-Z])/g, " $1")} is required`;
-            }
-        });
+    //     Object.keys(form).forEach((field) => {
+    //         if (!form[field] || form[field].toString().trim() === "") {
+    //             newErrors[field] = `${field.replace(/([A-Z])/g, " $1")} is required`;
+    //         }
+    //     });
 
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
+    //     setErrors(newErrors);
+    //     return Object.keys(newErrors).length === 0;
+    // };
 
     useEffect(() => {
         fetchSupportRequest();
@@ -112,43 +112,52 @@ const SupportRequest = () => {
         return error;
     };
 
+    const generateTicketCode = () => {
+        return "TKT-" + Math.floor(1000 + Math.random() * 9000);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (validateForm()) {
 
-            try {
-                const payload = { ...form, description };
-                if (editId) {
-                    await updateSupportRequest(editId, form);
-                    toast.success("Support Request updated successfully!");
+        //   if (!validateForm()) {
+        //     console.log("❌ Validation failed, not saving.");
+        //     return;
+        //   }
 
-                } else {
-                    await createSupportRequest(form);
-                    toast.success("Support Request saved successfully!");
+        try {
+            const payload = editId
+                ? { ...form, description }
+                : { ...form, description, ticketCode: generateTicketCode() };
 
-                }
-                fetchSupportRequest();
-                setForm({
-                    subject: '',
-                    employee: '',
-                    priority: '',
-                    remarks: '',
-                    // ticketCode: '',
-                    // assignedTo: '',
-                    // status: '',
-                    date: ''
-                });
-                setDescription("");
-                setEditId("");
-                setShowEditModal(false);
-            } catch (err) {
-                console.error("Error saving SupportRequest:", err);
-                toast.error("Support Request failed to save!");
+            console.log("📤 Sending payload:", payload); // Debug
 
+            if (editId) {
+                await updateSupportRequest(editId, payload);
+                toast.success("Support Request updated successfully!");
+            } else {
+                await createSupportRequest(payload);
+                toast.success("Support Request saved successfully!");
             }
+
+            fetchSupportRequest();
+
+            setForm({
+                subject: "",
+                employee: "",
+                priority: "",
+                remarks: "",
+                date: "",
+            });
+            setDescription("");
+            setEditId("");
+            setShowEditModal(false);
+
+        } catch (err) {
+            console.error("❌ Error saving SupportRequest:", err.response || err);
+            toast.error("Support Request failed to save!");
         }
     };
+
 
 
 
@@ -158,7 +167,7 @@ const SupportRequest = () => {
             employee: row.employee,
             priority: row.priority,
             remarks: row.remarks,
-            // ticketCode: row.ticketCode,
+            ticketCode: row.ticketCode,
             // assignedTo: row.assignedTo,
             // status: row.status,
             date: row.date
@@ -190,7 +199,7 @@ const SupportRequest = () => {
         employee: '',
         priority: '',
         remarks: '',
-        // ticketCode: '',
+        ticketCode: '',
         // assignedTo: '',
         // status: '',
         date: ''
@@ -341,11 +350,6 @@ const SupportRequest = () => {
     const toggleAddForm = () => {
         setShowAddForm((prev) => !prev);
     };
-    const generateTicketCode = () => {
-        return "TKT-" + Math.floor(1000 + Math.random() * 9000); // simple random code
-    };
-
-
 
     return (
         <div className="custom-container">
@@ -369,7 +373,6 @@ const SupportRequest = () => {
                             <div className="row">
                                 {/* Left Column */}
                                 <div className='row'>
-
                                     <div className='row'>
                                         <div className="col-md-6 mb-3">
                                             <label>Subject</label>
@@ -401,6 +404,8 @@ const SupportRequest = () => {
                                             />
                                             {errors.date && (
                                                 <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.date}</p>)}
+
+
                                         </div>
                                     </div>
 
@@ -454,29 +459,9 @@ const SupportRequest = () => {
                                                 <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.priority}</p>)}
                                         </div>
                                     </div>
-
                                 </div>
 
-                                {/* Right Column */}
-                                {/* <div className="col-md-6">
-                                    <div className='row'>
-                                        <label>Ticket Description</label>
-                                        <CKEditor
-                                            editor={ClassicEditor}
-                                            data={form.description || ""}
-                                            onChange={(event, editor) => {
-                                                const newData = editor.getData();
-                                                setForm({ ...form, description: newData });
-                                            }}
-                                            onBlur={() => validateField("description", form.description)}
-                                        />
-                                        {errors.description && (
-                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
-                                                description Required!
-                                            </p>
-                                        )}
-                                    </div>
-                                </div> */}
+                              
                             </div>
 
                             <div className="text-start mb-2">
@@ -494,7 +479,7 @@ const SupportRequest = () => {
             <div className="card no-radius">
                 <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
                     <span>List all Support Request</span>
-                    <button className="btn btn-sm add-btn" onClick={toggleAddForm}>{showAddForm ? '- Hide' : '+ Add Leave'}</button>
+                    <button className="btn btn-sm add-btn" onClick={toggleAddForm}>{showAddForm ? '- Hide' : '+ Add'}</button>
                 </div>
 
 
@@ -646,6 +631,7 @@ const SupportRequest = () => {
                                                                 const { value } = e.target;
                                                                 setForm({ ...form, ticketCode: value });
                                                                 validateField("ticketCode", value);
+
                                                             }}
                                                             className={`form-control ${errors.ticketCode ? "is-invalid" : ""}`}
                                                             onBlur={(e) => validateField("ticketCode", e.target.value)}
