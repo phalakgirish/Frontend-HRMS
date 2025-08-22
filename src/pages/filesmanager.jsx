@@ -105,7 +105,7 @@ const [files, setFiles] = useState(null);
 
     const formData = new FormData();
     formData.append("file", newFile);
-      formData.append("department", selectedDepartment); // <-- important!
+      formData.append("department", selectedDepartment); 
 
 
     const response = await fetch("http://localhost:3000/files-manager/upload", {
@@ -145,9 +145,7 @@ const [files, setFiles] = useState(null);
         setCurrentPage(1);
     }, [selectedDepartment, rowsPerPage]);
 
-    // Download handler
    const handleDownload = async (row) => {
-    // Make sure this property exists:
     const filename = row.storedFileName || row.fileName || row.file; 
 
     const response = await fetch(`http://localhost:3000/files-manager/download/${filename}`);
@@ -158,7 +156,7 @@ const [files, setFiles] = useState(null);
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = row.originalFileName || filename; // fallback to stored file name
+    a.download = row.originalFileName || filename; 
     a.click();
 };
 
