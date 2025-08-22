@@ -8,9 +8,10 @@ import { getTrainingList, createTrainingList, updateTrainingList, deleteTraining
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Select from "react-select";
+import axios from "axios";
+import { useLocation } from "react-router-dom";
 
 const TrainingList = () => {
-
 
     const employeeOptions = [
         { value: "Admin", label: "Admin Admin" },
@@ -48,8 +49,10 @@ const TrainingList = () => {
         endDate: '',
         department: '',
         employee: [],
-        status: '',
-        description: ''
+        // status: '',
+        description: '',
+        // performance:'',
+        // remarks:''
     });
 
     const [errors, setErrors] = useState({});
@@ -77,6 +80,23 @@ const TrainingList = () => {
             paginate(response.data, currentPage);
         } catch (error) {
             console.error('Error fetching TrainingList:', error);
+        }
+    };
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.updatedList) {
+            setData(location.state.updatedList);
+        } else {
+            fetchData();
+        }
+    }, [location.state]);
+    const fetchData = async () => {
+        try {
+            const res = await axios.get("http://localhost:3000/trainingList");
+            setData(res.data);
+        } catch (err) {
+            console.error("Error fetching training list:", err);
         }
     };
 
@@ -127,11 +147,11 @@ const TrainingList = () => {
                 break;
 
 
-            case "status":
-                if (!value.trim()) {
-                    error = "Status is required";
-                }
-                break;
+            // case "status":
+            //     if (!value.trim()) {
+            //         error = "Status is required";
+            //     }
+            //     break;
 
             case "description":
                 if (!value.trim()) {
@@ -149,8 +169,10 @@ const TrainingList = () => {
 
 
 
-
     const handleSubmit = async (e) => {
+    console.log("Form before validation:", form);
+console.log("Validation result:", validateForm());
+
         e.preventDefault();
         if (validateForm()) {
             try {
@@ -175,7 +197,9 @@ const TrainingList = () => {
                     department: '',
                     employee: [],
                     status: '',
-                    description: ''
+                    description: '',
+                     performance:'',
+        remarks:''
                 });
                 setEditId("");
                 setShowEditModal(false);
@@ -195,7 +219,7 @@ const TrainingList = () => {
         endDate: '',
         department: '',
         employee: [],
-        status: '',
+        // status: '',
         description: ''
     };
 
@@ -220,7 +244,9 @@ const TrainingList = () => {
             department: row.department,
             employee: Array.isArray(row.employee) ? row.employee : [row.employee], // ensure array
             status: row.status,
-            description: row.description
+            description: row.description,
+             performance:row.performance,
+        remarks:row.remarks
         });
         setEditId(row._id);
         setShowEditModal(true);
@@ -315,47 +341,6 @@ const TrainingList = () => {
 
     ];
 
-    // const data = [
-    //     {
-    //         id: 1,
-    //         employee: {
-    //             avatar1: 'avatar2.jpg',
-    //             avatar2: 'avatar2.jpg',
-    //             title: 'Amit Sharma'
-    //         },
-    //         trainingType: 'Job Training',
-    //         trainer: 'Manoj Kumar Sinha',
-    //         trainingDuration: '18-Apr-2022 to 20-Apr-2022',
-    //         cost: 'Rs.700',
-    //         status: 'Pending'
-    //     },
-    //     {
-    //         id: 2,
-    //         employee: {
-    //             avatar1: 'avatar2.jpg',
-    //             avatar2: 'avatar2.jpg',
-    //             title: 'Amit Sharma2'
-    //         },
-    //         trainingType: 'Job Training',
-    //         trainer: 'Manoj Kumar Sinha',
-    //         trainingDuration: '18-Apr-2022 to 20-Apr-2022',
-    //         cost: 'Rs.1500',
-    //         status: 'Pending'
-    //     },
-    //     {
-    //         id: 3,
-    //         employee: {
-    //             avatar1: 'avatar2.jpg',
-    //             avatar2: 'avatar2.jpg',
-    //             title: 'Amit Sharma3'
-    //         },
-    //         trainingType: 'Job Training',
-    //         trainer: 'Manoj Kumar Sinha',
-    //         trainingDuration: '18-Apr-2022 to 20-Apr-2022',
-    //         cost: 'Rs.3200',
-    //         status: 'Pending'
-    //     }
-    // ];
 
     const customStyles = {
         headCells: {
@@ -487,6 +472,10 @@ const TrainingList = () => {
                                             >
                                                 <option value="">Trainer</option>
                                                 <option value="Manoj Sinha">Manoj Sinha</option>
+                                                <option value="Admin Admin">Admin Admin</option>
+                                                <option value="Shubham Kadam">Shubham Kadam</option>
+                                                <option value="Anjali">Anjali</option>
+
                                             </select>
                                             {errors.trainer && (
                                                 <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.trainer}</p>
@@ -570,7 +559,10 @@ const TrainingList = () => {
                                                 onBlur={(e) => validateField("department", e.target.value)}
                                             >
                                                 <option value="">Department</option>
-                                                <option value="acc">Accounts</option>
+                                                <option value="Accounts">Accounts</option>
+                                                <option value="HR">HR</option>
+                                                <option value="IT">IT</option>
+                                                <option value="Management">Management</option>
                                             </select>
                                             {errors.department && (
                                                 <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.department}</p>
@@ -606,7 +598,7 @@ const TrainingList = () => {
 
                                 {/* Right Column */}
                                 <div className="col-md-6">
-                                    <div className="col-md-12 mb-3">
+                                    {/* <div className="col-md-12 mb-3">
                                         <label>Status</label>
                                         <select id="status"
                                             value={form.status}
@@ -626,7 +618,7 @@ const TrainingList = () => {
                                         {errors.status && (
                                             <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.status}</p>
                                         )}
-                                    </div>
+                                    </div> */}
 
                                     <div className="col-md-12 mb-3">
                                         <label>Description</label>
@@ -934,7 +926,7 @@ const TrainingList = () => {
 
                                                 {/* Right Column */}
                                                 <div className="col-md-6">
-                                                    <div className="col-md-12 mb-3">
+                                                    {/* <div className="col-md-12 mb-3">
                                                         <label>Status</label>
                                                         <select id="status"
                                                             value={form.status}
@@ -954,7 +946,7 @@ const TrainingList = () => {
                                                         {errors.status && (
                                                             <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.status}</p>
                                                         )}
-                                                    </div>
+                                                    </div> */}
 
                                                     <div className="col-md-12 mb-3">
                                                         <label>Description</label>

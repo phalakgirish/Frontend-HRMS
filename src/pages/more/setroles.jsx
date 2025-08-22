@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import DataTable from 'react-data-table-component';
 import './more.css';
-
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
@@ -154,15 +153,42 @@ const SetRoles = () => {
 
     const [expandedItems, setExpandedItems] = useState({});
 
-    const resources = [
-        "Organization", "Employees", "Performance", "Timesheet",
-        "Payroll", "Projects", "Worksheet (Tasks)", "Support Request",
-        "Recruitment", "Training", "Reports", "Files Manager",
-        "Employees Directory", "Settings", "Constants",
-        "Email Templates", "Database Backup"
-    ];
 
-    const childPermissions = ["View", "Add", "Edit", "Delete"];
+    const permissionsData = {
+        Organization: ["Company", "Location", "Department", "Designation", "Announcements", "Policies", "Expense"],
+        Employees: ["Employees", "Set Roles", "Awards", "Transfers", "Resignations", "Travels", "Promotions", "Complaints", "Warnings", "Terminations", "Employee Last Login", "Employee Exit"],
+        Performance: ["Performance Indicator", "Performance Appraisal"],
+        Timesheet: ["Attendance", "Date Wise Attendance", "Update Attendance", "Import Attendance", "Leaves", "Office Shifts", "Holidays"],
+        Payroll: ["Payroll Templates", "Hourly Wages", "Manage Salary", "Advance Salary", "Advance Salary Report", "Generate Payslip", "Payment History"],
+        Projects: [""],
+        Worksheets: [""],
+        SupportRequest: [""],
+        Recruitment: ["Jobs Listing", "Job Posts", "Job Candidates", "Job Interviews"],
+        Training: ["Training List", "Training Type", "Trainers List"],
+        Reports: ["Account Statement", "Expense Report", "Income Report", "Transfer Report"],
+        FilesManager: [""],
+        EmployeesDirectory: [""],
+        Settings: [""],
+        Constants: [""],
+        EmailTemplates: [""],
+        DatabaseBackup: [""]
+    };
+
+    const subPermissions = ["View", "Add", "Edit", "Delete", "List"];
+
+    const [expandedResources, setExpandedResources] = useState({});
+    const [expandedSubfields, setExpandedSubfields] = useState({});
+
+    const toggleResource = (res) => {
+        setExpandedResources((prev) => ({ ...prev, [res]: !prev[res] }));
+    };
+
+    const toggleSubfield = (res, sub) => {
+        setExpandedSubfields((prev) => ({
+            ...prev,
+            [`${res}-${sub}`]: !prev[`${res}-${sub}`],
+        }));
+    };
 
     const toggleExpand = (item) => {
         setExpandedItems((prev) => ({
@@ -191,54 +217,158 @@ const SetRoles = () => {
                     <div className="container mt-4">
                         <form>
                             <div className="row">
-                                {/* Left Column */}
-                                <div className="col-md-5">
-                                    <div className="col-md-8 mb-3">
-                                        <label>Role Name</label>
-                                        <input type="text" className="form-control" placeholder="Role Name" />
+                                <div className="row">
+                                    {/* Left Column */}
+                                    <div className="col-md-5">
+                                        <div className="mb-3">
+                                            <label>Role Name</label>
+                                            <input type="text" className="form-control" placeholder="Role Name" />
+                                        </div>
+
+                                        <div className="mb-3">
+                                            <label>Select Access</label>
+                                            <select className="form-control">
+                                                <option value="">Select Access</option>
+                                                <option value="all">All Menu Access</option>
+                                                <option value="custom">Custom Menu Access</option>
+                                            </select>
+                                        </div>
                                     </div>
 
-                                    <div className="col-md-8 mb-3">
-                                        <label>Select Access</label>
-                                        <select className="form-control">
-                                            <option value="">Select Access</option>
-                                            <option value="all">All Menu Access</option>
-                                            <option value="custom">Custom Menu Access</option>
-                                        </select>
-                                    </div>
+                                    {/* Right Column */}
+                                  <div className="col-md-7">
+  <div className="row">
+    {/* First Half */}
+    <div className="col-6">
+      <ul className="list-unstyled">
+        {Object.keys(permissionsData)
+          .slice(0, Math.ceil(Object.keys(permissionsData).length / 2))
+          .map((res, index) => (
+            <React.Fragment key={index}>
+              <li className="d-flex align-items-start mb-1">
+                <span
+                  style={{ cursor: "pointer", width: "20px", display: "inline-block" }}
+                  onClick={() => toggleResource(res)}
+                >
+                  {expandedResources[res] ? "−" : "+"}
+                </span>
+                <span>{res}</span>
+              </li>
+
+              {expandedResources[res] && (
+                <>
+                  {(permissionsData[res].length > 0 && permissionsData[res][0] !== "")
+                    ? permissionsData[res].map((subfield, subIndex) => (
+                        <React.Fragment key={subIndex}>
+                          <li className="d-flex align-items-start mb-1 ps-4">
+                            <span
+                              style={{ width: "20px", display: "inline-block", cursor: "pointer" }}
+                              onClick={() => toggleSubfield(res, subfield)}
+                            >
+                              {expandedSubfields[`${res}-${subfield}`] ? "−" : "+"}
+                            </span>
+                            <span>{subfield}</span>
+                          </li>
+
+                          {expandedSubfields[`${res}-${subfield}`] &&
+                            subPermissions.map((perm, i) => (
+                              <li
+                                key={i}
+                                className="d-flex align-items-center mb-1 ps-5"
+                                style={{ gap: "5px" }}
+                              >
+                                <input type="checkbox" className="me-2" />
+                                <span>{perm}</span>
+                              </li>
+                            ))}
+                        </React.Fragment>
+                      ))
+                    : // Empty arrays → show subPermissions directly
+                      subPermissions.map((perm, i) => (
+                        <li
+                          key={i}
+                          className="d-flex align-items-center mb-1 ps-4"
+                          style={{ gap: "5px" }}
+                        >
+                          <input type="checkbox" className="me-2" />
+                          <span>{perm}</span>
+                        </li>
+                      ))}
+                </>
+              )}
+            </React.Fragment>
+          ))}
+      </ul>
+    </div>
+
+    {/* Second Half */}
+    <div className="col-6">
+      <ul className="list-unstyled">
+        {Object.keys(permissionsData)
+          .slice(Math.ceil(Object.keys(permissionsData).length / 2))
+          .map((res, index) => (
+            <React.Fragment key={index}>
+              <li className="d-flex align-items-start mb-1">
+                <span
+                  style={{ cursor: "pointer", width: "20px", display: "inline-block" }}
+                  onClick={() => toggleResource(res)}
+                >
+                  {expandedResources[res] ? "−" : "+"}
+                </span>
+                <span>{res}</span>
+              </li>
+
+              {expandedResources[res] && (
+                <>
+                  {(permissionsData[res].length > 0 && permissionsData[res][0] !== "")
+                    ? permissionsData[res].map((subfield, subIndex) => (
+                        <React.Fragment key={subIndex}>
+                          <li className="d-flex align-items-start mb-1 ps-4">
+                            <span
+                              style={{ width: "20px", display: "inline-block", cursor: "pointer" }}
+                              onClick={() => toggleSubfield(res, subfield)}
+                            >
+                              {expandedSubfields[`${res}-${subfield}`] ? "−" : "+"}
+                            </span>
+                            <span>{subfield}</span>
+                          </li>
+
+                          {expandedSubfields[`${res}-${subfield}`] &&
+                            subPermissions.map((perm, i) => (
+                              <li
+                                key={i}
+                                className="d-flex align-items-center mb-1 ps-5"
+                                style={{ gap: "5px" }}
+                              >
+                                <input type="checkbox" className="me-2" />
+                                <span>{perm}</span>
+                              </li>
+                            ))}
+                        </React.Fragment>
+                      ))
+                    : // Empty arrays → show subPermissions directly
+                      subPermissions.map((perm, i) => (
+                        <li
+                          key={i}
+                          className="d-flex align-items-center mb-1 ps-4"
+                          style={{ gap: "5px" }}
+                        >
+                          <input type="checkbox" className="me-2" />
+                          <span>{perm}</span>
+                        </li>
+                      ))}
+                </>
+              )}
+            </React.Fragment>
+          ))}
+      </ul>
+    </div>
+  </div>
+</div>
 
                                 </div>
 
-                                {/* Right Column */}
-                                <div className="col-md-7">
-                                    <label><strong>Resources</strong></label>
-                                    <ul className="list-unstyled" style={{ columnCount: 2 }}>
-                                        {resources.map((resource, index) => (
-                                            <React.Fragment key={index}>
-                                                <li className="d-flex align-items-start mb-1">
-                                                    <span
-                                                        style={{ cursor: "pointer", width: "20px", display: "inline-block" }}
-                                                        onClick={() => toggleExpand(resource)}
-                                                    >
-                                                        {expandedItems[resource] ? "−" : "+"}
-                                                    </span>
-                                                    <span>{resource}</span>
-                                                </li>
 
-                                                {expandedItems[resource] &&
-                                                    childPermissions.map((perm, i) => (
-                                                        <li key={i} className="d-flex align-items-start mb-1 ps-4">
-                                                            <span style={{ width: "20px", display: "inline-block" }}></span>
-                                                            <label className="m-0">
-                                                                <input type="checkbox" className="me-2" />
-                                                                {perm}
-                                                            </label>
-                                                        </li>
-                                                    ))}
-                                            </React.Fragment>
-                                        ))}
-                                    </ul>
-                                </div>
 
                                 <div className='text-start mb-2'>
                                     <button className="btn btn-sm add-btn">Save</button>

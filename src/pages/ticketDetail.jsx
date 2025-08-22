@@ -140,16 +140,6 @@ const TicketDetail = () => {
     //     setSelectedRow(row);
     // };
 
-    const handleDelete = async (id) => {
-        const confirmDelete = window.confirm("Are you sure you want to delete this SupportRequest?");
-        if (!confirmDelete) return;
-        try {
-            await deleteSupportRequest(id);
-            fetchSupportRequest();
-        } catch (err) {
-            console.error("Error deleting SupportRequest:", err);
-        }
-    };
 
     // const handleView = (row) => {
     //     setSelectedRow(row);
@@ -182,7 +172,14 @@ const TicketDetail = () => {
             cell: (row) => (
                 <div className="d-flex">
                     <button
+                        className="btn btn-success btn-sm me-2"
+                        onClick={() => handleDownload(row)}
+                    >
+                        <i className="fas fa-download text-white"></i>
+                    </button>
+                    <button
                         className="btn btn-danger btn-sm"
+                        type="button"
                         onClick={() => handleDelete(row.id)}
                     >
                         <i className="fas fa-trash-alt text-white"></i>
@@ -193,8 +190,9 @@ const TicketDetail = () => {
             allowOverflow: true,
             button: true,
         },
-        { name: 'Title', selector: row => row.fileTitle, sortable: true },
-        { name: 'Description', selector: row => row.fileDescription },
+        { name: 'Title', selector: row => row.title, sortable: true },
+        { name: 'Description', selector: row => row.description },
+        { name: 'File', selector: row => row.fileName },
         { name: 'Date & Time', selector: row => row.createdAt }
     ];
 
@@ -254,81 +252,178 @@ const TicketDetail = () => {
         setShowAddForm((prev) => !prev);
     };
 
+  const handleDelete = async (id) => {
+  if (!id) {
+    console.error("Delete failed: No ID provided");
+    return;
+  }
 
-const handleSave = async (e) => {
-  e.preventDefault();
+  const confirmDelete = window.confirm("Are you sure you want to delete this entry?");
+  if (!confirmDelete) return;
 
   try {
-    const formData = new FormData();
-    formData.append("assignedTo", form.assignedTo || ""); // map to backend field
-    formData.append("status", form.status || "");
-    formData.append("remarks", form.remarks || "");
-    formData.append("ticketNotes", form.ticketNotes || "");
-    if (file) formData.append("file", file);
-
-    const response = await fetch(
-      `http://localhost:3000/support-request/${employee._id}`,
-      {
-        method: "PUT",
-        body: formData,
-      }
-    );
-
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error("Failed to update: " + errText);
-    }
-
-    const updatedRow = await response.json();
-    console.log("Updated row:", updatedRow);
-    navigate("/supportRequest", { state: { updatedRow } });
+    await axios.delete(`http://localhost:3000/files/${id}`);
+    fetchFiles();
   } catch (err) {
-    console.error("Error saving support request:", err);
+    console.error("Error deleting entry:", err);
   }
 };
 
 
 
-    const handleFileUpload = async (e) => {
-        e.preventDefault();
 
-        if (!title) {
-            alert("Title is required!");
-            return;
+  const handleDownload = async (row) => {
+    if (!row.fileName) {
+        alert("No file available to download");
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:3000/files/download/${row.fileName}`);
+
+        if (!response.ok) {
+            throw new Error("Download failed");
         }
 
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = row.fileName; // use original file name
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        window.URL.revokeObjectURL(url);
+    } catch (err) {
+        console.error("Error downloading file:", err);
+        alert("Download failed!");
+    }
+};
+
+
+
+    const handleSave = async (e) => {
+        e.preventDefault();
+
         try {
+            const formData = new FormData();
+            formData.append("assignedTo", form.assignedTo || ""); // map to backend field
+            formData.append("status", form.status || "");
+            formData.append("remarks", form.remarks || "");
+            formData.append("ticketNotes", form.ticketNotes || "");
+            if (file) formData.append("file", file);
+
+            const response = await fetch(
+                `http://localhost:3000/support-request/${employee._id}`,
+                {
+                    method: "PUT",
+                    body: formData,
+                }
+            );
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error("Failed to update: " + errText);
+            }
+
+            const updatedRow = await response.json();
+            console.log("Updated row:", updatedRow);
+            navigate("/supportRequest", { state: { updatedRow } });
+        } catch (err) {
+            console.error("Error saving support request:", err);
+        }
+    };
+
+    // const handleFileUpload = async (e) => {
+    //     e.preventDefault();
+
+    //     if (!title) {
+    //         alert("Title is required!");
+    //         return;
+    //     }
+
+    //     try {
+    //         const res = await fetch("http://localhost:3000/files/create", {
+    //             method: "POST",
+    //             headers: { "Content-Type": "application/json" },
+    //             body: JSON.stringify({
+    //                 title,
+    //                 description: remarks,
+    //                 entryId: employee._id
+    //             }),
+    //         });
+
+    //         const savedFile = await res.json();
+
+    //         setAttachments((prev) => [
+    //             ...prev,
+    //             {
+    //                 id: savedFile._id,
+    //                 fileTitle: savedFile.fileTitle,
+    //                 fileDescription: savedFile.fileDescription,
+    //                 createdAt: new Date(savedFile.createdAt).toLocaleString(),
+    //             },
+    //         ]);
+    //         fetchFiles();
+
+    //         // Reset form
+    //         setTitle("");
+    //         setRemarks("");
+    //     } catch (err) {
+    //         console.error("Error saving file:", err);
+    //     }
+    // };
+
+
+
+    // useEffect(() => {
+    //     fetchFiles();
+    // }, []);
+
+
+    const handleFileUpload = async (e) => {
+        e.preventDefault();
+        if (!title) return alert("Title is required!");
+
+        try {
+            // 1️⃣ Create parent record
             const res = await fetch("http://localhost:3000/files/create", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ title, description: remarks }),
+                body: JSON.stringify({
+                    title,
+                    description: remarks,
+                    entryId: employee._id
+                }),
             });
-
             const savedFile = await res.json();
 
-            // Update local state
-            setAttachments((prev) => [
-                ...prev,
-                {
-                    id: savedFile._id,
-                    fileTitle: savedFile.fileTitle,
-                    fileDescription: savedFile.fileDescription,
-                    createdAt: new Date(savedFile.createdAt).toLocaleString(),
-                },
-            ]);
+            // 2️⃣ If user selected a file, upload it
+            if (file) {
+                const formData = new FormData();
+                formData.append("file", file);
 
-            // Reset form
+                await fetch(`http://localhost:3000/files/${savedFile._id}/upload`, {
+                    method: "POST",
+                    body: formData,
+                });
+            }
+
+            // 3️⃣ Refresh table
+            fetchFiles();
+
+            // 4️⃣ Reset form
             setTitle("");
             setRemarks("");
+            setFile(null);
+
         } catch (err) {
             console.error("Error saving file:", err);
         }
     };
 
-
-    useEffect(() => {
-        fetchFiles();
-    }, []);
 
     useEffect(() => {
         const fetchFiles = async () => {
@@ -352,21 +447,63 @@ const handleSave = async (e) => {
         fetchFiles();
     }, []);
 
+    // const fetchFiles = async () => {
+    //     try {
+    //         const res = await axios.get(`http://localhost:3000/files?entryId=${employee._id}`);
+    //         setAttachments(res.data);
+    //     } catch (err) {
+    //         console.error("Error fetching files:", err);
+    //     }
+    // };
+
+
     const fetchFiles = async () => {
+        if (!employee?._id) return;
+
         try {
-            const res = await axios.get("http://localhost:3000/files");
-            setAttachments(res.data);
+            const res = await axios.get(`http://localhost:3000/files?entryId=${employee._id}`);
+
+            const files = res.data.flatMap(doc => {
+                if (doc.files && doc.files.length > 0) {
+                    return doc.files.map(f => ({
+                        id: f._id || doc._id,
+                        title: doc.fileTitle,
+                        description: f.fileDescription || doc.fileDescription,
+                        fileName: f.fileTitle,
+                        createdAt: new Date(f.createdAt).toLocaleString(),
+                        fileUrl: f.fileUrl || "",
+                    }));
+                }
+
+                return [{
+                    id: doc._id,
+                    title: doc.fileTitle,
+                    description: doc.fileDescription,
+                    fileName: "No file",
+                    createdAt: new Date(doc.createdAt).toLocaleString(),
+                    fileUrl: "",
+                }];
+            });
+
+            setAttachments(files);
         } catch (err) {
             console.error("Error fetching files:", err);
         }
     };
 
 
+
+    useEffect(() => {
+        fetchFiles();
+    }, [employee]);
+
+
+
     const renderTabContent = () => {
         switch (activeTab) {
             case 'details':
                 return <>
-                   <form onSubmit={handleSave}>
+                    <form onSubmit={handleSave}>
 
                         <div className="card no-radius mb-3">
                             <div className="card-header text-white new-emp-bg fw-bold">Assigned To</div>
@@ -459,7 +596,7 @@ const handleSave = async (e) => {
                     </form>
 
                 </>;
-        
+
 
             case 'files':
                 return <>
@@ -483,6 +620,15 @@ const handleSave = async (e) => {
                             value={remarks}
                             onChange={(e) => setRemarks(e.target.value)}
                         ></textarea>
+
+                        <div className="col-md-12 mb-3">
+                            <label>File</label>
+                            <input
+                                type="file"
+                                className="form-control"
+                                onChange={(e) => setFile(e.target.files[0])}
+                            />
+                        </div>
 
                         <button type="submit" className="btn btn-sm add-btn mt-2 mb-2">
                             Save
