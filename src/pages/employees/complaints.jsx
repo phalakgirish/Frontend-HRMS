@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DataTable from 'react-data-table-component';
 import './employees.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
@@ -15,6 +15,9 @@ const Complaints = () => {
     const [selectedRow, setSelectedRow] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [description, setDescription] = useState('');
+    const editorRef = useRef(null);
+    const [editorKey, setEditorKey] = useState(0);
+
     //from backend
     const [Complaint, setComplaint] = useState([]);
     const [paginated, setPaginated] = useState([]);
@@ -427,7 +430,7 @@ const Complaints = () => {
                                                 });
                                                 validateField("complaintAgainst", values);
                                             }}
-                                            
+
                                             className={errors.complaintAgainst ? "is-invalid" : ""}
                                             onBlur={() => validateField("complaintAgainst", form.complaintAgainst)}
                                         />
@@ -466,13 +469,16 @@ const Complaints = () => {
 
                                     <label>Description</label>
                                     <CKEditor
+                                        key={editorKey}
                                         editor={ClassicEditor}
-                                        data={description || ""}
+                                        data={form.description}
+                                        onReady={(editor) => {
+                                            editorRef.current = editor;
+                                        }}
                                         onChange={(event, editor) => {
                                             const newData = editor.getData();
-                                            setForm({ ...form, description: newData });
+                                            setForm(prev => ({ ...prev, description: newData }));
                                         }}
-                                        onBlur={() => validateField("description", form.description)}
                                     />
                                     {errors.description && (
                                         <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
@@ -781,7 +787,7 @@ const Complaints = () => {
                                                     <CKEditor
                                                         editor={ClassicEditor}
                                                         data={form.comment}
-                                                       onChange={(event, editor) => {
+                                                        onChange={(event, editor) => {
                                                             const newData = editor.getData();
                                                             setForm({ ...form, comment: newData });
                                                         }}

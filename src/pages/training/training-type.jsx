@@ -165,11 +165,8 @@ const TrainingType = () => {
             allowOverflow: true,
             button: true,
         },
-        {
-            name: 'Sr. No',
-            cell: (row, index) => index + 1,
-            //   width: "80px" 
-        }, { name: 'Type', selector: row => row.trainingType }
+        { name: 'Sr. No', cell: (row, index) => index + 1, },
+        { name: 'Type', selector: row => row.trainingType }
     ];
 
     // const data = [

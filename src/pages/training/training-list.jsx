@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DataTable from 'react-data-table-component';
 import './training.css';
 import { useNavigate } from 'react-router-dom';
@@ -33,6 +33,8 @@ const TrainingList = () => {
     const [description, setDescription] = useState('');
     const navigate = useNavigate();
     const [data, setData] = useState([]);
+    const editorRef = useRef(null);
+    const [editorKey, setEditorKey] = useState(0);
 
 
     //from backend
@@ -170,8 +172,8 @@ const TrainingList = () => {
 
 
     const handleSubmit = async (e) => {
-    console.log("Form before validation:", form);
-console.log("Validation result:", validateForm());
+        console.log("Form before validation:", form);
+        console.log("Validation result:", validateForm());
 
         e.preventDefault();
         if (validateForm()) {
@@ -198,8 +200,8 @@ console.log("Validation result:", validateForm());
                     employee: [],
                     status: '',
                     description: '',
-                     performance:'',
-        remarks:''
+                    performance: '',
+                    remarks: ''
                 });
                 setEditId("");
                 setShowEditModal(false);
@@ -245,8 +247,8 @@ console.log("Validation result:", validateForm());
             employee: Array.isArray(row.employee) ? row.employee : [row.employee], // ensure array
             status: row.status,
             description: row.description,
-             performance:row.performance,
-        remarks:row.remarks
+            performance: row.performance,
+            remarks: row.remarks
         });
         setEditId(row._id);
         setShowEditModal(true);
@@ -623,13 +625,16 @@ console.log("Validation result:", validateForm());
                                     <div className="col-md-12 mb-3">
                                         <label>Description</label>
                                         <CKEditor
+                                            key={editorKey}
                                             editor={ClassicEditor}
-                                            data={description || ""}
+                                            data={form.description}
+                                            onReady={(editor) => {
+                                                editorRef.current = editor;
+                                            }}
                                             onChange={(event, editor) => {
                                                 const newData = editor.getData();
-                                                setForm({ ...form, description: newData });
+                                                setForm(prev => ({ ...prev, description: newData }));
                                             }}
-                                            onBlur={() => validateField("description", form.description)}
                                         />
                                         {errors.description && (
                                             <p className="text-danger mb-0" style={{ fontSize: '13px' }}>

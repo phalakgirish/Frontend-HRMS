@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DataTable from 'react-data-table-component';
 import './more.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-
+import { getSetRoles, createSetRoles, updateSetRoles, deleteSetRoles } from '../../api/setRolesApi';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SetRoles = () => {
 
@@ -12,23 +14,144 @@ const SetRoles = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [description, setDescription] = useState('');
 
-    const handleView = (row) => {
-        setSelectedRow(row);
-        setShowModal(true);
+    //from backend
+    const [SetRoles, setSetRoles] = useState([]);
+    const [paginated, setPaginated] = useState([]);
+
+    const [editId, setEditId] = useState(null);
+
+    const [form, setForm] = useState({
+        roleName: '',
+        menuPermission: '',
+        // addedDate: ''
+    });
+
+    const [errors, setErrors] = useState({});
+    const validateForm = () => {
+        let newErrors = {};
+
+        Object.keys(form).forEach((field) => {
+            if (!form[field] || form[field].toString().trim() === "") {
+                newErrors[field] = `${field.replace(/([A-Z])/g, " $1")} is required`;
+            }
+        });
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
+    useEffect(() => {
+        fetchSetRoles();
+    }, []);
 
-    const handleEdit = (row) => {
-        setSelectedRow(row);
-        setShowEditModal(true);
-    };
-
-    const handleDelete = (row) => {
-        if (window.confirm('Are you sure to delete this record?')) {
-            console.log('Deleting:', row);
-            // Make API call to delete
+    const fetchSetRoles = async () => {
+        try {
+            const response = await getSetRoles();
+            setSetRoles(response.data);
+            paginate(response.data, currentPage);
+        } catch (error) {
+            console.error('Error fetching SetRoles:', error);
         }
     };
+
+    const validateField = (fieldName, value = "") => {
+        let error = "";
+
+        switch (fieldName) {
+            case "roleName":
+                if (!value.trim()) {
+                    error = "Role Name is required";
+                }
+                break;
+
+            case "menuPermission":
+                if (!value.trim()) {
+                    error = "Role Name is required";
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        setErrors((prev) => ({ ...prev, [fieldName]: error }));
+        return !error;
+    };
+
+
+
+
+    const handleSubmit = async (e) => {
+        console.log("log",form);
+        
+        e.preventDefault();
+        if (validateForm()) {
+            try {
+                if (editId) {
+                    console.log("Submitting form:", form);
+
+                    await updateSetRoles(editId, form);
+                    toast.success("Set Roles updated successfully!");
+
+                } else {
+                    await createSetRoles(form);
+                    toast.success("Set Roles saved successfully!");
+
+                }
+                fetchSetRoles();
+                setForm({
+                    roleName: '',
+                    menuPermission: '',
+                    // addedDate: ''
+                });
+                setEditId("");
+                setShowEditModal(false);
+            } catch (err) {
+                console.error("Error saving SetRoles:", err);
+                toast.error("Set Roles failed to save!");
+
+            }
+        }
+    };
+
+    const emptyForm = {
+        SetRoles: ''
+    };
+
+    const resetForm = () => {
+        setForm(emptyForm);
+        setEditId(null);
+        setShowEditModal(false);
+    };
+
+    // const handleView = (row) => {
+    //     setSelectedRow(row);
+    //     setShowModal(true);
+    // };
+
+    const handleEdit = (row) => {
+        setForm({
+            SetRoles: row.SetRoles
+        });
+        setEditId(row._id);
+        setShowEditModal(true);
+        setSelectedRow(row);
+    };
+
+    const handleDelete = async (id) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this set role?");
+        if (!confirmDelete) return;
+        try {
+            await deleteSetRoles(id);
+            fetchSetRoles();
+        } catch (err) {
+            console.error("Error deleting SetRoles:", err);
+        }
+    };
+
+
+
+
 
 
     const columns = [
@@ -50,7 +173,7 @@ const SetRoles = () => {
                     </button>
                     <button
                         className="btn btn-danger btn-sm"
-                        onClick={() => handleDelete(row)}
+                        onClick={() => handleDelete(row._id)}
                     >
                         <i className="fas fa-trash-alt text-white"></i>
                     </button>
@@ -61,30 +184,30 @@ const SetRoles = () => {
             button: true,
         },
 
-        { name: 'Role ID', selector: row => row.roleId },
+        { name: 'Role ID', cell: (row, index) => index + 1, },
         { name: 'Role Name', selector: row => row.roleName },
         { name: 'Menu Permission', selector: row => row.menuPermission },
         { name: 'Added Date', selector: row => row.addedDate },
 
     ];
 
-    const data = [
-        {
-            action: '-',
-            roleId: '1',
-            roleName: 'Super Admin',
-            menuPermission: 'All Menu Access',
-            addedDate: '20-Nov-2016',
-        },
-        {
-            action: '-',
-            roleId: '2',
-            roleName: 'Employee',
-            menuPermission: 'Custom Menu Access',
-            addedDate: '28-Apr-2017',
-        },
+    // const data = [
+    //     {
+    //         action: '-',
+    //         roleId: '1',
+    //         roleName: 'Super Admin',
+    //         menuPermission: 'All Menu Access',
+    //         addedDate: '20-Nov-2016',
+    //     },
+    //     {
+    //         action: '-',
+    //         roleId: '2',
+    //         roleName: 'Employee',
+    //         menuPermission: 'Custom Menu Access',
+    //         addedDate: '28-Apr-2017',
+    //     },
 
-    ];
+    // ];
 
     const customStyles = {
         headCells: {
@@ -134,13 +257,16 @@ const SetRoles = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    const totalEntries = data.length;
+    const totalEntries = SetRoles.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
+    // console.log('Paginated data:', paginated);
 
-    const paginatedData = data.slice(
-        (currentPage - 1) * rowsPerPage,
-        currentPage * rowsPerPage
-    );
+    const paginate = (data, page) => {
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        setPaginated(data.slice(start, end));
+        setCurrentPage(page);
+    };
 
     const startEntry = (currentPage - 1) * rowsPerPage + 1;
     const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
@@ -215,156 +341,181 @@ const SetRoles = () => {
                     </div>
 
                     <div className="container mt-4">
-                        <form>
+                        <form onSubmit={handleSubmit}>
                             <div className="row">
                                 <div className="row">
                                     {/* Left Column */}
                                     <div className="col-md-5">
                                         <div className="mb-3">
                                             <label>Role Name</label>
-                                            <input type="text" className="form-control" placeholder="Role Name" />
+                                            <input type="text" value={form.roleName}
+                                                onChange={(e) => {
+                                                    const { value } = e.target;
+                                                    setForm({ ...form, roleName: value });
+                                                    validateField("roleName", value);
+                                                }}
+                                                className={`form-control ${errors.roleName ? "is-invalid" : ""}`}
+                                                placeholder="Role Name"
+                                                onBlur={(e) => validateField("roleName", e.target.value)}
+
+                                            />
+                                            {errors.roleName && (
+                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Role Name is required!</p>)}
                                         </div>
 
                                         <div className="mb-3">
                                             <label>Select Access</label>
-                                            <select className="form-control">
+                                            <select
+                                                value={form.menuPermission}
+                                                onChange={(e) => {
+                                                    const { value } = e.target;
+                                                    setForm({ ...form, menuPermission: value });
+                                                    validateField("menuPermission", value);
+                                                }}
+                                                className={`form-control ${errors.menuPermission ? "is-invalid" : ""}`}
+                                                onBlur={(e) => validateField("menuPermission", e.target.value)}
+                                            >
                                                 <option value="">Select Access</option>
-                                                <option value="all">All Menu Access</option>
-                                                <option value="custom">Custom Menu Access</option>
+                                                <option value="All Menu Access">All Menu Access</option>
+                                                <option value="Custom Menu Access">Custom Menu Access</option>
                                             </select>
+                                            {errors.menuPermission && (
+                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.menuPermission}</p>
+                                            )}
                                         </div>
                                     </div>
 
                                     {/* Right Column */}
-                                  <div className="col-md-7">
-  <div className="row">
-    {/* First Half */}
-    <div className="col-6">
-      <ul className="list-unstyled">
-        {Object.keys(permissionsData)
-          .slice(0, Math.ceil(Object.keys(permissionsData).length / 2))
-          .map((res, index) => (
-            <React.Fragment key={index}>
-              <li className="d-flex align-items-start mb-1">
-                <span
-                  style={{ cursor: "pointer", width: "20px", display: "inline-block" }}
-                  onClick={() => toggleResource(res)}
-                >
-                  {expandedResources[res] ? "−" : "+"}
-                </span>
-                <span>{res}</span>
-              </li>
+                                    <div className="col-md-7">
+                                        <div className="row">
+                                            {/* First Half */}
+                                            <h6>Resources</h6>
+                                            <div className="col-6">
+                                                <ul className="list-unstyled">
+                                                    {Object.keys(permissionsData)
+                                                        .slice(0, Math.ceil(Object.keys(permissionsData).length / 2))
+                                                        .map((res, index) => (
+                                                            <React.Fragment key={index}>
+                                                                <li className="d-flex align-items-start mb-1">
+                                                                    <span
+                                                                        style={{ cursor: "pointer", width: "20px", display: "inline-block" }}
+                                                                        onClick={() => toggleResource(res)}
+                                                                    >
+                                                                        {expandedResources[res] ? "−" : "+"}
+                                                                    </span>
+                                                                    <span>{res}</span>
+                                                                </li>
 
-              {expandedResources[res] && (
-                <>
-                  {(permissionsData[res].length > 0 && permissionsData[res][0] !== "")
-                    ? permissionsData[res].map((subfield, subIndex) => (
-                        <React.Fragment key={subIndex}>
-                          <li className="d-flex align-items-start mb-1 ps-4">
-                            <span
-                              style={{ width: "20px", display: "inline-block", cursor: "pointer" }}
-                              onClick={() => toggleSubfield(res, subfield)}
-                            >
-                              {expandedSubfields[`${res}-${subfield}`] ? "−" : "+"}
-                            </span>
-                            <span>{subfield}</span>
-                          </li>
+                                                                {expandedResources[res] && (
+                                                                    <>
+                                                                        {(permissionsData[res].length > 0 && permissionsData[res][0] !== "")
+                                                                            ? permissionsData[res].map((subfield, subIndex) => (
+                                                                                <React.Fragment key={subIndex}>
+                                                                                    <li className="d-flex align-items-start mb-1 ps-4">
+                                                                                        <span
+                                                                                            style={{ width: "20px", display: "inline-block", cursor: "pointer" }}
+                                                                                            onClick={() => toggleSubfield(res, subfield)}
+                                                                                        >
+                                                                                            {expandedSubfields[`${res}-${subfield}`] ? "−" : "+"}
+                                                                                        </span>
+                                                                                        <span>{subfield}</span>
+                                                                                    </li>
 
-                          {expandedSubfields[`${res}-${subfield}`] &&
-                            subPermissions.map((perm, i) => (
-                              <li
-                                key={i}
-                                className="d-flex align-items-center mb-1 ps-5"
-                                style={{ gap: "5px" }}
-                              >
-                                <input type="checkbox" className="me-2" />
-                                <span>{perm}</span>
-                              </li>
-                            ))}
-                        </React.Fragment>
-                      ))
-                    : // Empty arrays → show subPermissions directly
-                      subPermissions.map((perm, i) => (
-                        <li
-                          key={i}
-                          className="d-flex align-items-center mb-1 ps-4"
-                          style={{ gap: "5px" }}
-                        >
-                          <input type="checkbox" className="me-2" />
-                          <span>{perm}</span>
-                        </li>
-                      ))}
-                </>
-              )}
-            </React.Fragment>
-          ))}
-      </ul>
-    </div>
+                                                                                    {expandedSubfields[`${res}-${subfield}`] &&
+                                                                                        subPermissions.map((perm, i) => (
+                                                                                            <li
+                                                                                                key={i}
+                                                                                                className="d-flex align-items-center mb-1 ps-5"
+                                                                                                style={{ gap: "5px" }}
+                                                                                            >
+                                                                                                <input type="checkbox" className="me-2" />
+                                                                                                <span>{perm}</span>
+                                                                                            </li>
+                                                                                        ))}
+                                                                                </React.Fragment>
+                                                                            ))
+                                                                            : // Empty arrays → show subPermissions directly
+                                                                            subPermissions.map((perm, i) => (
+                                                                                <li
+                                                                                    key={i}
+                                                                                    className="d-flex align-items-center mb-1 ps-4"
+                                                                                    style={{ gap: "5px" }}
+                                                                                >
+                                                                                    <input type="checkbox" className="me-2" />
+                                                                                    <span>{perm}</span>
+                                                                                </li>
+                                                                            ))}
+                                                                    </>
+                                                                )}
+                                                            </React.Fragment>
+                                                        ))}
+                                                </ul>
+                                            </div>
 
-    {/* Second Half */}
-    <div className="col-6">
-      <ul className="list-unstyled">
-        {Object.keys(permissionsData)
-          .slice(Math.ceil(Object.keys(permissionsData).length / 2))
-          .map((res, index) => (
-            <React.Fragment key={index}>
-              <li className="d-flex align-items-start mb-1">
-                <span
-                  style={{ cursor: "pointer", width: "20px", display: "inline-block" }}
-                  onClick={() => toggleResource(res)}
-                >
-                  {expandedResources[res] ? "−" : "+"}
-                </span>
-                <span>{res}</span>
-              </li>
+                                            {/* Second Half */}
+                                            <div className="col-6">
+                                                <ul className="list-unstyled">
+                                                    {Object.keys(permissionsData)
+                                                        .slice(Math.ceil(Object.keys(permissionsData).length / 2))
+                                                        .map((res, index) => (
+                                                            <React.Fragment key={index}>
+                                                                <li className="d-flex align-items-start mb-1">
+                                                                    <span
+                                                                        style={{ cursor: "pointer", width: "20px", display: "inline-block" }}
+                                                                        onClick={() => toggleResource(res)}
+                                                                    >
+                                                                        {expandedResources[res] ? "−" : "+"}
+                                                                    </span>
+                                                                    <span>{res}</span>
+                                                                </li>
 
-              {expandedResources[res] && (
-                <>
-                  {(permissionsData[res].length > 0 && permissionsData[res][0] !== "")
-                    ? permissionsData[res].map((subfield, subIndex) => (
-                        <React.Fragment key={subIndex}>
-                          <li className="d-flex align-items-start mb-1 ps-4">
-                            <span
-                              style={{ width: "20px", display: "inline-block", cursor: "pointer" }}
-                              onClick={() => toggleSubfield(res, subfield)}
-                            >
-                              {expandedSubfields[`${res}-${subfield}`] ? "−" : "+"}
-                            </span>
-                            <span>{subfield}</span>
-                          </li>
+                                                                {expandedResources[res] && (
+                                                                    <>
+                                                                        {(permissionsData[res].length > 0 && permissionsData[res][0] !== "")
+                                                                            ? permissionsData[res].map((subfield, subIndex) => (
+                                                                                <React.Fragment key={subIndex}>
+                                                                                    <li className="d-flex align-items-start mb-1 ps-4">
+                                                                                        <span
+                                                                                            style={{ width: "20px", display: "inline-block", cursor: "pointer" }}
+                                                                                            onClick={() => toggleSubfield(res, subfield)}
+                                                                                        >
+                                                                                            {expandedSubfields[`${res}-${subfield}`] ? "−" : "+"}
+                                                                                        </span>
+                                                                                        <span>{subfield}</span>
+                                                                                    </li>
 
-                          {expandedSubfields[`${res}-${subfield}`] &&
-                            subPermissions.map((perm, i) => (
-                              <li
-                                key={i}
-                                className="d-flex align-items-center mb-1 ps-5"
-                                style={{ gap: "5px" }}
-                              >
-                                <input type="checkbox" className="me-2" />
-                                <span>{perm}</span>
-                              </li>
-                            ))}
-                        </React.Fragment>
-                      ))
-                    : // Empty arrays → show subPermissions directly
-                      subPermissions.map((perm, i) => (
-                        <li
-                          key={i}
-                          className="d-flex align-items-center mb-1 ps-4"
-                          style={{ gap: "5px" }}
-                        >
-                          <input type="checkbox" className="me-2" />
-                          <span>{perm}</span>
-                        </li>
-                      ))}
-                </>
-              )}
-            </React.Fragment>
-          ))}
-      </ul>
-    </div>
-  </div>
-</div>
+                                                                                    {expandedSubfields[`${res}-${subfield}`] &&
+                                                                                        subPermissions.map((perm, i) => (
+                                                                                            <li
+                                                                                                key={i}
+                                                                                                className="d-flex align-items-center mb-1 ps-5"
+                                                                                                style={{ gap: "5px" }}
+                                                                                            >
+                                                                                                <input type="checkbox" className="me-2" />
+                                                                                                <span>{perm}</span>
+                                                                                            </li>
+                                                                                        ))}
+                                                                                </React.Fragment>
+                                                                            ))
+                                                                            : // Empty arrays → show subPermissions directly
+                                                                            subPermissions.map((perm, i) => (
+                                                                                <li
+                                                                                    key={i}
+                                                                                    className="d-flex align-items-center mb-1 ps-4"
+                                                                                    style={{ gap: "5px" }}
+                                                                                >
+                                                                                    <input type="checkbox" className="me-2" />
+                                                                                    <span>{perm}</span>
+                                                                                </li>
+                                                                            ))}
+                                                                    </>
+                                                                )}
+                                                            </React.Fragment>
+                                                        ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                 </div>
 
@@ -385,7 +536,7 @@ const SetRoles = () => {
             <div className="card no-radius">
                 <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
                     <span>List All Roles</span>
-                    <button className="btn btn-sm add-btn" onClick={toggleAddForm}>{showAddForm ? '- Hide' : '+ Add New'}</button>
+                    <button className="btn btn-sm add-btn" onClick={toggleAddForm}>{showAddForm ? '- Hide' : '+ Set New Role'}</button>
                 </div>
 
 
@@ -413,7 +564,7 @@ const SetRoles = () => {
 
                     <DataTable
                         columns={columns}
-                        data={paginatedData}
+                        data={paginated}
                         fixedHeader
                         highlightOnHover
                         customStyles={customStyles}

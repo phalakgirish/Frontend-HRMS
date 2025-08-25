@@ -30,7 +30,7 @@ const Leave = () => {
         requestDuration: '',
         days: '',
         reason: '',
-        status: '',
+        // status: '',
         addedBy: ''
     });
 
@@ -39,7 +39,7 @@ const Leave = () => {
     const [errors, setErrors] = useState({});
     const validateForm = () => {
         let newErrors = {};
-        const requiredFields = ["employee", "leaveType", "appliedOn", "endDate", "reason"]; // Only validate real inputs
+        const requiredFields = ["employee", "leaveType", "appliedOn", "endDate", "reason"]; 
         requiredFields.forEach((field) => {
             if (!form[field] || form[field].toString().trim() === "") {
                 newErrors[field] = `${field.replace(/([A-Z])/g, " $1")} is required`;
@@ -98,9 +98,9 @@ const Leave = () => {
                 if (!value.trim()) error = `${displayName} is required`;
                 break;
 
-            case "status":
-                if (!value.trim()) error = `${displayName} is required`;
-                break;
+            // case "status":
+            //     if (!value.trim()) error = `${displayName} is required`;
+            //     break;
 
             case "addedBy":
                 if (!value.trim()) error = `${displayName} is required`;
@@ -115,41 +115,89 @@ const Leave = () => {
     };
 
 
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     if (validateForm()) {
+    //         try {
+    //             if (editId) {
+    //                 await updateLeave(editId, form);
+    //                 toast.success("Leave updated successfully!");
+    //     days: Number(form.days),     
+
+    //             } else {
+    //                 await createLeave(form);
+    //                 toast.success("Leave saved successfully!");
+
+    //             }
+    //             fetchLeave();
+    //             setForm({
+    //                 employee: '',
+    //                 leaveType: '',
+    //                 appliedOn: '',
+    //                 endDate: '',
+    //                 requestDuration: '',
+    //                 days: '',
+    //                 reason: '',
+    //                 // status: '',
+    //                 addedBy: ''
+    //             });
+    //             setEditId(null);
+    //             setShowEditModal(false);
+    //             setShowAddForm(false);
+    //         } catch (err) {
+    //             console.error("Error saving Leave:", err);
+    //             toast.error("Leave failed to fail!");
+
+    //         }
+    //     }
+    // };
+
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (validateForm()) {
-            try {
-                if (editId) {
-                    await updateLeave(editId, form);
-                    toast.success("Leave updated successfully!");
+        
+  e.preventDefault();
+  if (validateForm()) {
+    try {
 
-                } else {
-                    await createLeave(form);
-                    toast.success("Leave saved successfully!");
+      const payload = {
+        
+        ...form,
+        days: Number(form.days),           
+        // status: form.status || "pending", 
+      };
+        console.log("Submitting payload:", payload);
 
-                }
-                fetchLeave();
-                setForm({
-                    employee: '',
-                    leaveType: '',
-                    appliedOn: '',
-                    endDate: '',
-                    requestDuration: '',
-                    days: '',
-                    reason: '',
-                    status: '',
-                    addedBy: ''
-                });
-                setEditId(null);
-                setShowEditModal(false);
-                setShowAddForm(false);
-            } catch (err) {
-                console.error("Error saving Leave:", err);
-                toast.error("Leave failed to fail!");
 
-            }
-        }
-    };
+      if (editId) {
+        await updateLeave(editId, payload);
+        toast.success("Leave updated successfully!");
+      } else {
+        await createLeave(payload);
+        toast.success("Leave saved successfully!");
+      }
+
+      fetchLeave();
+
+      setForm({
+        employee: "",
+        leaveType: "",
+        appliedOn: "",
+        endDate: "",
+        requestDuration: "",
+        days: "",
+        reason: "",
+        // status: "", 
+        addedBy: "",
+      });
+      setEditId(null);
+      setShowEditModal(false);
+      setShowAddForm(false);
+    } catch (err) {
+      console.error("Error saving Leave:", err.response?.data || err);
+      toast.error("Leave failed to save!");
+    }
+  }
+};
+
 
     const emptyForm = {
         employee: '',
@@ -159,7 +207,7 @@ const Leave = () => {
         requestDuration: '',
         days: '',
         reason: '',
-        status: '',
+        // status: '',
         addedBy: ''
     };
 
@@ -179,7 +227,7 @@ const Leave = () => {
             requestDuration: row.requestDuration,
             days: row.days,
             reason: row.reason,
-            status: row.status,
+            // status: row.status,
             addedBy: row.addedBy
         });
         setEditId(row._id);
@@ -227,7 +275,7 @@ const Leave = () => {
                 <div className="d-flex">
                     <button
                         className="btn btn-outline-secondary btn-sm"
-                        onClick={() => navigate(`/leaveDetail/${row.employee}`, { state: { employee: row } })}
+                        onClick={() => navigate(`/leaveDetail/${row._id}`, { state: { employee: row } })}
                     >
                         <i className="fas fa-arrow-right"></i>
                     </button>
@@ -321,7 +369,7 @@ const Leave = () => {
 
     const totalEntries = Leave.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
-    console.log('Paginated data:', paginated);
+    // console.log('Paginated data:', paginated);
 
     const paginate = (data, page) => {
         const start = (page - 1) * rowsPerPage;
@@ -468,7 +516,7 @@ const Leave = () => {
 
                                     </div>
 
-                                    <div className="mb-3">
+                                    {/* <div className="mb-3">
                                         <label>Status</label>
                                         <select id="status" value={form.status}
                                             onChange={(e) => {
@@ -486,7 +534,7 @@ const Leave = () => {
                                         </select>
                                         {errors.status && (
                                             <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This field is required!</p>)}
-                                    </div>
+                                    </div> */}
 
                                 </div>
                                 <div className="mb-3">
@@ -770,7 +818,7 @@ const Leave = () => {
 
                                                     </div>
 
-                                                    <div className="mb-3">
+                                                    {/* <div className="mb-3">
                                                         <label>Status</label>
                                                         <select id="status" value={form.status}
                                                             onChange={(e) => {
@@ -788,7 +836,7 @@ const Leave = () => {
                                                         </select>
                                                         {errors.status && (
                                                             <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This field is required!</p>)}
-                                                    </div>
+                                                    </div> */}
 
                                                 </div>
                                                 <div className="mb-3">

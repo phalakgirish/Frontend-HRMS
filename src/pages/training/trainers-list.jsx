@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DataTable from 'react-data-table-component';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
@@ -13,7 +13,8 @@ const TrainersList = () => {
     const [selectedRow, setSelectedRow] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [description, setDescription] = useState('');
-
+    const editorRef = useRef(null);
+    const [editorKey, setEditorKey] = useState(0);
 
     //from backend
     const [TrainersList, setTrainersList] = useState([]);
@@ -466,13 +467,16 @@ const TrainersList = () => {
                                     <div className="col-md-12 mb-3">
                                         <label>Expertise</label>
                                         <CKEditor
+                                            key={editorKey}
                                             editor={ClassicEditor}
-                                            data={form.expertise || ""}
+                                            data={form.expertise}
+                                            onReady={(editor) => {
+                                                editorRef.current = editor;
+                                            }}
                                             onChange={(event, editor) => {
                                                 const newData = editor.getData();
-                                                setForm({ ...form, expertise: newData });
+                                                setForm(prev => ({ ...prev, expertise: newData }));
                                             }}
-                                            onBlur={() => validateField("expertise", form.expertise)}
                                         />
                                         {errors.expertise && (
                                             <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
