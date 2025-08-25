@@ -168,7 +168,7 @@ function App() {
         <Route path="/updateattendance" element={<UpdateAttendance />} />
         <Route path="/importattendance" element={<ImportAttendance />} />
         <Route path="/leaves" element={<Leave />} />
-        <Route path="/leaveDetail/:employee" element={<LeaveDetail />} />
+        <Route path="/leaveDetail/:id" element={<LeaveDetail />} />
         <Route path="/officeshifts" element={<OfficeShifts />} />
         <Route path="/holidays" element={<Holidays />} />
 
@@ -191,8 +191,8 @@ function App() {
 
         {/* Recruitment */}
         <Route path="/jobcandidates" element={<JobCandidates />} />
-        <Route path="/offer/:candidateName" element={<OfferLetter />} />
-        <Route path="/appointment/:candidateName" element={<AppointmentLetter />} />
+        <Route path="/offer/:id" element={<OfferLetter />} />
+        <Route path="/appointment/:id" element={<AppointmentLetter />} />
 
         {/* Reports */}
         <Route path="/accountstatements" element={<AccountStatement />} />

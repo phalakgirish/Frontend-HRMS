@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DataTable from 'react-data-table-component';
 import './employees.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
@@ -15,7 +15,8 @@ const Travels = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [description, setDescription] = useState('');
     const [editId, setEditId] = useState(null);
-
+    const editorRef = useRef(null);
+    const [editorKey, setEditorKey] = useState(0);
 
     //from backend
     const [Travel, setTravel] = useState([]);
@@ -383,7 +384,7 @@ const Travels = () => {
                                         <div className="col-md-6 mb-3">
                                             <label>Start Date</label>
                                             <input type="date" value={form.startDate}
-                                               onChange={(e) => {
+                                                onChange={(e) => {
                                                     const { value } = e.target;
                                                     setForm({ ...form, startDate: value });
                                                     validateField("startDate", value);
@@ -400,7 +401,7 @@ const Travels = () => {
                                         <div className="col-md-6 mb-3">
                                             <label>End date</label>
                                             <input type="date" value={form.endDate}
-                                                 onChange={(e) => {
+                                                onChange={(e) => {
                                                     const { value } = e.target;
                                                     setForm({ ...form, endDate: value });
                                                     validateField("endDate", value);
@@ -419,7 +420,7 @@ const Travels = () => {
                                         <div className="col-md-6 mb-3">
                                             <label>Purpose of Visit</label>
                                             <input type="text" value={form.purposeOfVisit}
-                                                 onChange={(e) => {
+                                                onChange={(e) => {
                                                     const { value } = e.target;
                                                     setForm({ ...form, purposeOfVisit: value });
                                                     validateField("purposeOfVisit", value);
@@ -436,7 +437,7 @@ const Travels = () => {
                                         <div className="col-md-6 mb-3">
                                             <label>Place of Visit</label>
                                             <input type="text" value={form.placOfVisit}
-                                                 onChange={(e) => {
+                                                onChange={(e) => {
                                                     const { value } = e.target;
                                                     setForm({ ...form, placOfVisit: value });
                                                     validateField("placOfVisit", value);
@@ -471,8 +472,8 @@ const Travels = () => {
                                                 <option value="By rental Car">By rental Car</option>
                                             </select>
                                             {errors.travelMode && (
-                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Travel Mode is Required</p>
-                                        )}
+                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Travel Mode is Required</p>
+                                            )}
                                         </div>
 
                                         <div className="col-md-6 mb-3">
@@ -492,9 +493,9 @@ const Travels = () => {
                                                 <option value="Motel">Motel</option>
                                                 <option value="Air BnB">Air BnB</option>
                                             </select>
-                                             {errors.arrangementType && (
-                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Arrangement Type is Required</p>
-                                        )}
+                                            {errors.arrangementType && (
+                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Arrangement Type is Required</p>
+                                            )}
                                         </div>
                                     </div>
 
@@ -502,7 +503,7 @@ const Travels = () => {
                                         <div className="col-md-6 mb-3">
                                             <label>Expected Travel Budget</label>
                                             <input type="number" value={form.expectedTravelBudget}
-                                                 onChange={(e) => {
+                                                onChange={(e) => {
                                                     const { value } = e.target;
                                                     setForm({ ...form, expectedTravelBudget: value });
                                                     validateField("expectedTravelBudget", value);
@@ -520,7 +521,7 @@ const Travels = () => {
                                         <div className="col-md-6 mb-3">
                                             <label>Actual Travel Budget</label>
                                             <input type="number" value={form.actualTravelBudget}
-                                                  onChange={(e) => {
+                                                onChange={(e) => {
                                                     const { value } = e.target;
                                                     setForm({ ...form, actualTravelBudget: value });
                                                     validateField("actualTravelBudget", value);
@@ -586,20 +587,23 @@ const Travels = () => {
                                             <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
                                             <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
                                         </select>
-                                         {errors.addedBy && (
+                                        {errors.addedBy && (
                                             <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This Field is Required</p>
                                         )}
                                     </div>
 
                                     <label>Travel Reason</label>
                                     <CKEditor
+                                        key={editorKey}
                                         editor={ClassicEditor}
-                                        data={description || ""}
+                                        data={form.description}
+                                        onReady={(editor) => {
+                                            editorRef.current = editor;
+                                        }}
                                         onChange={(event, editor) => {
                                             const newData = editor.getData();
-                                            setForm({ ...form, description: newData });
+                                            setForm(prev => ({ ...prev, description: newData }));
                                         }}
-                                        onBlur={() => validateField("description", form.description)}
                                     />
                                     {errors.description && (
                                         <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
@@ -787,267 +791,267 @@ const Travels = () => {
                                     </div>
                                     <div className="modal-body">
                                         <form onSubmit={handleSubmit}>
-                                           <div className="row">
-                                {/* Left Column */}
-                                <div className="col-md-6">
-                                    <div className="mb-3">
-                                        <label>Employee</label>
-                                        <select id="resignEmployee" value={form.employeeName}
-                                            onChange={(e) => {
-                                                const { value } = e.target;
-                                                setForm({ ...form, employeeName: value });
-                                                validateField("employeeName", value);
-                                            }}
-                                            className={`form-control ${errors.employeeName ? "is-invalid" : ""}`}
-                                            onBlur={(e) => validateField("employeeName", e.target.value)}
-                                        >
-                                            <option value="">Choose Employee</option>
-                                            <option value="Admin">Admin Admin</option>
-                                            <option value="Anjali Patle">Anjali Patle</option>
-                                            <option value="Amit Kumar">Amit Kumar</option>
-                                            <option value="Aniket Rane">Aniket Rane</option>
-                                            <option value="Shubham Kadam">Shubham Kadam</option>
-                                            <option value="Abhijieet Tawate">Abhijieet Tawate</option>
-                                            <option value="Pravin Bildlan">Pravin Bildlan</option>
-                                            <option value="Amit Pednekar">Amit Pednekar</option>
-                                            <option value="Mahendra Chaudhary">Mahendra Chaudhary</option>
-                                            <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
-                                            <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
-                                        </select>
-                                        {errors.employeeName && (
-                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Employee Name is required!</p>)}
-                                    </div>
+                                            <div className="row">
+                                                {/* Left Column */}
+                                                <div className="col-md-6">
+                                                    <div className="mb-3">
+                                                        <label>Employee</label>
+                                                        <select id="resignEmployee" value={form.employeeName}
+                                                            onChange={(e) => {
+                                                                const { value } = e.target;
+                                                                setForm({ ...form, employeeName: value });
+                                                                validateField("employeeName", value);
+                                                            }}
+                                                            className={`form-control ${errors.employeeName ? "is-invalid" : ""}`}
+                                                            onBlur={(e) => validateField("employeeName", e.target.value)}
+                                                        >
+                                                            <option value="">Choose Employee</option>
+                                                            <option value="Admin">Admin Admin</option>
+                                                            <option value="Anjali Patle">Anjali Patle</option>
+                                                            <option value="Amit Kumar">Amit Kumar</option>
+                                                            <option value="Aniket Rane">Aniket Rane</option>
+                                                            <option value="Shubham Kadam">Shubham Kadam</option>
+                                                            <option value="Abhijieet Tawate">Abhijieet Tawate</option>
+                                                            <option value="Pravin Bildlan">Pravin Bildlan</option>
+                                                            <option value="Amit Pednekar">Amit Pednekar</option>
+                                                            <option value="Mahendra Chaudhary">Mahendra Chaudhary</option>
+                                                            <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
+                                                            <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
+                                                        </select>
+                                                        {errors.employeeName && (
+                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Employee Name is required!</p>)}
+                                                    </div>
 
-                                    <div className='row'>
-                                        <div className="col-md-6 mb-3">
-                                            <label>Start Date</label>
-                                            <input type="date" value={form.startDate}
-                                               onChange={(e) => {
-                                                    const { value } = e.target;
-                                                    setForm({ ...form, startDate: value });
-                                                    validateField("startDate", value);
-                                                }}
-                                                className={`form-control ${errors.startDate ? "is-invalid" : ""}`}
-                                                placeholder="startDate"
-                                                onBlur={(e) => validateField("startDate", e.target.value)}
+                                                    <div className='row'>
+                                                        <div className="col-md-6 mb-3">
+                                                            <label>Start Date</label>
+                                                            <input type="date" value={form.startDate}
+                                                                onChange={(e) => {
+                                                                    const { value } = e.target;
+                                                                    setForm({ ...form, startDate: value });
+                                                                    validateField("startDate", value);
+                                                                }}
+                                                                className={`form-control ${errors.startDate ? "is-invalid" : ""}`}
+                                                                placeholder="startDate"
+                                                                onBlur={(e) => validateField("startDate", e.target.value)}
 
-                                            />
-                                            {errors.startDate && (
-                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Start Date is required!</p>)}
-                                        </div>
+                                                            />
+                                                            {errors.startDate && (
+                                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Start Date is required!</p>)}
+                                                        </div>
 
-                                        <div className="col-md-6 mb-3">
-                                            <label>End date</label>
-                                            <input type="date" value={form.endDate}
-                                                 onChange={(e) => {
-                                                    const { value } = e.target;
-                                                    setForm({ ...form, endDate: value });
-                                                    validateField("endDate", value);
-                                                }}
-                                                className={`form-control ${errors.endDate ? "is-invalid" : ""}`}
-                                                placeholder="endDate"
-                                                onBlur={(e) => validateField("endDate", e.target.value)}
+                                                        <div className="col-md-6 mb-3">
+                                                            <label>End date</label>
+                                                            <input type="date" value={form.endDate}
+                                                                onChange={(e) => {
+                                                                    const { value } = e.target;
+                                                                    setForm({ ...form, endDate: value });
+                                                                    validateField("endDate", value);
+                                                                }}
+                                                                className={`form-control ${errors.endDate ? "is-invalid" : ""}`}
+                                                                placeholder="endDate"
+                                                                onBlur={(e) => validateField("endDate", e.target.value)}
 
-                                            />
-                                            {errors.endDate && (
-                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>End Date is required!</p>)}
-                                        </div>
-                                    </div>
+                                                            />
+                                                            {errors.endDate && (
+                                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>End Date is required!</p>)}
+                                                        </div>
+                                                    </div>
 
-                                    <div className='row'>
-                                        <div className="col-md-6 mb-3">
-                                            <label>Purpose of Visit</label>
-                                            <input type="text" value={form.purposeOfVisit}
-                                                 onChange={(e) => {
-                                                    const { value } = e.target;
-                                                    setForm({ ...form, purposeOfVisit: value });
-                                                    validateField("purposeOfVisit", value);
-                                                }}
-                                                className={`form-control ${errors.purposeOfVisit ? "is-invalid" : ""}`}
-                                                placeholder="Purpose Of Visit"
-                                                onBlur={(e) => validateField("purposeOfVisit", e.target.value)}
+                                                    <div className='row'>
+                                                        <div className="col-md-6 mb-3">
+                                                            <label>Purpose of Visit</label>
+                                                            <input type="text" value={form.purposeOfVisit}
+                                                                onChange={(e) => {
+                                                                    const { value } = e.target;
+                                                                    setForm({ ...form, purposeOfVisit: value });
+                                                                    validateField("purposeOfVisit", value);
+                                                                }}
+                                                                className={`form-control ${errors.purposeOfVisit ? "is-invalid" : ""}`}
+                                                                placeholder="Purpose Of Visit"
+                                                                onBlur={(e) => validateField("purposeOfVisit", e.target.value)}
 
-                                            />
-                                            {errors.purposeOfVisit && (
-                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Purpose of Visit is required!</p>)}
-                                        </div>
+                                                            />
+                                                            {errors.purposeOfVisit && (
+                                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Purpose of Visit is required!</p>)}
+                                                        </div>
 
-                                        <div className="col-md-6 mb-3">
-                                            <label>Place of Visit</label>
-                                            <input type="text" value={form.placOfVisit}
-                                                 onChange={(e) => {
-                                                    const { value } = e.target;
-                                                    setForm({ ...form, placOfVisit: value });
-                                                    validateField("placOfVisit", value);
-                                                }}
-                                                className={`form-control ${errors.placOfVisit ? "is-invalid" : ""}`}
-                                                placeholder="Place Of Visit"
-                                                onBlur={(e) => validateField("placOfVisit", e.target.value)}
+                                                        <div className="col-md-6 mb-3">
+                                                            <label>Place of Visit</label>
+                                                            <input type="text" value={form.placOfVisit}
+                                                                onChange={(e) => {
+                                                                    const { value } = e.target;
+                                                                    setForm({ ...form, placOfVisit: value });
+                                                                    validateField("placOfVisit", value);
+                                                                }}
+                                                                className={`form-control ${errors.placOfVisit ? "is-invalid" : ""}`}
+                                                                placeholder="Place Of Visit"
+                                                                onBlur={(e) => validateField("placOfVisit", e.target.value)}
 
-                                            />
-                                            {errors.placOfVisit && (
-                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Place of Visit is required!</p>)}
-                                        </div>
-                                    </div>
+                                                            />
+                                                            {errors.placOfVisit && (
+                                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Place of Visit is required!</p>)}
+                                                        </div>
+                                                    </div>
 
-                                    <div className='row'>
-                                        <div className="col-md-6 mb-3">
-                                            <label>Travel Mode</label>
-                                            <select id="travelMode" value={form.travelMode}
-                                                onChange={(e) => {
-                                                    const { value } = e.target;
-                                                    setForm({ ...form, travelMode: value });
-                                                    validateField("travelMode", value);
-                                                }}
-                                                className={`form-control ${errors.travelMode ? "is-invalid" : ""}`}
-                                                onBlur={(e) => validateField("travelMode", e.target.value)}
-                                            >
-                                                <option value="">Travel Mode</option>
-                                                <option value="By Bus">By Bus</option>
-                                                <option value="By Train">By Train</option>
-                                                <option value="By Plane">By Plane</option>
-                                                <option value="By Taxi">By Taxi</option>
-                                                <option value="By rental Car">By rental Car</option>
-                                            </select>
-                                            {errors.travelMode && (
-                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Travel Mode is Required</p>
-                                        )}
-                                        </div>
+                                                    <div className='row'>
+                                                        <div className="col-md-6 mb-3">
+                                                            <label>Travel Mode</label>
+                                                            <select id="travelMode" value={form.travelMode}
+                                                                onChange={(e) => {
+                                                                    const { value } = e.target;
+                                                                    setForm({ ...form, travelMode: value });
+                                                                    validateField("travelMode", value);
+                                                                }}
+                                                                className={`form-control ${errors.travelMode ? "is-invalid" : ""}`}
+                                                                onBlur={(e) => validateField("travelMode", e.target.value)}
+                                                            >
+                                                                <option value="">Travel Mode</option>
+                                                                <option value="By Bus">By Bus</option>
+                                                                <option value="By Train">By Train</option>
+                                                                <option value="By Plane">By Plane</option>
+                                                                <option value="By Taxi">By Taxi</option>
+                                                                <option value="By rental Car">By rental Car</option>
+                                                            </select>
+                                                            {errors.travelMode && (
+                                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Travel Mode is Required</p>
+                                                            )}
+                                                        </div>
 
-                                        <div className="col-md-6 mb-3">
-                                            <label>Arrangement type</label>
-                                            <select id="arrangementType" value={form.arrangementType}
-                                                onChange={(e) => {
-                                                    const { value } = e.target;
-                                                    setForm({ ...form, arrangementType: value });
-                                                    validateField("arrangementType", value);
-                                                }}
-                                                className={`form-control ${errors.arrangementType ? "is-invalid" : ""}`}
-                                                onBlur={(e) => validateField("arrangementType", e.target.value)}
-                                            >
-                                                <option value="">Arrangement Type</option>
-                                                <option value="Hotel">Hotel</option>
-                                                <option value="Guest House">Guest House</option>
-                                                <option value="Motel">Motel</option>
-                                                <option value="Air BnB">Air BnB</option>
-                                            </select>
-                                             {errors.arrangementType && (
-                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Arrangement Type is Required</p>
-                                        )}
-                                        </div>
-                                    </div>
+                                                        <div className="col-md-6 mb-3">
+                                                            <label>Arrangement type</label>
+                                                            <select id="arrangementType" value={form.arrangementType}
+                                                                onChange={(e) => {
+                                                                    const { value } = e.target;
+                                                                    setForm({ ...form, arrangementType: value });
+                                                                    validateField("arrangementType", value);
+                                                                }}
+                                                                className={`form-control ${errors.arrangementType ? "is-invalid" : ""}`}
+                                                                onBlur={(e) => validateField("arrangementType", e.target.value)}
+                                                            >
+                                                                <option value="">Arrangement Type</option>
+                                                                <option value="Hotel">Hotel</option>
+                                                                <option value="Guest House">Guest House</option>
+                                                                <option value="Motel">Motel</option>
+                                                                <option value="Air BnB">Air BnB</option>
+                                                            </select>
+                                                            {errors.arrangementType && (
+                                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Arrangement Type is Required</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
 
-                                    <div className='row'>
-                                        <div className="col-md-6 mb-3">
-                                            <label>Expected Travel Budget</label>
-                                            <input type="number" value={form.expectedTravelBudget}
-                                                 onChange={(e) => {
-                                                    const { value } = e.target;
-                                                    setForm({ ...form, expectedTravelBudget: value });
-                                                    validateField("expectedTravelBudget", value);
-                                                }}
-                                                className={`form-control ${errors.expectedTravelBudget ? "is-invalid" : ""}`}
-                                                placeholder="Expected Travel Budget"
-                                                onBlur={(e) => validateField("expectedTravelBudget", e.target.value)}
+                                                    <div className='row'>
+                                                        <div className="col-md-6 mb-3">
+                                                            <label>Expected Travel Budget</label>
+                                                            <input type="number" value={form.expectedTravelBudget}
+                                                                onChange={(e) => {
+                                                                    const { value } = e.target;
+                                                                    setForm({ ...form, expectedTravelBudget: value });
+                                                                    validateField("expectedTravelBudget", value);
+                                                                }}
+                                                                className={`form-control ${errors.expectedTravelBudget ? "is-invalid" : ""}`}
+                                                                placeholder="Expected Travel Budget"
+                                                                onBlur={(e) => validateField("expectedTravelBudget", e.target.value)}
 
-                                            />
-                                            {errors.expectedTravelBudget && (
-                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Expected Travel Budget is required!</p>)}
-                                        </div>
+                                                            />
+                                                            {errors.expectedTravelBudget && (
+                                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Expected Travel Budget is required!</p>)}
+                                                        </div>
 
 
-                                        <div className="col-md-6 mb-3">
-                                            <label>Actual Travel Budget</label>
-                                            <input type="number" value={form.actualTravelBudget}
-                                                  onChange={(e) => {
-                                                    const { value } = e.target;
-                                                    setForm({ ...form, actualTravelBudget: value });
-                                                    validateField("actualTravelBudget", value);
-                                                }}
-                                                className={`form-control ${errors.actualTravelBudget ? "is-invalid" : ""}`}
-                                                placeholder="Actual Travel Budget"
-                                                onBlur={(e) => validateField("actualTravelBudget", e.target.value)}
+                                                        <div className="col-md-6 mb-3">
+                                                            <label>Actual Travel Budget</label>
+                                                            <input type="number" value={form.actualTravelBudget}
+                                                                onChange={(e) => {
+                                                                    const { value } = e.target;
+                                                                    setForm({ ...form, actualTravelBudget: value });
+                                                                    validateField("actualTravelBudget", value);
+                                                                }}
+                                                                className={`form-control ${errors.actualTravelBudget ? "is-invalid" : ""}`}
+                                                                placeholder="Actual Travel Budget"
+                                                                onBlur={(e) => validateField("actualTravelBudget", e.target.value)}
 
-                                            />
-                                            {errors.actualTravelBudget && (
-                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Actual Travel Budget is required!</p>)}
-                                        </div>
+                                                            />
+                                                            {errors.actualTravelBudget && (
+                                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Actual Travel Budget is required!</p>)}
+                                                        </div>
 
-                                    </div>
+                                                    </div>
 
-                                </div>
+                                                </div>
 
-                                {/* Right Column */}
-                                <div className="col-md-6">
+                                                {/* Right Column */}
+                                                <div className="col-md-6">
 
-                                    <div className="mb-3">
-                                        <label>Approval Status</label>
-                                        <select id="status" value={form.approvalStatus}
-                                            onChange={(e) => {
-                                                const { value } = e.target;
-                                                setForm({ ...form, approvalStatus: value });
-                                                validateField("approvalStatus", value);
-                                            }}
-                                            className={`form-control ${errors.approvalStatus ? "is-invalid" : ""}`}
-                                            onBlur={(e) => validateField("approvalStatus", e.target.value)}
-                                        >
-                                            <option value="">Status</option>
-                                            <option value="Pending">Pending</option>
-                                            <option value="Accepted">Accepted</option>
-                                            <option value="Rejected">Rejected</option>
-                                        </select>
-                                        {errors.approvalStatus && (
-                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Approval Status is Required</p>
-                                        )}
-                                    </div>
+                                                    <div className="mb-3">
+                                                        <label>Approval Status</label>
+                                                        <select id="status" value={form.approvalStatus}
+                                                            onChange={(e) => {
+                                                                const { value } = e.target;
+                                                                setForm({ ...form, approvalStatus: value });
+                                                                validateField("approvalStatus", value);
+                                                            }}
+                                                            className={`form-control ${errors.approvalStatus ? "is-invalid" : ""}`}
+                                                            onBlur={(e) => validateField("approvalStatus", e.target.value)}
+                                                        >
+                                                            <option value="">Status</option>
+                                                            <option value="Pending">Pending</option>
+                                                            <option value="Accepted">Accepted</option>
+                                                            <option value="Rejected">Rejected</option>
+                                                        </select>
+                                                        {errors.approvalStatus && (
+                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Approval Status is Required</p>
+                                                        )}
+                                                    </div>
 
-                                    <div className="mb-3">
-                                        <label>Added By</label>
-                                        <select id="addedBy" value={form.addedBy}
-                                            onChange={(e) => {
-                                                const { value } = e.target;
-                                                setForm({ ...form, addedBy: value });
-                                                validateField("addedBy", value);
-                                            }}
-                                            className={`form-control ${errors.addedBy ? "is-invalid" : ""}`}
-                                            onBlur={(e) => validateField("addedBy", e.target.value)}
-                                        >
-                                            <option value="">Added By</option>
-                                            <option value="Admin">Admin Admin</option>
-                                            <option value="Anjali Patle">Anjali Patle</option>
-                                            <option value="Amit Kumar">Amit Kumar</option>
-                                            <option value="Aniket Rane">Aniket Rane</option>
-                                            <option value="Shubham Kadam">Shubham Kadam</option>
-                                            <option value="Abhijieet Tawate">Abhijieet Tawate</option>
-                                            <option value="Pravin Bildlan">Pravin Bildlan</option>
-                                            <option value="Amit Pednekar">Amit Pednekar</option>
-                                            <option value="Mahendra Chaudhary">Mahendra Chaudhary</option>
-                                            <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
-                                            <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
-                                        </select>
-                                         {errors.addedBy && (
-                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This Field is Required</p>
-                                        )}
-                                    </div>
+                                                    <div className="mb-3">
+                                                        <label>Added By</label>
+                                                        <select id="addedBy" value={form.addedBy}
+                                                            onChange={(e) => {
+                                                                const { value } = e.target;
+                                                                setForm({ ...form, addedBy: value });
+                                                                validateField("addedBy", value);
+                                                            }}
+                                                            className={`form-control ${errors.addedBy ? "is-invalid" : ""}`}
+                                                            onBlur={(e) => validateField("addedBy", e.target.value)}
+                                                        >
+                                                            <option value="">Added By</option>
+                                                            <option value="Admin">Admin Admin</option>
+                                                            <option value="Anjali Patle">Anjali Patle</option>
+                                                            <option value="Amit Kumar">Amit Kumar</option>
+                                                            <option value="Aniket Rane">Aniket Rane</option>
+                                                            <option value="Shubham Kadam">Shubham Kadam</option>
+                                                            <option value="Abhijieet Tawate">Abhijieet Tawate</option>
+                                                            <option value="Pravin Bildlan">Pravin Bildlan</option>
+                                                            <option value="Amit Pednekar">Amit Pednekar</option>
+                                                            <option value="Mahendra Chaudhary">Mahendra Chaudhary</option>
+                                                            <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
+                                                            <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
+                                                        </select>
+                                                        {errors.addedBy && (
+                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This Field is Required</p>
+                                                        )}
+                                                    </div>
 
-                                    <label>Travel Reason</label>
-                                    <CKEditor
-                                        editor={ClassicEditor}
-                                        data={form.description || ""}
-                                        onChange={(event, editor) => {
-                                            const newData = editor.getData();
-                                            setForm({ ...form, description: newData });
-                                        }}
-                                        onBlur={() => validateField("description", form.description)}
-                                    />
-                                    {errors.description && (
-                                        <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
-                                            Travel Reason is Required
-                                        </p>
-                                    )}
-                                </div>
+                                                    <label>Travel Reason</label>
+                                                    <CKEditor
+                                                        editor={ClassicEditor}
+                                                        data={form.description || ""}
+                                                        onChange={(event, editor) => {
+                                                            const newData = editor.getData();
+                                                            setForm({ ...form, description: newData });
+                                                        }}
+                                                        onBlur={() => validateField("description", form.description)}
+                                                    />
+                                                    {errors.description && (
+                                                        <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
+                                                            Travel Reason is Required
+                                                        </p>
+                                                    )}
+                                                </div>
 
-                            </div>
+                                            </div>
 
                                             <div className="text-end">
                                                 <button type="button" className="btn btn-sm btn-light me-2" onClick={() => { resetForm(); setShowEditModal(false) }}>Close</button>

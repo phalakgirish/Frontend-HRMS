@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DataTable from 'react-data-table-component';
 import './employees.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
@@ -14,6 +14,8 @@ const Transfers = () => {
     const [selectedRow, setSelectedRow] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [description, setDescription] = useState('');
+    const editorRef = useRef(null);
+    const [editorKey, setEditorKey] = useState(0);
 
     //from backend
     const [Transfer, setTransfer] = useState([]);
@@ -489,13 +491,16 @@ const Transfers = () => {
 
                                     <label>Description</label>
                                     <CKEditor
+                                        key={editorKey}
                                         editor={ClassicEditor}
-                                        data={description || ""}
+                                        data={form.description}
+                                        onReady={(editor) => {
+                                            editorRef.current = editor;
+                                        }}
                                         onChange={(event, editor) => {
                                             const newData = editor.getData();
-                                            setForm({ ...form, description: newData });
+                                            setForm(prev => ({ ...prev, description: newData }));
                                         }}
-                                        onBlur={() => validateField("description", form.description)}
                                     />
                                     {errors.description && (
                                         <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
@@ -664,179 +669,179 @@ const Transfers = () => {
                                     </div>
                                     <div className="modal-body">
                                         <form onSubmit={handleSubmit}>
-                                          <div className="row">
-                                {/* Left Column */}
-                                <div className="col-md-6">
-                                    <div className="mb-3">
-                                        <label>Employee To Transfer</label>
-                                        <select id="resignEmployee" value={form.employeeName}
-                                            onChange={(e) => {
-                                                const { value } = e.target;
-                                                setForm({ ...form, employeeName: value });
-                                                validateField("employeeName", value);
-                                            }}
-                                            className={`form-control ${errors.employeeName ? "is-invalid" : ""}`}
-                                            onBlur={(e) => validateField("employeeName", e.target.value)}
-                                        >
-                                            <option value="">Select Department</option>
-                                            <option value="Admin">Admin Admin</option>
-                                            <option value="Anjali Patle">Anjali Patle</option>
-                                            <option value="Amit Kumar">Amit Kumar</option>
-                                            <option value="Aniket Rane">Aniket Rane</option>
-                                            <option value="Shubham Kadam">Shubham Kadam</option>
-                                            <option value="Abhijieet Tawate">Abhijieet Tawate</option>
-                                            <option value="Pravin Bildlan">Pravin Bildlan</option>
-                                            <option value="Amit Pednekar">Amit Pednekar</option>
-                                            <option value="Mahendra Chaudhary">Mahendra Chaudhary</option>
-                                            <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
-                                            <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
-                                        </select>
-                                        {errors.employeeName && (
-                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.employeeName}</p>
-                                        )}
-                                    </div>
+                                            <div className="row">
+                                                {/* Left Column */}
+                                                <div className="col-md-6">
+                                                    <div className="mb-3">
+                                                        <label>Employee To Transfer</label>
+                                                        <select id="resignEmployee" value={form.employeeName}
+                                                            onChange={(e) => {
+                                                                const { value } = e.target;
+                                                                setForm({ ...form, employeeName: value });
+                                                                validateField("employeeName", value);
+                                                            }}
+                                                            className={`form-control ${errors.employeeName ? "is-invalid" : ""}`}
+                                                            onBlur={(e) => validateField("employeeName", e.target.value)}
+                                                        >
+                                                            <option value="">Select Department</option>
+                                                            <option value="Admin">Admin Admin</option>
+                                                            <option value="Anjali Patle">Anjali Patle</option>
+                                                            <option value="Amit Kumar">Amit Kumar</option>
+                                                            <option value="Aniket Rane">Aniket Rane</option>
+                                                            <option value="Shubham Kadam">Shubham Kadam</option>
+                                                            <option value="Abhijieet Tawate">Abhijieet Tawate</option>
+                                                            <option value="Pravin Bildlan">Pravin Bildlan</option>
+                                                            <option value="Amit Pednekar">Amit Pednekar</option>
+                                                            <option value="Mahendra Chaudhary">Mahendra Chaudhary</option>
+                                                            <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
+                                                            <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
+                                                        </select>
+                                                        {errors.employeeName && (
+                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.employeeName}</p>
+                                                        )}
+                                                    </div>
 
-                                    <div className="mb-3">
-                                        <label>Transfer Date</label>
-                                        <input type="date" value={form.transferDate}
-                                            onChange={(e) => {
-                                                const { value } = e.target;
-                                                setForm({ ...form, transferDate: value });
-                                                validateField("transferDate", value);
-                                            }}
-                                            className={`form-control ${errors.transferDate ? "is-invalid" : ""}`}
-                                            onBlur={(e) => validateField("transferDate", e.target.value)}
+                                                    <div className="mb-3">
+                                                        <label>Transfer Date</label>
+                                                        <input type="date" value={form.transferDate}
+                                                            onChange={(e) => {
+                                                                const { value } = e.target;
+                                                                setForm({ ...form, transferDate: value });
+                                                                validateField("transferDate", value);
+                                                            }}
+                                                            className={`form-control ${errors.transferDate ? "is-invalid" : ""}`}
+                                                            onBlur={(e) => validateField("transferDate", e.target.value)}
 
-                                        />
-                                        {errors.transferDate && (
-                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.transferDate}</p>
-                                        )}
-                                    </div>
+                                                        />
+                                                        {errors.transferDate && (
+                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.transferDate}</p>
+                                                        )}
+                                                    </div>
 
 
-                                    <div className='row'>
-                                        <div className="col-md-6 mb-3">
-                                            <label>Transfer To (Department)</label>
-                                            <select id="transferDepartment" value={form.transferToDepartment}
-                                                onChange={(e) => {
-                                                    const { value } = e.target;
-                                                    setForm({ ...form, transferToDepartment: value });
-                                                    validateField("transferToDepartment", value);
-                                                }}
-                                                className={`form-control ${errors.transferToDepartment ? "is-invalid" : ""}`}
-                                                onBlur={(e) => validateField("transferToDepartment", e.target.value)}
-                                            >
-                                                <option value="">Select Department</option>
-                                                <option value="Accounts">Accounts</option>
-                                                <option value="Administrator">Administrator</option>
-                                                <option value="Human Resource">Human Resource</option>
-                                                <option value="Dealing">Dealing</option>
-                                                <option value="Digital Marketing">Digital Marketing</option>
-                                                <option value="IT">IT</option>
-                                                <option value="Sales">Sales</option>
-                                                <option value="Admin">Admin</option>
-                                                <option value="Management">Management</option>
-                                                <option value="Operation">Operation</option>
-                                            </select>
-                                            {errors.transferToDepartment && (
-                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.transferToDepartment}</p>
-                                            )}
-                                        </div>
+                                                    <div className='row'>
+                                                        <div className="col-md-6 mb-3">
+                                                            <label>Transfer To (Department)</label>
+                                                            <select id="transferDepartment" value={form.transferToDepartment}
+                                                                onChange={(e) => {
+                                                                    const { value } = e.target;
+                                                                    setForm({ ...form, transferToDepartment: value });
+                                                                    validateField("transferToDepartment", value);
+                                                                }}
+                                                                className={`form-control ${errors.transferToDepartment ? "is-invalid" : ""}`}
+                                                                onBlur={(e) => validateField("transferToDepartment", e.target.value)}
+                                                            >
+                                                                <option value="">Select Department</option>
+                                                                <option value="Accounts">Accounts</option>
+                                                                <option value="Administrator">Administrator</option>
+                                                                <option value="Human Resource">Human Resource</option>
+                                                                <option value="Dealing">Dealing</option>
+                                                                <option value="Digital Marketing">Digital Marketing</option>
+                                                                <option value="IT">IT</option>
+                                                                <option value="Sales">Sales</option>
+                                                                <option value="Admin">Admin</option>
+                                                                <option value="Management">Management</option>
+                                                                <option value="Operation">Operation</option>
+                                                            </select>
+                                                            {errors.transferToDepartment && (
+                                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.transferToDepartment}</p>
+                                                            )}
+                                                        </div>
 
-                                        <div className="col-md-6 mb-3">
-                                            <label>Transfer To (Location)</label>
-                                            <select id="transferLocation" value={form.transferToLocation}
-                                                onChange={(e) => {
-                                                    const { value } = e.target;
-                                                    setForm({ ...form, transferToLocation: value });
-                                                    validateField("transferToLocation", value);
-                                                }}
-                                                className={`form-control ${errors.transferToLocation ? "is-invalid" : ""}`}
-                                                onBlur={(e) => validateField("transferToLocation", e.target.value)}
-                                            >
-                                                <option value="">Select Location</option>
-                                                <option value="mumbai">Head Office - Mumbai</option>
-                                                <option value="bangalore">Bangalore</option>
-                                            </select>
-                                            {errors.transferToLocation && (
-                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.transferToLocation}</p>
-                                            )}
-                                        </div>
+                                                        <div className="col-md-6 mb-3">
+                                                            <label>Transfer To (Location)</label>
+                                                            <select id="transferLocation" value={form.transferToLocation}
+                                                                onChange={(e) => {
+                                                                    const { value } = e.target;
+                                                                    setForm({ ...form, transferToLocation: value });
+                                                                    validateField("transferToLocation", value);
+                                                                }}
+                                                                className={`form-control ${errors.transferToLocation ? "is-invalid" : ""}`}
+                                                                onBlur={(e) => validateField("transferToLocation", e.target.value)}
+                                                            >
+                                                                <option value="">Select Location</option>
+                                                                <option value="mumbai">Head Office - Mumbai</option>
+                                                                <option value="bangalore">Bangalore</option>
+                                                            </select>
+                                                            {errors.transferToLocation && (
+                                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.transferToLocation}</p>
+                                                            )}
+                                                        </div>
 
-                                        <div className="mb-3">
-                                            <label>Status</label>
-                                            <select id="status" value={form.status}
-                                                onChange={(e) => {
-                                                    const { value } = e.target;
-                                                    setForm({ ...form, status: value });
-                                                    validateField("status", value);
-                                                }}
-                                                className={`form-control ${errors.status ? "is-invalid" : ""}`}
-                                                onBlur={(e) => validateField("status", e.target.value)}
-                                            >
-                                                <option value="">Status</option>
-                                                <option value="pending">Pending</option>
-                                                <option value="accepted">Accepted</option>
-                                                <option value="rejected">Rejected</option>
-                                            </select>
-                                            {errors.status && (
-                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.status}</p>
-                                            )}
-                                        </div>
+                                                        <div className="mb-3">
+                                                            <label>Status</label>
+                                                            <select id="status" value={form.status}
+                                                                onChange={(e) => {
+                                                                    const { value } = e.target;
+                                                                    setForm({ ...form, status: value });
+                                                                    validateField("status", value);
+                                                                }}
+                                                                className={`form-control ${errors.status ? "is-invalid" : ""}`}
+                                                                onBlur={(e) => validateField("status", e.target.value)}
+                                                            >
+                                                                <option value="">Status</option>
+                                                                <option value="pending">Pending</option>
+                                                                <option value="accepted">Accepted</option>
+                                                                <option value="rejected">Rejected</option>
+                                                            </select>
+                                                            {errors.status && (
+                                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.status}</p>
+                                                            )}
+                                                        </div>
 
-                                    </div>
-                                </div>
+                                                    </div>
+                                                </div>
 
-                                {/* Right Column */}
-                                <div className="col-md-6">
+                                                {/* Right Column */}
+                                                <div className="col-md-6">
 
-                                    <div className="mb-3">
-                                        <label>Added By</label>
-                                        <select id="addedBy" value={form.addedBy}
-                                            onChange={(e) => {
-                                                const { value } = e.target;
-                                                setForm({ ...form, addedBy: value });
-                                                validateField("addedBy", value);
-                                            }}
-                                            className={`form-control ${errors.addedBy ? "is-invalid" : ""}`}
-                                            onBlur={(e) => validateField("addedBy", e.target.value)}
-                                        >
-                                            <option value="">Added By</option>
-                                            <option value="Admin">Admin Admin</option>
-                                            <option value="Anjali Patle">Anjali Patle</option>
-                                            <option value="Amit Kumar">Amit Kumar</option>
-                                            <option value="Aniket Rane">Aniket Rane</option>
-                                            <option value="Shubham Kadam">Shubham Kadam</option>
-                                            <option value="Abhijieet Tawate">Abhijieet Tawate</option>
-                                            <option value="Pravin Bildlan">Pravin Bildlan</option>
-                                            <option value="Amit Pednekar">Amit Pednekar</option>
-                                            <option value="Mahendra Chaudhary">Mahendra Chaudhary</option>
-                                            <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
-                                            <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
-                                        </select>
-                                        {errors.addedBy && (
-                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.addedBy}</p>
-                                        )}
-                                    </div>
+                                                    <div className="mb-3">
+                                                        <label>Added By</label>
+                                                        <select id="addedBy" value={form.addedBy}
+                                                            onChange={(e) => {
+                                                                const { value } = e.target;
+                                                                setForm({ ...form, addedBy: value });
+                                                                validateField("addedBy", value);
+                                                            }}
+                                                            className={`form-control ${errors.addedBy ? "is-invalid" : ""}`}
+                                                            onBlur={(e) => validateField("addedBy", e.target.value)}
+                                                        >
+                                                            <option value="">Added By</option>
+                                                            <option value="Admin">Admin Admin</option>
+                                                            <option value="Anjali Patle">Anjali Patle</option>
+                                                            <option value="Amit Kumar">Amit Kumar</option>
+                                                            <option value="Aniket Rane">Aniket Rane</option>
+                                                            <option value="Shubham Kadam">Shubham Kadam</option>
+                                                            <option value="Abhijieet Tawate">Abhijieet Tawate</option>
+                                                            <option value="Pravin Bildlan">Pravin Bildlan</option>
+                                                            <option value="Amit Pednekar">Amit Pednekar</option>
+                                                            <option value="Mahendra Chaudhary">Mahendra Chaudhary</option>
+                                                            <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
+                                                            <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
+                                                        </select>
+                                                        {errors.addedBy && (
+                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.addedBy}</p>
+                                                        )}
+                                                    </div>
 
-                                    <label>Description</label>
-                                    <CKEditor
-                                        editor={ClassicEditor}
-                                        data={form.description || ""}
-                                        onChange={(event, editor) => {
-                                            const newData = editor.getData();
-                                            setForm({ ...form, description: newData });
-                                        }}
-                                        onBlur={() => validateField("description", form.description)}
-                                    />
-                                    {errors.description && (
-                                        <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
-                                            {errors.description}
-                                        </p>
-                                    )}
-                                </div>
+                                                    <label>Description</label>
+                                                    <CKEditor
+                                                        editor={ClassicEditor}
+                                                        data={form.description || ""}
+                                                        onChange={(event, editor) => {
+                                                            const newData = editor.getData();
+                                                            setForm({ ...form, description: newData });
+                                                        }}
+                                                        onBlur={() => validateField("description", form.description)}
+                                                    />
+                                                    {errors.description && (
+                                                        <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
+                                                            {errors.description}
+                                                        </p>
+                                                    )}
+                                                </div>
 
-                            </div>
+                                            </div>
 
                                             <div className="text-end">
                                                 <button type="button" className="btn btn-sm btn-light me-2" onClick={() => { resetForm(); setShowEditModal(false) }}>Close</button>

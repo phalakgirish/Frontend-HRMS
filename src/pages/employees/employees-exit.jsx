@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DataTable from 'react-data-table-component';
 import './employees.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
@@ -15,6 +15,8 @@ const Employeeexit = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [description, setDescription] = useState('');
     const [editId, setEditId] = useState(null);
+    const editorRef = useRef(null);
+    const [editorKey, setEditorKey] = useState(0);
 
     //from backend
     const [EmployeeExit, setEmployeeExit] = useState([]);
@@ -518,11 +520,15 @@ const Employeeexit = () => {
 
                                     <label>Description</label>
                                     <CKEditor
+                                        key={editorKey}
                                         editor={ClassicEditor}
-                                        data={description}
+                                        data={form.description}
+                                        onReady={(editor) => {
+                                            editorRef.current = editor;
+                                        }}
                                         onChange={(event, editor) => {
                                             const newData = editor.getData();
-                                            setForm({ ...form, description: newData });
+                                            setForm(prev => ({ ...prev, description: newData }));
                                         }}
                                     />
                                     {errors.description && (
@@ -693,193 +699,193 @@ const Employeeexit = () => {
                                     </div>
                                     <div className="modal-body">
                                         <form onSubmit={handleSubmit}>
-                                           <div className="row">
-                                {/* Left Column */}
-                                <div className="col-md-6">
-                                    <div className="mb-3">
-                                        <label>Employee Exit</label>
-                                        <select id="resignEmployee" value={form.employee}
-                                            onChange={(e) => {
-                                                const { value } = e.target;
-                                                setForm({ ...form, employee: value });
-                                                validateField("employee", value);
-                                            }}
-                                            className={`form-control ${errors.employee ? "is-invalid" : ""}`}
-                                            onBlur={(e) => validateField("employee", e.target.value)}
-                                        >
-                                            <option value="">Choose an Employee</option>
-                                            <option value="Admin">Admin Admin</option>
-                                            <option value="Anjali Patle">Anjali Patle</option>
-                                            <option value="Amit Kumar">Amit Kumar</option>
-                                            <option value="Aniket Rane">Aniket Rane</option>
-                                            <option value="Shubham Kadam">Shubham Kadam</option>
-                                            <option value="Abhijieet Tawate">Abhijieet Tawate</option>
-                                            <option value="Pravin Bildlan">Pravin Bildlan</option>
-                                            <option value="Amit Pednekar">Amit Pednekar</option>
-                                            <option value="Mahendra Chaudhary">Mahendra Chaudhary</option>
-                                            <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
-                                            <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
-                                        </select>
-                                        {errors.employee && (
-                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Employee Name is required!</p>)}
-                                    </div>
+                                            <div className="row">
+                                                {/* Left Column */}
+                                                <div className="col-md-6">
+                                                    <div className="mb-3">
+                                                        <label>Employee Exit</label>
+                                                        <select id="resignEmployee" value={form.employee}
+                                                            onChange={(e) => {
+                                                                const { value } = e.target;
+                                                                setForm({ ...form, employee: value });
+                                                                validateField("employee", value);
+                                                            }}
+                                                            className={`form-control ${errors.employee ? "is-invalid" : ""}`}
+                                                            onBlur={(e) => validateField("employee", e.target.value)}
+                                                        >
+                                                            <option value="">Choose an Employee</option>
+                                                            <option value="Admin">Admin Admin</option>
+                                                            <option value="Anjali Patle">Anjali Patle</option>
+                                                            <option value="Amit Kumar">Amit Kumar</option>
+                                                            <option value="Aniket Rane">Aniket Rane</option>
+                                                            <option value="Shubham Kadam">Shubham Kadam</option>
+                                                            <option value="Abhijieet Tawate">Abhijieet Tawate</option>
+                                                            <option value="Pravin Bildlan">Pravin Bildlan</option>
+                                                            <option value="Amit Pednekar">Amit Pednekar</option>
+                                                            <option value="Mahendra Chaudhary">Mahendra Chaudhary</option>
+                                                            <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
+                                                            <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
+                                                        </select>
+                                                        {errors.employee && (
+                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Employee Name is required!</p>)}
+                                                    </div>
 
-                                    <div className='row'>
-                                        <div className="col-md-6 mb-3">
-                                            <label>Exit Date</label>
-                                            <input type="date" value={form.exitDate}
-                                                onChange={(e) => {
-                                                    const { value } = e.target;
-                                                    setForm({ ...form, exitDate: value });
-                                                    validateField("exitDate", value);
-                                                }}
-                                                className={`form-control ${errors.exitDate ? "is-invalid" : ""}`}
-                                                onBlur={(e) => validateField("exitDate", e.target.value)}
+                                                    <div className='row'>
+                                                        <div className="col-md-6 mb-3">
+                                                            <label>Exit Date</label>
+                                                            <input type="date" value={form.exitDate}
+                                                                onChange={(e) => {
+                                                                    const { value } = e.target;
+                                                                    setForm({ ...form, exitDate: value });
+                                                                    validateField("exitDate", value);
+                                                                }}
+                                                                className={`form-control ${errors.exitDate ? "is-invalid" : ""}`}
+                                                                onBlur={(e) => validateField("exitDate", e.target.value)}
 
-                                            />
-                                            {errors.exitDate && (
-                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Exit Date is required!</p>)}
-                                        </div>
+                                                            />
+                                                            {errors.exitDate && (
+                                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Exit Date is required!</p>)}
+                                                        </div>
 
 
-                                        <div className="col-md-6 mb-3">
-                                            <label>Type of Exit</label>
-                                            <select id="resignEmployee" value={form.exitType}
-                                                onChange={(e) => {
-                                                    const { value } = e.target;
-                                                    setForm({ ...form, exitType: value });
-                                                    validateField("exitType", value);
-                                                }}
-                                                className={`form-control ${errors.exitType ? "is-invalid" : ""}`}
-                                                onBlur={(e) => validateField("exitType", e.target.value)}
-                                            >
-                                                <option value="">Type of Exit</option>
-                                                <option value="Resignation">Resignation</option>
-                                                <option value="Retirement">Retirement</option>
-                                                <option value="End of Contract">End of Contract</option>
-                                                <option value="End of Project">End of Project</option>
-                                                <option value="Dismissal">Dismissal</option>
-                                                <option value="Layoff">Layoff</option>
-                                                <option value="Termination by Mutual Agreement">Termination by Mutual Agreement</option>
-                                                <option value="Forced Resignation">Forced Resignation</option>
-                                                <option value="End of Temporary Appointment">End of Temporary Appointment</option>
-                                                <option value="Abadonment">Abadonment</option>
-                                                <option value="Death">Death</option>
-                                            </select>
-                                            {errors.exitType && (
-                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Exit Type is required!</p>)}
-                                        </div>
-                                    </div>
+                                                        <div className="col-md-6 mb-3">
+                                                            <label>Type of Exit</label>
+                                                            <select id="resignEmployee" value={form.exitType}
+                                                                onChange={(e) => {
+                                                                    const { value } = e.target;
+                                                                    setForm({ ...form, exitType: value });
+                                                                    validateField("exitType", value);
+                                                                }}
+                                                                className={`form-control ${errors.exitType ? "is-invalid" : ""}`}
+                                                                onBlur={(e) => validateField("exitType", e.target.value)}
+                                                            >
+                                                                <option value="">Type of Exit</option>
+                                                                <option value="Resignation">Resignation</option>
+                                                                <option value="Retirement">Retirement</option>
+                                                                <option value="End of Contract">End of Contract</option>
+                                                                <option value="End of Project">End of Project</option>
+                                                                <option value="Dismissal">Dismissal</option>
+                                                                <option value="Layoff">Layoff</option>
+                                                                <option value="Termination by Mutual Agreement">Termination by Mutual Agreement</option>
+                                                                <option value="Forced Resignation">Forced Resignation</option>
+                                                                <option value="End of Temporary Appointment">End of Temporary Appointment</option>
+                                                                <option value="Abadonment">Abadonment</option>
+                                                                <option value="Death">Death</option>
+                                                            </select>
+                                                            {errors.exitType && (
+                                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Exit Type is required!</p>)}
+                                                        </div>
+                                                    </div>
 
-                                    <div className='row'>
-                                        <div className="col-md-6 mb-3">
-                                            <label>Exit Interview</label>
-                                            <select id="resignEmployee" value={form.exitInterview}
-                                                onChange={(e) => {
-                                                    const { value } = e.target;
-                                                    setForm({ ...form, exitInterview: value });
-                                                    validateField("exitInterview", value);
-                                                }}
-                                                className={`form-control ${errors.exitInterview ? "is-invalid" : ""}`}
-                                                onBlur={(e) => validateField("exitInterview", e.target.value)}
-                                            >
-                                                <option value="">Exit Interview</option>
-                                                <option value="Yes">Yes</option>
-                                                <option value="No">No</option>
-                                            </select>
-                                            {errors.exitInterview && (
-                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This field is required!</p>)}
-                                        </div>
+                                                    <div className='row'>
+                                                        <div className="col-md-6 mb-3">
+                                                            <label>Exit Interview</label>
+                                                            <select id="resignEmployee" value={form.exitInterview}
+                                                                onChange={(e) => {
+                                                                    const { value } = e.target;
+                                                                    setForm({ ...form, exitInterview: value });
+                                                                    validateField("exitInterview", value);
+                                                                }}
+                                                                className={`form-control ${errors.exitInterview ? "is-invalid" : ""}`}
+                                                                onBlur={(e) => validateField("exitInterview", e.target.value)}
+                                                            >
+                                                                <option value="">Exit Interview</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            </select>
+                                                            {errors.exitInterview && (
+                                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This field is required!</p>)}
+                                                        </div>
 
-                                        <div className="col-md-6 mb-3">
-                                            <label>Inactivate Employee Account</label>
-                                            <select id="inactvatAcc" value={form.inactivateAccount}
-                                                onChange={(e) => {
-                                                    const { value } = e.target;
-                                                    setForm({ ...form, inactivateAccount: value });
-                                                    validateField("inactivateAccount", value);
-                                                }}
-                                                className={`form-control ${errors.inactivateAccount ? "is-invalid" : ""}`}
-                                                onBlur={(e) => validateField("inactivateAccount", e.target.value)}
-                                            >
-                                                <option value="">Inactivate Employee Account</option>
-                                                <option value="yes">Yes</option>
-                                                <option value="no">No</option>
-                                            </select>
-                                            {errors.inactivateAccount && (
-                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This field is required!</p>)}
-                                        </div>
-                                    </div>
+                                                        <div className="col-md-6 mb-3">
+                                                            <label>Inactivate Employee Account</label>
+                                                            <select id="inactvatAcc" value={form.inactivateAccount}
+                                                                onChange={(e) => {
+                                                                    const { value } = e.target;
+                                                                    setForm({ ...form, inactivateAccount: value });
+                                                                    validateField("inactivateAccount", value);
+                                                                }}
+                                                                className={`form-control ${errors.inactivateAccount ? "is-invalid" : ""}`}
+                                                                onBlur={(e) => validateField("inactivateAccount", e.target.value)}
+                                                            >
+                                                                <option value="">Inactivate Employee Account</option>
+                                                                <option value="yes">Yes</option>
+                                                                <option value="no">No</option>
+                                                            </select>
+                                                            {errors.inactivateAccount && (
+                                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This field is required!</p>)}
+                                                        </div>
+                                                    </div>
 
-                                    <div className="mb-3">
-                                        <label className="form-label d-block">Exit Checklist</label>
+                                                    <div className="mb-3">
+                                                        <label className="form-label d-block">Exit Checklist</label>
 
-                                        {["No Dues", "Final Settlement", "Experience Certificate"].map((item) => (
-                                            <div className="form-check form-check-inline" key={item}>
-                                                <input
-                                                    className="form-check-input"
-                                                    type="checkbox"
-                                                    id={item.replace(/\s+/g, '')}
-                                                    value={item}
-                                                    checked={form.exitChecklist.includes(item)}
-                                                    onChange={handleChecklistChange}
-                                                    style={{ width: '16px', height: '16px' }}
-                                                />
+                                                        {["No Dues", "Final Settlement", "Experience Certificate"].map((item) => (
+                                                            <div className="form-check form-check-inline" key={item}>
+                                                                <input
+                                                                    className="form-check-input"
+                                                                    type="checkbox"
+                                                                    id={item.replace(/\s+/g, '')}
+                                                                    value={item}
+                                                                    checked={form.exitChecklist.includes(item)}
+                                                                    onChange={handleChecklistChange}
+                                                                    style={{ width: '16px', height: '16px' }}
+                                                                />
 
-                                                <label className="form-check-label" htmlFor={item.replace(/\s+/g, '')}>
-                                                    {item}
-                                                </label>
+                                                                <label className="form-check-label" htmlFor={item.replace(/\s+/g, '')}>
+                                                                    {item}
+                                                                </label>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+
+
+
+                                                </div>
+
+                                                {/* Right Column */}
+                                                <div className="col-md-6">
+                                                    <div className="mb-3">
+                                                        <label>Added By</label>
+                                                        <select id="addedBy" value={form.addedBy}
+                                                            onChange={(e) => {
+                                                                const { value } = e.target;
+                                                                setForm({ ...form, addedBy: value });
+                                                                validateField("addedBy", value);
+                                                            }}
+                                                            className={`form-control ${errors.addedBy ? "is-invalid" : ""}`}
+                                                            onBlur={(e) => validateField("addedBy", e.target.value)}
+                                                        >
+                                                            <option value="">Added By</option>
+                                                            <option value="Anjali Patle">Anjali Patle</option>
+                                                            <option value="Amit Kumar">Amit Kumar</option>
+                                                            <option value="Aniket Rane">Aniket Rane</option>
+                                                            <option value="Shubham Kadam">Shubham Kadam</option>
+                                                            <option value="Abhijieet Tawate">Abhijieet Tawate</option>
+                                                            <option value="Pravin Bildlan">Pravin Bildlan</option>
+                                                            <option value="Amit Pednekar">Amit Pednekar</option>
+                                                            <option value="Mahendra Chaudhary">Mahendra Chaudhary</option>
+                                                            <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
+                                                            <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
+                                                        </select>
+                                                        {errors.addedBy && (
+                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This field is required!</p>)}
+                                                    </div>
+
+                                                    <label>Description</label>
+                                                    <CKEditor
+                                                        editor={ClassicEditor}
+                                                        data={form.description}
+                                                        onChange={(event, editor) => {
+                                                            const newData = editor.getData();
+                                                            setForm({ ...form, description: newData });
+                                                        }}
+                                                    />
+                                                    {errors.description && (
+                                                        <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Description is required!</p>)}
+                                                </div>
+
                                             </div>
-                                        ))}
-                                    </div>
-
-
-
-                                </div>
-
-                                {/* Right Column */}
-                                <div className="col-md-6">
-                                    <div className="mb-3">
-                                        <label>Added By</label>
-                                        <select id="addedBy" value={form.addedBy}
-                                            onChange={(e) => {
-                                                const { value } = e.target;
-                                                setForm({ ...form, addedBy: value });
-                                                validateField("addedBy", value);
-                                            }}
-                                            className={`form-control ${errors.addedBy ? "is-invalid" : ""}`}
-                                            onBlur={(e) => validateField("addedBy", e.target.value)}
-                                        >
-                                            <option value="">Added By</option>
-                                            <option value="Anjali Patle">Anjali Patle</option>
-                                            <option value="Amit Kumar">Amit Kumar</option>
-                                            <option value="Aniket Rane">Aniket Rane</option>
-                                            <option value="Shubham Kadam">Shubham Kadam</option>
-                                            <option value="Abhijieet Tawate">Abhijieet Tawate</option>
-                                            <option value="Pravin Bildlan">Pravin Bildlan</option>
-                                            <option value="Amit Pednekar">Amit Pednekar</option>
-                                            <option value="Mahendra Chaudhary">Mahendra Chaudhary</option>
-                                            <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
-                                            <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
-                                        </select>
-                                        {errors.addedBy && (
-                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This field is required!</p>)}
-                                    </div>
-
-                                    <label>Description</label>
-                                    <CKEditor
-                                        editor={ClassicEditor}
-                                        data={form.description}
-                                        onChange={(event, editor) => {
-                                            const newData = editor.getData();
-                                            setForm({ ...form, description: newData });
-                                        }}
-                                    />
-                                    {errors.description && (
-                                        <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Description is required!</p>)}
-                                </div>
-
-                            </div>
 
                                             <div className="text-end">
                                                 <button type="button" className="btn btn-sm btn-light me-2" onClick={() => { resetForm(); setShowEditModal(false) }}>Close</button>

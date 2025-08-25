@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DataTable from 'react-data-table-component';
 import './employees.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
@@ -16,6 +16,8 @@ const Awards = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [description, setDescription] = useState('');
     const [preview, setPreview] = useState(null);
+    const editorRef = useRef(null);
+    const [editorKey, setEditorKey] = useState(0);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -550,13 +552,16 @@ const Awards = () => {
 
                                     <label>Description</label>
                                     <CKEditor
+                                        key={editorKey}
                                         editor={ClassicEditor}
-                                        data={description || ""}
+                                        data={form.description}
+                                        onReady={(editor) => {
+                                            editorRef.current = editor;
+                                        }}
                                         onChange={(event, editor) => {
                                             const newData = editor.getData();
-                                            setForm({ ...form, description: newData });
+                                            setForm(prev => ({ ...prev, description: newData }));
                                         }}
-                                        onBlur={() => validateField("description", form.description)}
                                     />
                                     {errors.description && (
                                         <p className="text-danger mb-0" style={{ fontSize: '13px' }}>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DataTable from 'react-data-table-component';
 import './organization.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
@@ -15,6 +15,8 @@ const Announcements = () => {
     const [description, setDescription] = useState('');
     const [editId, setEditId] = useState(null);
 
+    const editorRef = useRef(null);
+    const [editorKey, setEditorKey] = useState(0);
     //from backend
     const [announcement, setAnnouncement] = useState([]);
     const [paginated, setPaginated] = useState([]);
@@ -360,7 +362,7 @@ const Announcements = () => {
                                         />
                                         {errors.title && (
                                             <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
-                                               Title is Required! 
+                                                Title is Required!
                                             </p>
                                         )}
                                     </div>
@@ -383,7 +385,7 @@ const Announcements = () => {
                                             />
                                             {errors.startDate && (
                                                 <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
-                                                   Start Date is required!
+                                                    Start Date is required!
                                                 </p>
                                             )}
                                         </div>
@@ -405,7 +407,7 @@ const Announcements = () => {
                                             />
                                             {errors.endDate && (
                                                 <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
-                                                  End Date is required!
+                                                    End Date is required!
                                                 </p>
                                             )}
                                         </div>
@@ -427,7 +429,7 @@ const Announcements = () => {
                                             </select>
                                             {errors.company && (
                                                 <p className="text-danger mb-0" style={{ fontSize: "13px" }}>
-                                                   Company Name is required!
+                                                    Company Name is required!
                                                 </p>
                                             )}
                                         </div>
@@ -450,7 +452,7 @@ const Announcements = () => {
                                             </select>
                                             {errors.location && (
                                                 <p className="text-danger mb-0" style={{ fontSize: "13px" }}>
-                                                   Location is required!
+                                                    Location is required!
                                                 </p>
                                             )}
                                         </div>
@@ -525,13 +527,16 @@ const Announcements = () => {
                                         <label>Description</label>
                                         <div className={errors.description ? "is-invalid" : ""}>
                                             <CKEditor
+                                                key={editorKey}
                                                 editor={ClassicEditor}
-                                                data={description || ""}
+                                                data={form.description}
+                                                onReady={(editor) => {
+                                                    editorRef.current = editor;
+                                                }}
                                                 onChange={(event, editor) => {
                                                     const newData = editor.getData();
-                                                    setForm({ ...form, description: newData });
+                                                    setForm(prev => ({ ...prev, description: newData }));
                                                 }}
-                                                onBlur={() => validateField("description", form.description)}
                                             />
                                         </div>
                                         {errors.description && (
@@ -832,8 +837,8 @@ const Announcements = () => {
                                                             })
                                                         }
                                                     />
-                                                     {errors.description && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Summary is required!</p>)}
+                                                    {errors.description && (
+                                                        <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Summary is required!</p>)}
 
                                                     <div className="mb-3">
                                                         <label>Description</label>

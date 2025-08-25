@@ -3,14 +3,58 @@ import DataTable from 'react-data-table-component';
 import { useLocation } from 'react-router-dom';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-
+import { useParams, useNavigate } from "react-router-dom";
+// import { updateLeave } from "../../api/leaveApi";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { getLeave, createLeave, updateLeave, deleteLeave } from '../../api/leaveApi';
 
 const LeaveDetail = () => {
 
     const location = useLocation();
-    //    const [selectedDepartment, setSelectedDepartment] = useState('Basic Information');
+    const { id } = useParams();
     const employee = location.state?.employee;
-    const [description, setDescription] = useState('Approved');
+        const [editId, setEditId] = useState(null);
+    
+    const [form, setForm] = React.useState({
+        status: "",
+        remarks: "",
+    });
+
+    const navigate = useNavigate();
+
+
+   const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    if (editId) {
+      await updateLeave(editId, form);
+      toast.success("Leave updated successfully!");
+    } else {
+      await createLeave(form);
+      toast.success("Leave saved successfully!");
+    }
+
+    navigate("/leave");
+  } catch (err) {
+    console.error("Error saving Leave:", err);
+    toast.error("Leave failed to save!");
+  }
+};
+
+
+    // useEffect(() => {
+    //     const fetchLeave = async () => {
+    //         const res = await getLeaveById(params.id);
+    //         console.log("Fetched leave:", res.data);
+    //         setForm(res.data);
+    //     };
+    //     fetchLeave();
+    // }, []);
+
+
+    const [remarks, setRemarks] = useState('');
     const leaveStats = [
         { type: 'Casual Leave', taken: 0, total: 15 },
         { type: 'Medical Leave', taken: 1, total: 2 },
@@ -57,6 +101,10 @@ const LeaveDetail = () => {
                             <li className="list-group-item">
                                 <strong>No. of Days: {employee?.days || 'N/A'}</strong>
                             </li>
+
+                            <li className="list-group-item">
+                                <strong>Remarks: {employee?.remarks || 'N/A'}</strong>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -66,15 +114,21 @@ const LeaveDetail = () => {
                     <div className="card no-radius">
                         <div className="card-header text-white new-emp-bg fw-bold">Update Status</div>
                         <div className="card-body">
-                            <form>
+                            <form onSubmit={handleSubmit}>
                                 <div className="row">
                                     <div className="col-md-12">
                                         <div className="mb-3">
                                             <label>Status</label>
-                                            <select id="status" className="form-control">
-                                                <option value="pending">Pending</option>
-                                                <option value="approved">Approved</option>
-                                                <option value="rejected">Rejected</option>
+                                            <select
+                                                id="status"
+                                                className="form-control"
+                                                value={form.status}
+                                                onChange={(e) => setForm({ ...form, status: e.target.value })}
+                                            >
+                                                <option value="">Status</option>
+                                                <option value="Pending">Pending</option>
+                                                <option value="Approved">Approved</option>
+                                                <option value="Rejected">Rejected</option>
                                             </select>
                                         </div>
 
@@ -82,10 +136,10 @@ const LeaveDetail = () => {
                                             <label>Remarks</label>
                                             <CKEditor
                                                 editor={ClassicEditor}
-                                                data={description}
+                                                data={form.remarks}
                                                 onChange={(event, editor) => {
-                                                    const newData = editor.getData();
-                                                    setDescription(newData);
+                                                    const data = editor.getData();
+                                                    setForm({ ...form, remarks: data });
                                                 }}
                                             />
                                         </div>
