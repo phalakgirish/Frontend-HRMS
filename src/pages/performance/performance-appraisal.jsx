@@ -19,6 +19,20 @@ const PerformanceAppraisal = () => {
     const [PerformanceAppraisal, setPerformanceAppraisal] = useState([]);
     const [paginated, setPaginated] = useState([]);
 
+    const departmentDesignations = {
+        "Accounts": ["Trainee"],
+        "Administrator": ["System Administrator"],
+        "Human Resource": ["HR Manager"],
+        "Dealing": ["Asst. Dealer", "Dealer", "Sr. Manager", "AAA"],
+        "Digital Marketing": ["Trainee"],
+        "IT": ["IT Manager"],
+        "Sales": ["Relationship Manager", "Team Leader - Home Loan", "Relationship Manager - Home Loan", "Team Leader - Vehicle Loan",
+            "Branch Business Head", "Sales Coordinator",
+        ],
+        "Management": ["Senior Executive", "Whole Time Director", "Managing Director & CBO", "CFO & Digital Partnership Head", "Compliance Officer & Company Secretory"],
+        "Operation": ["Operation Executive"],
+        "Admin": [],
+    };
 
     const [form, setForm] = useState({
         employee: '',
@@ -384,7 +398,7 @@ const PerformanceAppraisal = () => {
                                 {/* Left Column */}
                                 <div className="row">
                                     {/* Employee */}
-                                    <div className="col-12 col-md-6 mb-3 d-flex align-items-center">
+                                    <div className="col-12 col-md-6 mb-3 d-flex flex-column flex-md-row align-items-md-center">
                                         <label
                                             htmlFor="employee"
                                             className="me-2 mb-0"
@@ -424,7 +438,7 @@ const PerformanceAppraisal = () => {
                                     </div>
 
                                     {/* Department */}
-                                    <div className="col-12 col-md-6 mb-3 d-flex align-items-center">
+                                    <div className="col-12 col-md-6 mb-3 d-flex flex-column flex-md-row align-items-md-center">
                                         <label
                                             htmlFor="department"
                                             className="me-2 mb-0"
@@ -440,55 +454,72 @@ const PerformanceAppraisal = () => {
                                                 setForm({ ...form, department: value });
                                                 validateField("department", value);
                                             }}
-                                            onBlur={(e) => validateField("department", e.target.value)}
                                             className={`form-control ${errors.department ? "is-invalid" : ""}`}
+                                            onBlur={(e) => validateField("department", e.target.value)}
                                         >
                                             <option value="">Select Department</option>
-                                            <option value="Accounts">Accounts</option>
-                                            <option value="Administrator">Administrator</option>
-                                            <option value="Human Resource">Human Resource</option>
-                                            <option value="Dealing">Dealing</option>
-                                            <option value="Digital Marketing">Digital Marketing</option>
-                                            <option value="IT">IT</option>
-                                            <option value="Sales">Sales</option>
-                                            <option value="Admin">Admin</option>
-                                            <option value="Management">Management</option>
-                                            <option value="Operation">Operation</option>
+                                            {Object.keys(departmentDesignations).map((dept) => (
+                                                <option key={dept} value={dept}>
+                                                    {dept}
+                                                </option>
+                                            ))}
                                         </select>
-                                        {errors.department && <p className="text-danger mb-0 ms-2" style={{ fontSize: '13px' }}>Required!</p>}
+                                        {errors.department && (
+                                            <p className="text-danger mb-0 mt-1" style={{ fontSize: "13px" }}>
+                                                Required!
+                                            </p>
+                                        )}
                                     </div>
 
                                     {/* Designation */}
-                                    <div className="col-12 col-md-6 mb-3 d-flex align-items-center">
+                                    <div className="col-12 col-md-6 mb-3 d-flex flex-column flex-md-row align-items-md-center">
                                         <label
-                                            htmlFor="employee"
+                                            htmlFor="designation"
                                             className="me-2 mb-0"
                                             style={{ minWidth: "160px" }}
                                         >
                                             Designation
                                         </label>
-                                        <select
-                                            id="designation"
-                                            value={form.designation}
-                                            onChange={(e) => {
-                                                const { value } = e.target;
-                                                setForm({ ...form, designation: value });
-                                                validateField("designation", value);
-                                            }}
-                                            onBlur={(e) => validateField("designation", e.target.value)}
-                                            className={`form-control ${errors.designation ? "is-invalid" : ""}`}
-                                        >
-                                            <option value="">Select Designation</option>
-                                            <option value="Manager">Manager</option>
-                                            <option value="Senior Executive">Senior Executive</option>
-                                            <option value="Executive">Executive</option>
-                                            <option value="Assistant">Assistant</option>
-                                        </select>
-                                        {errors.designation && <p className="text-danger mb-0 ms-2" style={{ fontSize: '13px' }}>Required!</p>}
+                                        {departmentDesignations[form.department]?.length > 0 ? (
+                                            <select
+                                                id="designation"
+                                                value={form.designation}
+                                                onChange={(e) => {
+                                                    const { value } = e.target;
+                                                    setForm({ ...form, designation: value });
+                                                    validateField("designation", value);
+                                                }}
+                                                className={`form-control ${errors.designation ? "is-invalid" : ""}`}
+                                                onBlur={(e) => validateField("designation", e.target.value)}
+                                            >
+                                                <option value="">Select Designation</option>
+                                                {departmentDesignations[form.department].map((desig, idx) => (
+                                                    <option key={idx} value={desig}>
+                                                        {desig}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        ) : (
+                                            <input
+                                                type="text"
+                                                value={form.designation}
+                                                onChange={(e) =>
+                                                    setForm({ ...form, designation: e.target.value })
+                                                }
+                                                className="form-control"
+                                                placeholder="No designation available"
+                                                disabled
+                                            />
+                                        )}
+                                        {errors.designation && (
+                                            <p className="text-danger mb-0 mt-1" style={{ fontSize: "13px" }}>
+                                                Required!
+                                            </p>
+                                        )}
                                     </div>
 
                                     {/* Month */}
-                                    <div className="col-12 col-md-6 mb-3 d-flex align-items-center">
+                                    <div className="col-12 col-md-6 mb-3 d-flex flex-column flex-md-row align-items-md-center">
                                         <label
                                             htmlFor="month"
                                             className="me-2 mb-0"
@@ -496,7 +527,9 @@ const PerformanceAppraisal = () => {
                                         >
                                             Select Month
                                         </label>
-                                        <input type="date" value={form.appraisalDate}
+                                        <input
+                                            type="date"
+                                            value={form.appraisalDate}
                                             onChange={(e) => {
                                                 const { value } = e.target;
                                                 setForm({ ...form, appraisalDate: value });
@@ -505,13 +538,15 @@ const PerformanceAppraisal = () => {
                                             className={`form-control ${errors.appraisalDate ? "is-invalid" : ""}`}
                                             placeholder="appraisalDate"
                                             onBlur={(e) => validateField("appraisalDate", e.target.value)}
-
                                         />
                                         {errors.appraisalDate && (
-                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Required!</p>
+                                            <p className="text-danger mb-0 mt-1" style={{ fontSize: "13px" }}>
+                                                Required!
+                                            </p>
                                         )}
                                     </div>
                                 </div>
+
 
                                 {/* left colm */}
                                 <div className="col-md-6">
@@ -794,7 +829,7 @@ const PerformanceAppraisal = () => {
                                     </div>
 
                                     <label className="ms-4">Description</label>
-                                    <div className="ms-4">
+                                    <div className="ms-4 mb-3">
                                         <CKEditor
                                             editor={ClassicEditor}
                                             data={form.description || ""}

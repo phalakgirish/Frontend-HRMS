@@ -10,7 +10,7 @@ const Constants = ({ type, columnName }) => {
     const location = useLocation();
     const { state } = useLocation();
     const { id } = useParams();
-    const [selectedDepartment, setSelectedDepartment] = useState('Contract');
+    const [selectedDepartment, setSelectedDepartment] = useState('Contract Type');
     const [formValues, setFormValues] = useState({});
     const [departmentData, setDepartmentData] = useState({});
 
@@ -1261,11 +1261,12 @@ const Constants = ({ type, columnName }) => {
 
 
                 <div className="col-md-9">
-                    <div className='d-flex gap-5'>
-                        <div className='col-md-5'>
+                    <div className="row g-3">
+
+                        <div className="col-12 col-md-5">
                             <div className="card no-radius">
                                 <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
-                                    <span>Add New {selectedDepartment} </span>
+                                    <span>Add New {selectedDepartment}</span>
                                 </div>
                                 <div className="card-body p-3">
                                     {renderContent()}
@@ -1273,18 +1274,20 @@ const Constants = ({ type, columnName }) => {
                             </div>
                         </div>
 
-                        <div className='col-md-6'>
+                        <div className="col-12 col-md-6">
                             <div className="card no-radius">
                                 <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
-                                    <span>List All {selectedDepartment} </span>
+                                    <span>List All {selectedDepartment}</span>
                                 </div>
                                 <div className="card-body p-3">
                                     {renderList()}
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
+
             </div>
 
         </div>

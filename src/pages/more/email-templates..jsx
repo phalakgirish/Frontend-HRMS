@@ -183,7 +183,7 @@ const EmailTemplates = () => {
                         </div>
                     </div>
 
-                    <DataTable
+                   <DataTable
                         columns={columns}
                         data={paginatedData}
                         fixedHeader
@@ -194,24 +194,12 @@ const EmailTemplates = () => {
                         subHeader
                         subHeaderAlign="right"
                         subHeaderComponent={
-                            <div className="d-flex justify-content-between align-items-center w-100">
-                                <div className="d-flex align-items-center">
-                                    <label htmlFor="entriesSelect" className="mb-0 ms-4 me-2">Show</label>
-                                    <select
-                                        id="entriesSelect"
-                                        className="form-select form-select-sm w-auto"
-                                        value={rowsPerPage}
-                                        onChange={(e) => {
-                                            setRowsPerPage(Number(e.target.value));
-                                            setCurrentPage(1);
-                                        }}
-                                    >
-                                        <option value="10">10</option>
-                                        <option value="25">25</option>
-                                        <option value="50">50</option>
-                                        <option value="100">100</option>
-                                    </select>
-                                    <span className="ms-1 ms-2">entries</span>
+                            <div className="d-flex flex-wrap justify-content-between align-items-center w-100 gap-2">
+                                <div className="d-flex flex-wrap gap-2">
+                                    <button className="btn btn-sm btn-outline-dark">Copy</button>
+                                    <button className="btn btn-sm btn-outline-dark">CSV</button>
+                                    <button className="btn btn-sm btn-outline-dark">PDF</button>
+                                    <button className="btn btn-sm btn-outline-dark">Print</button>
                                 </div>
 
                                 <div className="d-flex align-items-center gap-2">

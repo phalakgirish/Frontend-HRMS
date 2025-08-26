@@ -120,26 +120,37 @@ const AccountStatement = () => {
 
             <div className="card no-radius mb-3 col-md-12">
                 <div className="card-header text-white new-emp-bg fw-bold">Account Statement</div>
-                <div className="card-body d-flex align-items-start gap-3 border p-4 mt-2 ms-2 me-2">
+                <div className="card-body row g-2 border p-4 mt-2 ms-2 me-2">
 
-                    <select id="allaccounts" className="form-control">
-                        <option value="">All Accounts</option>
-                        <option value="allacc">All Accounts</option>
-                    </select>
+                    <div className="col-12 col-sm-6 col-md">
+                        <select id="allaccounts" className="form-control">
+                            <option value="">All Accounts</option>
+                            <option value="allacc">All Accounts</option>
+                        </select>
+                    </div>
 
-                    <input type="date" name="" id="" className='form-control' />
-                    <input type="date" name="" id="" className='form-control' />
+                    <div className="col-12 col-sm-6 col-md">
+                        <input type="date" className="form-control" />
+                    </div>
 
-                    <select id="type" className="form-control">
-                        <option value="">All</option>
-                        <option value="deposit">Deposit</option>
-                        <option value="expense">Expense</option>
-                        <option value="transfer">Transfer</option>
+                    <div className="col-12 col-sm-6 col-md">
+                        <input type="date" className="form-control" />
+                    </div>
 
-                    </select>
-                    <button className="btn btn-sm add-btn ms-4">Get</button>
+                    <div className="col-12 col-sm-6 col-md">
+                        <select id="type" className="form-control">
+                            <option value="">All</option>
+                            <option value="deposit">Deposit</option>
+                            <option value="expense">Expense</option>
+                            <option value="transfer">Transfer</option>
+                        </select>
+                    </div>
 
+                    <div className="col-12 col-sm-6 col-md-auto d-flex align-items-center">
+                        <button className="btn btn-sm add-btn w-40">Get</button>
+                    </div>
                 </div>
+
                 {/* </div>
 
 
