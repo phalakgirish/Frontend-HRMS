@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DataTable from 'react-data-table-component';
 // import './organization.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-
+import { getEmailTemplates, createEmailTemplates, updateEmailTemplates, deleteEmailTemplates } from '../../api/emailTemplatesApi';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 const EmailTemplates = () => {
@@ -12,24 +14,157 @@ const EmailTemplates = () => {
     const [selectedRow, setSelectedRow] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [description, setDescription] = useState('<div class="mb-3"><label>Hello, Your Payslip is generated</label></div>');
+    const editorRef = useRef(null);
+    const [editorKey, setEditorKey] = useState(0);
+
+    //from backend
+    const [EmailTemplates, setEmailTemplates] = useState([]);
+    const [paginated, setPaginated] = useState([]);
+
+    const [editId, setEditId] = useState(null);
+
+    const [form, setForm] = useState({
+        templateName: '',
+        subject: '',
+        status: ''
+    });
+
+    const [errors, setErrors] = useState({});
+    const validateForm = () => {
+        let newErrors = {};
+        const requiredFields = [
+            "templateName",
+            'subject',
+            "status"
+        ];
+
+        requiredFields.forEach((field) => {
+            if (!form[field] || form[field].toString().trim() === "") {
+                newErrors[field] = `${field.replace(/([A-Z])/g, " $1")} is required`;
+            }
+        });
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+
+    useEffect(() => {
+        fetchEmailTemplates();
+    }, []);
+
+    const fetchEmailTemplates = async () => {
+        try {
+            const response = await getEmailTemplates();
+            setEmailTemplates(response.data);
+            paginate(response.data, currentPage);
+        } catch (error) {
+            console.error('Error fetching EmailTemplates:', error);
+        }
+    };
+
+
+    const validateField = (fieldName, value = "") => {
+        let error = "";
+
+        let displayName = fieldName
+            .replace(/([A-Z])/g, " $1")
+            .replace(/^./, str => str.toUpperCase());
+
+        value = value.toString().trim();
+
+        switch (fieldName) {
+            case "subject":
+            case "templateName":
+            case "status":
+                if (!value) error = `${displayName} is required`;
+                break;
+
+            default:
+                break;
+        }
+
+        setErrors(prev => ({ ...prev, [fieldName]: error }));
+        return error;
+    };
+
+
+
+    const handleSubmit = async (e) => {
+        console.log("this is submit", form);
+
+        e.preventDefault();
+        if (validateForm()) {
+
+            try {
+                if (editId) {
+                    await updateEmailTemplates(editId, form);
+                    toast.success("Email Templates updated successfully!");
+
+                } else {
+                    await createEmailTemplates(form);
+                    toast.success("Email Templates saved successfully!");
+
+                }
+                setForm(selectedRow);
+
+                setForm({
+                    templateName: '',
+                    subject: '',
+                    status: ''
+                });
+                setEditId("");
+                setSelectedRow(null);
+                setShowEditModal(false);
+
+                fetchEmailTemplates();
+            } catch (err) {
+                console.error("Error saving Email Templates:", err);
+                toast.error("Email Templates failed to save!");
+
+            }
+        }
+    };
+
+
+    const emptyForm = {
+        templateName: '',
+        subject: '',
+        status: ''
+    };
+
+    const resetForm = () => {
+        setForm(emptyForm);
+        setEditId(null);
+        setShowEditModal(false);
+    };
+
+    const handleEdit = (row) => {
+        setForm({
+            templateName: row.templateName,
+            subject: row.subject,
+            status: row.status
+        });
+        setEditId(row._id);
+        setShowEditModal(true);
+        setSelectedRow(row);
+    };
+
+    const handleDelete = async (id) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this EmailTemplates?");
+        if (!confirmDelete) return;
+        try {
+            await deleteEmailTemplates(id);
+            fetchEmailTemplates();
+        } catch (err) {
+            console.error("Error deleting EmailTemplates:", err);
+        }
+    };
 
     // const handleView = (row) => {
     //     setSelectedRow(row);
     //     setShowModal(true);
     // };
-
-
-    const handleEdit = (row) => {
-        setSelectedRow(row);
-        setShowEditModal(true);
-    };
-
-    // const handleDelete = (row) => {
-    //     if (window.confirm('Are you sure to delete this record?')) {
-    //         console.log('Deleting:', row);
-    //     }
-    // };
-
 
     const columns = [
         {
@@ -48,57 +183,58 @@ const EmailTemplates = () => {
                     >
                         <i className="fas fa-edit"></i>
                     </button>
-                    {/* <button
+                    <button
                         className="btn btn-danger btn-sm"
-                        onClick={() => handleDelete(row)}
+                        onClick={() => handleDelete(row._id)}
                     >
                         <i className="fas fa-trash-alt text-white"></i>
-                    </button> */}
+                    </button>
                 </div>
             ),
             ignoreRowClick: true,
             allowOverflow: true,
             button: true,
         },
-        { name: 'Status', selector: row => row.status, sortable: true },
+        { name: 'Status', selector: row => row.status },
         { name: 'Template Name', selector: row => row.templateName },
         {
             name: 'Subject',
             cell: (row) => (
-                <span className={`badge ${row.subject === 'Active' ? 'bg-success' : 'bg-danger'}`}>
+                <span className={`badge ${row.subject?.trim().toLowerCase() === 'active' ? 'bg-success' : 'bg-danger'}`}>
                     {row.subject}
                 </span>
+
             ),
             selector: row => row.subject
         }
     ];
 
-    const data = [
-        {
-            action: '-',
-            status: 'Payslip generated',
-            templateName: 'Payslip generated',
-            subject: 'Active'
-        },
-        {
-            action: '-',
-            status: 'Forgot Password',
-            templateName: 'Forgot Password',
-            subject: 'InActive'
-        },
-        {
-            action: '-',
-            status: 'Payslip generated',
-            templateName: 'Payslip generated',
-            subject: 'Active'
-        }, {
-            action: '-',
-            status: 'Forgot Password',
-            templateName: 'Forgot Password',
-            subject: 'Active'
-        },
-        // Add more records as needed
-    ];
+    // const data = [
+    //     {
+    //         action: '-',
+    //         status: 'Payslip generated',
+    //         templateName: 'Payslip generated',
+    //         subject: 'Active'
+    //     },
+    //     {
+    //         action: '-',
+    //         status: 'Forgot Password',
+    //         templateName: 'Forgot Password',
+    //         subject: 'InActive'
+    //     },
+    //     {
+    //         action: '-',
+    //         status: 'Payslip generated',
+    //         templateName: 'Payslip generated',
+    //         subject: 'Active'
+    //     }, {
+    //         action: '-',
+    //         status: 'Forgot Password',
+    //         templateName: 'Forgot Password',
+    //         subject: 'Active'
+    //     },
+    //     // Add more records as needed
+    // ];
 
     const customStyles = {
         headCells: {
@@ -128,22 +264,25 @@ const EmailTemplates = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    const totalEntries = data.length;
+    const totalEntries = EmailTemplates.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
+    // console.log('Paginated data:', paginated);
 
-    const paginatedData = data.slice(
-        (currentPage - 1) * rowsPerPage,
-        currentPage * rowsPerPage
-    );
+    const paginate = (data, page) => {
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        setPaginated(data.slice(start, end));
+        setCurrentPage(page);
+    };
 
     const startEntry = (currentPage - 1) * rowsPerPage + 1;
     const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
 
-    // const [showAddForm, setShowAddForm] = useState(false);
+    const [showAddForm, setShowAddForm] = useState(false);
 
-    // const toggleAddForm = () => {
-    //     setShowAddForm((prev) => !prev);
-    // };
+    const toggleAddForm = () => {
+        setShowAddForm((prev) => !prev);
+    };
 
     return (
         <div className="custom-container">
@@ -152,12 +291,101 @@ const EmailTemplates = () => {
                 <span style={{ color: 'red' }}>Home</span> / Email Templates
             </p>
 
+            {showAddForm && (
+                <div className="card mb-3 form-slide-container">
+                    <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
+                        <span>Add New Award</span>
+                        <button className="btn btn-sm add-btn" onClick={toggleAddForm}>
+                            - Hide
+                        </button>
+                    </div>
 
+                    <div className="container mt-4">
+                        <form onSubmit={handleSubmit}>
+                            <div className="row">
+                                {/* Left Column */}
+                                <div className="col-md-6 mb-3">
+                                    <div className="mb-3">
+                                        <label>Template Name</label>
+                                        <input type="text"
+                                            value={form.templateName}
+                                            onChange={(e) => {
+                                                const { value } = e.target;
+                                                setForm({ ...form, templateName: value });
+                                                validateField("templateName", value);
+                                            }}
+                                            className={`form-control ${errors.templateName ? "is-invalid" : ""}`}
+                                            placeholder="Template Name"
+                                            onBlur={(e) => validateField("templateName", e.target.value)}
+
+                                        />
+                                        {errors.templateName && (
+                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.templateName}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="col-md-12 mb-3">
+                                        <label>Subject</label>
+                                        <select id="awardType"
+                                            value={form.subject}
+                                            onChange={(e) => {
+                                                const { value } = e.target;
+                                                setForm({ ...form, subject: value });
+                                                validateField("subject", value);
+                                            }}
+                                            className={`form-control ${errors.subject ? "is-invalid" : ""}`}
+                                            onBlur={(e) => validateField("subject", e.target.value)}
+                                        >
+                                            <option value="">Subject</option>
+                                            <option value="Active">Active</option>
+                                            <option value="Inactive">Inactive</option>
+                                        </select>
+                                        {errors.subject && (
+                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.subject}</p>
+                                        )}
+                                    </div>
+
+                                </div>
+
+                                {/* Right Column */}
+                                <div className="col-md-6 mb-3">
+
+                                    <label>Status</label>
+                                    <CKEditor
+                                        key={editorKey}
+                                        editor={ClassicEditor}
+                                        data={form.status}
+                                        onReady={(editor) => {
+                                            editorRef.current = editor;
+                                        }}
+                                        onChange={(event, editor) => {
+                                            const newData = editor.getData();
+                                            setForm(prev => ({ ...prev, status: newData }));
+                                        }}
+                                    />
+                                    {errors.status && (
+                                        <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
+                                            {errors.status}
+                                        </p>
+                                    )}
+                                </div>
+
+
+                            </div>
+
+                            <div className="text-start mb-2">
+                                <button type="submit" className="btn btn-sm add-btn">Save</button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            )}
 
             <div className="card no-radius">
                 <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
                     <span>List All Email Templates</span>
-                    {/* <button className="btn btn-sm add-btn" onClick={toggleAddForm}>{showAddForm ? '- Hide' : '+ Add New'}</button> */}
+                    <button className="btn btn-sm add-btn" onClick={toggleAddForm}>{showAddForm ? '- Hide' : '+ Add New'}</button>
                 </div>
 
 
@@ -183,9 +411,9 @@ const EmailTemplates = () => {
                         </div>
                     </div>
 
-                   <DataTable
+                    <DataTable
                         columns={columns}
-                        data={paginatedData}
+                        data={paginated}
                         fixedHeader
                         highlightOnHover
                         customStyles={customStyles}
@@ -264,43 +492,81 @@ const EmailTemplates = () => {
                                         <button type="button" className="btn-close" onClick={() => setShowEditModal(false)}></button>
                                     </div>
                                     <div className="modal-body">
-                                        <form>
+                                        <form onSubmit={handleSubmit}>
                                             <div className="row">
-                                                {/* Left Column */}
-                                                <div className="col-md-12">
-                                                    <div className="mb-3">
-                                                        <label>Template Name</label>
-                                                        <input type="text" className="form-control" defaultValue={selectedRow.templateName} placeholder="Title" />
-                                                    </div>
+                                {/* Left Column */}
+                                <div className="col-md-6 mb-3">
+                                    <div className="mb-3">
+                                        <label>Template Name</label>
+                                        <input type="text"
+                                            value={form.templateName}
+                                            onChange={(e) => {
+                                                const { value } = e.target;
+                                                setForm({ ...form, templateName: value });
+                                                validateField("templateName", value);
+                                            }}
+                                            className={`form-control ${errors.templateName ? "is-invalid" : ""}`}
+                                            placeholder="Template Name"
+                                            onBlur={(e) => validateField("templateName", e.target.value)}
 
-                                                    <div className='row'>
-                                                        <div className="col-md-6 mb-3">
-                                                            <label>Subject</label>
-                                                            <input type="text" className="form-control" defaultValue={selectedRow.subject} placeholder="Start Date" />
-                                                        </div>
+                                        />
+                                        {errors.templateName && (
+                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.templateName}</p>
+                                        )}
+                                    </div>
 
-                                                        <div className="col-md-6 mb-3">
-                                                            <label>Status</label>
-                                                            <input type="text" className="form-control" defaultValue={selectedRow.status} placeholder="End Date" />
-                                                        </div>
-                                                    </div>
+                                    <div className="col-md-12 mb-3">
+                                        <label>Subject</label>
+                                        <select id="awardType"
+                                            value={form.subject}
+                                            onChange={(e) => {
+                                                const { value } = e.target;
+                                                setForm({ ...form, subject: value });
+                                                validateField("subject", value);
+                                            }}
+                                            className={`form-control ${errors.subject ? "is-invalid" : ""}`}
+                                            onBlur={(e) => validateField("subject", e.target.value)}
+                                        >
+                                            <option value="">Subject</option>
+                                            <option value="Active">Active</option>
+                                            <option value="Inactive">Inactive</option>
+                                        </select>
+                                        {errors.subject && (
+                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.subject}</p>
+                                        )}
+                                    </div>
 
-                                                    <div className="mb-3">
-                                                        <label>Message</label>
-                                                        <CKEditor
-                                                            editor={ClassicEditor}
-                                                            data={description}
-                                                            onChange={(event, editor) => {
-                                                                const newData = editor.getData();
-                                                                setDescription(newData);
-                                                            }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
+                                </div>
+
+                                {/* Right Column */}
+                                <div className="col-md-6 mb-3">
+
+                                    <label>Status</label>
+                                    <CKEditor
+                                        key={editorKey}
+                                        editor={ClassicEditor}
+                                        data={form.status}
+                                        onReady={(editor) => {
+                                            editorRef.current = editor;
+                                        }}
+                                        onChange={(event, editor) => {
+                                            const newData = editor.getData();
+                                            setForm(prev => ({ ...prev, status: newData }));
+                                        }}
+                                    />
+                                    {errors.status && (
+                                        <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
+                                            {errors.status}
+                                        </p>
+                                    )}
+                                </div>
+
+
+                            </div>
 
                                             <div className="text-end">
-                                                <button type="submit" className="btn btn-sm add-btn">Save</button>
+                                                <button type="button" className="btn btn-sm btn-light me-2" onClick={() => { resetForm(); setShowEditModal(false) }}>Close</button>
+                                                <button type="submit" onClick={(e) => handleSubmit(e)} className="btn btn-sm add-btn">Update</button>
                                             </div>
                                         </form>
                                     </div>
