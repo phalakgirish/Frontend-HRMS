@@ -106,24 +106,32 @@ const TransferReport = () => {
 
     return (
         <div className="custom-container">
-            <h5>Income Report</h5>
+            <h5>Transfer Report</h5>
             <p style={{ fontSize: '15px', color: 'rgb(98, 98, 98)' }}>
-                <span style={{ color: 'red' }}>Home</span> / Income Report
+                <span style={{ color: 'red' }}>Home</span> / Transfer Report
             </p>
 
             <div className="card no-radius mb-3 col-md-12">
-                <div className="card-header text-white new-emp-bg fw-bold">Income Report</div>
+                <div className="card-header text-white new-emp-bg fw-bold">Transfer Report</div>
+                
                 <div className='col-md-8'>
-                    <div className="card-body d-flex align-items-start gap-3 border p-4 mt-2 ms-2 me-2">
+  <div className="card-body row g-2 border p-4 mt-2 ms-2 me-2">
 
+    <div className="col-12 col-sm-6">
+      <input type="date" className="form-control" />
+    </div>
 
-                        <input type="date" name="" id="" className='form-control' />
-                        <input type="date" name="" id="" className='form-control' />
+    <div className="col-12 col-sm-6">
+      <input type="date" className="form-control" />
+    </div>
 
-                        <button className="btn btn-sm add-btn ms-4">Get</button>
+    <div className="col-12 col-sm-6 col-md-auto d-flex align-items-center">
+      <button className="btn btn-sm add-btn w-40">Get</button>
+    </div>
 
-                    </div>
-                </div>
+  </div>
+</div>
+
                 {/* </div>
 
 

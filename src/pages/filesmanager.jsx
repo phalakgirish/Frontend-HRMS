@@ -18,7 +18,7 @@ const FilesManager = () => {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [newDepartment, setNewDepartment] = useState('');
     const [newFile, setNewFile] = useState(null);
-const [files, setFiles] = useState(null);
+    const [files, setFiles] = useState(null);
 
 
     const departments = [
@@ -90,35 +90,35 @@ const [files, setFiles] = useState(null);
     };
 
 
-  const fetchFiles = async () => {
-    const response = await fetch("http://localhost:3000/files-manager/list");
-    const data = await response.json();
-    setFiles(data);
-  };
+    const fetchFiles = async () => {
+        const response = await fetch("http://localhost:3000/files-manager/list");
+        const data = await response.json();
+        setFiles(data);
+    };
 
     const [uploadedFile, setUploadedFile] = useState(null);
 
-   const handleUpload = async (e) => {
-      e.preventDefault(); 
+    const handleUpload = async (e) => {
+        e.preventDefault();
 
-    if (!newFile) return alert("No file selected!");
+        if (!newFile) return alert("No file selected!");
 
-    const formData = new FormData();
-    formData.append("file", newFile);
-      formData.append("department", selectedDepartment); 
+        const formData = new FormData();
+        formData.append("file", newFile);
+        formData.append("department", selectedDepartment);
 
 
-    const response = await fetch("http://localhost:3000/files-manager/upload", {
-      method: "POST",
-      body: formData,
-    });
+        const response = await fetch("http://localhost:3000/files-manager/upload", {
+            method: "POST",
+            body: formData,
+        });
 
-    const data = await response.json();
+        const data = await response.json();
 
-    fetchData();
-      setNewFile(null); 
-//   e.target.reset();
-  };
+        fetchData();
+        setNewFile(null);
+        //   e.target.reset();
+    };
 
 
 
@@ -145,20 +145,20 @@ const [files, setFiles] = useState(null);
         setCurrentPage(1);
     }, [selectedDepartment, rowsPerPage]);
 
-   const handleDownload = async (row) => {
-    const filename = row.storedFileName || row.fileName || row.file; 
+    const handleDownload = async (row) => {
+        const filename = row.storedFileName || row.fileName || row.file;
 
-    const response = await fetch(`http://localhost:3000/files-manager/download/${filename}`);
+        const response = await fetch(`http://localhost:3000/files-manager/download/${filename}`);
 
-    if (!response.ok) return alert("Download failed!");
+        if (!response.ok) return alert("Download failed!");
 
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = row.originalFileName || filename; 
-    a.click();
-};
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = row.originalFileName || filename;
+        a.click();
+    };
 
 
 
@@ -343,214 +343,201 @@ const [files, setFiles] = useState(null);
                 <span style={{ color: 'red' }}>Home</span> / Files Manager
             </p>
 
-            <div className='d-flex gap-3'>
-                <div className="card no-radius mb-3 col-md-3">
-                    <div className="card-header text-white new-emp-bg fw-bold">Departments</div>
-                    <div className="card-body">
-                        <ul className="list-group list-group-flush">
-                            {[
-                                'All Departments', 'Accounts', 'Administrator', 'Human Resource',
-                                'Dealing', 'Digital Marketing', 'IT', 'Sales', 'Admin', 'Management', 'Operation'
-                            ].map((dept, index) => {
-                                const isHeading = dept === 'All Departments';
-                                return (
-                                    <li
-                                        key={index}
-                                        className={`list-group-item department-item ${!isHeading && selectedDepartment === dept ? 'active' : ''}`}
-                                        style={{
-                                            cursor: isHeading ? 'default' : 'pointer',
-                                            fontWeight: isHeading ? 'bold' : 'normal',
-                                            backgroundColor: isHeading ? '#f0f0f0' : 'transparent'
-                                        }}
-                                        onClick={() => !isHeading && setSelectedDepartment(dept)}
-                                    >
-                                        {dept}
-                                    </li>
-                                );
-                            })}
-                        </ul>
+            <div className="row g-3">
+                {/* Sidebar - Departments */}
+                <div className="col-12 col-md-3">
+                    <div className="card no-radius h-100">
+                        {/* <div className='d-flex gap-3'>
+                <div className="card no-radius mb-3 col-md-3"> */}
+                        <div className="card-header text-white new-emp-bg fw-bold">Departments</div>
+                        <div className="card-body">
+                            <ul className="list-group list-group-flush">
+                                {[
+                                    'All Departments', 'Accounts', 'Administrator', 'Human Resource',
+                                    'Dealing', 'Digital Marketing', 'IT', 'Sales', 'Admin', 'Management', 'Operation'
+                                ].map((dept, index) => {
+                                    const isHeading = dept === 'All Departments';
+                                    return (
+                                        <li
+                                            key={index}
+                                            className={`list-group-item department-item ${!isHeading && selectedDepartment === dept ? 'active' : ''}`}
+                                            style={{
+                                                cursor: isHeading ? 'default' : 'pointer',
+                                                fontWeight: isHeading ? 'bold' : 'normal',
+                                                backgroundColor: isHeading ? '#f0f0f0' : 'transparent'
+                                            }}
+                                            onClick={() => !isHeading && setSelectedDepartment(dept)}
+                                        >
+                                            {dept}
+                                        </li>
+                                    );
+                                })}
+                            </ul>
 
+                        </div>
                     </div>
 
                 </div>
 
+                <div className="col-12 col-md-9">
 
-                <div className="card no-radius col-md-9">
-                    <div className="card-header d-flex justify-content-between align-items-center text-dark">
-                        <span>All Files</span>
-                        {/* <button className="btn btn-sm add-btn" onClick={toggleAddForm}>{showAddForm ? '- Hide' : '+ Add New'}</button> */}
-                    </div>
-
-                    <form className="p-3" onSubmit={handleSubmit}>
-                        <div className="row">
-                            {/* Left Column */}
-                            <div className="col-md-6">
-                                <div className="mb-3">
-                                    <label className="form-label">Department</label>
-                                    <select
-                                        id="department"
-                                        value={newDepartment}
-                                        onChange={(e) => setNewDepartment(e.target.value)}
-                                        className="form-control"
-                                    >
-                                        <option value="">
-                                            {"Select Department"}
-                                        </option>
-
-                                        {/* Show only the selected department */}
-                                        {selectedDepartment && (
-                                            <option value={selectedDepartment}>{selectedDepartment}</option>
-                                        )}
-                                    </select>
-                                </div>
-                            </div>
-
-                            {/* Right Column */}
-                            <div className="col-md-5">
-                                <div className="mb-3">
-                                    <label className="form-label">Document File</label>
-                                    <input
-                                        type="file"
-                                        className="form-control"
-                                        onChange={(e) => {
-                                            const file = e.target.files[0];
-                                            setNewFile(file);       
-                                            // handleUpload(e);        
-                                        }}
-                                    />
-
-
-
-                                    <small className="form-text text-muted">
-                                        Upload files only: gif, png, pdf, txt, mp3, mp4, flv, doc, docx, xls, jpg, jpeg
-                                    </small>
-
-
-                                </div>
-                            </div>
+                    <div className="card no-radius">
+                        <div className="card-header d-flex justify-content-between align-items-center text-dark">
+                            <span>All Files</span>
+                            {/* <button className="btn btn-sm add-btn" onClick={toggleAddForm}>{showAddForm ? '- Hide' : '+ Add New'}</button> */}
                         </div>
-                        <button className="btn btn-sm add-btn mt-2" onClick={handleUpload}>
-                            Upload
-                        </button>
 
-                        {/* <div className="text-start mt-2">
+                        <form className="p-3" onSubmit={handleSubmit}>
+                            <div className="row">
+                                {/* Left Column */}
+                                <div className="col-md-6">
+                                    <div className="mb-3">
+                                        <label className="form-label">Department</label>
+                                        <select
+                                            id="department"
+                                            value={newDepartment}
+                                            onChange={(e) => setNewDepartment(e.target.value)}
+                                            className="form-control"
+                                        >
+                                            <option value="">
+                                                {"Select Department"}
+                                            </option>
+
+                                            {/* Show only the selected department */}
+                                            {selectedDepartment && (
+                                                <option value={selectedDepartment}>{selectedDepartment}</option>
+                                            )}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* Right Column */}
+                                <div className="col-md-5">
+                                    <div className="mb-3">
+                                        <label className="form-label">Document File</label>
+                                        <input
+                                            type="file"
+                                            className="form-control"
+                                            onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                setNewFile(file);
+                                                // handleUpload(e);        
+                                            }}
+                                        />
+
+
+
+                                        <small className="form-text text-muted">
+                                            Upload files only: gif, png, pdf, txt, mp3, mp4, flv, doc, docx, xls, jpg, jpeg
+                                        </small>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                            <button className="btn btn-sm add-btn mt-2" onClick={handleUpload}>
+                                Upload
+                            </button>
+
+                            {/* <div className="text-start mt-2">
                             <button type="submit"  onClick={handleUpload} className="btn btn-sm add-btn">Save</button>
                         </div> */}
-                    </form>
+                        </form>
 
 
 
 
-                    <div className="px-3 mt-4">
-                        {/* <div className="d-flex justify-content-between align-items-center mb-2">
-                            <div className="d-flex align-items-center gap-2">
-                                <label htmlFor="entriesSelect" className="mb-0 ms-4">Show</label>
-                                <select
-                                    id="entriesSelect"
-                                    className="form-select form-select-sm w-auto"
-                                    value={rowsPerPage}
-                                    onChange={(e) => {
-                                        setRowsPerPage(Number(e.target.value));
-                                        setCurrentPage(1);
-                                    }}
-                                >
-                                    <option value="10">10</option>
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                    <option value="100">100</option>
-                                </select>
-                                <span className="ms-1">entries</span>
+                        <div className="px-3 mt-4">
+                            <div className="d-flex justify-content-between align-items-center mb-2">
+                                <div className="d-flex align-items-center gap-2">
+                                    <label htmlFor="entriesSelect" className="mb-0 ms-4">Show</label>
+                                    <select
+                                        id="entriesSelect"
+                                        className="form-select form-select-sm"
+                                        style={{ width: "80px" }}   
+                                        value={rowsPerPage}
+                                        onChange={(e) => {
+                                            setRowsPerPage(Number(e.target.value));
+                                            setCurrentPage(1);
+                                        }}
+                                    >
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                    <span className="ms-1">entries</span>
+                                </div>
                             </div>
-                        </div> */}
 
-                        <DataTable
-                            columns={columns}
-                            data={paginatedData}
-                            fixedHeader
-                            highlightOnHover
-                            customStyles={customStyles}
-                            conditionalRowStyles={conditionalRowStyles}
-                            responsive
-                            subHeader
-                            subHeaderAlign="right"
-                            subHeaderComponent={
-                                <div className="d-flex justify-content-between align-items-center w-100">
-                                    <div className="d-flex justify-content-between align-items-center mb-2">
+                            <DataTable
+                                columns={columns}
+                                data={paginatedData}
+                                fixedHeader
+                                highlightOnHover
+                                customStyles={customStyles}
+                                conditionalRowStyles={conditionalRowStyles}
+                                responsive
+                                subHeader
+                                subHeaderAlign="right"
+                                subHeaderComponent={
+                                    <div className="d-flex flex-wrap justify-content-between align-items-center w-100 gap-2">
+                                        <div className="d-flex flex-wrap gap-2">
+                                            <button className="btn btn-sm btn-outline-dark">Copy</button>
+                                            <button className="btn btn-sm btn-outline-dark">CSV</button>
+                                            <button className="btn btn-sm btn-outline-dark">PDF</button>
+                                            <button className="btn btn-sm btn-outline-dark">Print</button>
+                                        </div>
+
                                         <div className="d-flex align-items-center gap-2">
-                                            <label htmlFor="entriesSelect" className="mb-0 ms-4">Show</label>
-                                            <select
-                                                id="entriesSelect"
-                                                className="form-select form-select-sm w-auto"
-                                                value={rowsPerPage}
-                                                onChange={(e) => {
-                                                    setRowsPerPage(Number(e.target.value));
-                                                    setCurrentPage(1);
-                                                }}
-                                            >
-                                                <option value="10">10</option>
-                                                <option value="25">25</option>
-                                                <option value="50">50</option>
-                                                <option value="100">100</option>
-                                            </select>
-                                            <span className="ms-1">entries</span>
+                                            <label htmlFor="searchInput" className="mb-0">Search:</label>
+                                            <input
+                                                id="searchInput"
+                                                type="text"
+                                                className="form-control form-control-sm"
+                                                onChange={() => { }}
+                                            />
                                         </div>
                                     </div>
-                                    {/* <div className="d-flex">
-                                        <button className="btn btn-sm btn-outline-dark">Copy</button>
-                                        <button className="btn btn-sm btn-outline-dark">CSV</button>
-                                        <button className="btn btn-sm btn-outline-dark">PDF</button>
-                                        <button className="btn btn-sm btn-outline-dark">Print</button>
-                                    </div> */}
+                                }
+                            />
+                        </div>
 
-                                    <div className="d-flex align-items-center gap-2">
-                                        <label htmlFor="searchInput" className="mb-0">Search:</label>
-                                        <input
-                                            id="searchInput"
-                                            type="text"
-                                            className="form-control form-control-sm"
-                                            onChange={() => { }}
-                                        />
-                                    </div>
-                                </div>
-                            }
-                        />
-                    </div>
+                        <div className="p-3">
+                            <p className="mb-0 text-muted" style={{ fontSize: '0.9rem' }}>
+                                Showing {startEntry} to {endEntry} of {totalEntries} entries
+                            </p>
+                        </div>
 
-                    <div className="p-3">
-                        <p className="mb-0 text-muted" style={{ fontSize: '0.9rem' }}>
-                            Showing {startEntry} to {endEntry} of {totalEntries} entries
-                        </p>
-                    </div>
-
-                    <div className="d-flex justify-content-end align-items-center p-3">
-                        <button
-                            className="btn btn-sm btn-outline-secondary px-3 prev-next me-1"
-                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                            disabled={currentPage === 1}
-                        >
-                            Prev
-                        </button>
-
-                        {[...Array(totalPages)].map((_, i) => (
+                        <div className="d-flex justify-content-end align-items-center p-3">
                             <button
-                                key={i}
-                                className={`btn btn-sm btn-outline-secondary prev-next me-1 ${currentPage === i + 1 ? 'active' : ''
-                                    }`}
-                                onClick={() => setCurrentPage(i + 1)}
+                                className="btn btn-sm btn-outline-secondary px-3 prev-next me-1"
+                                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
                             >
-                                {i + 1}
+                                Prev
                             </button>
-                        ))}
 
-                        <button
-                            className="btn btn-sm btn-outline-secondary px-3 prev-next"
-                            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                            disabled={currentPage === totalPages}
-                        >
-                            Next
-                        </button>
+                            {[...Array(totalPages)].map((_, i) => (
+                                <button
+                                    key={i}
+                                    className={`btn btn-sm btn-outline-secondary prev-next me-1 ${currentPage === i + 1 ? 'active' : ''
+                                        }`}
+                                    onClick={() => setCurrentPage(i + 1)}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+
+                            <button
+                                className="btn btn-sm btn-outline-secondary px-3 prev-next"
+                                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                            >
+                                Next
+                            </button>
+                        </div>
                     </div>
-
                 </div>
             </div>
         </div>
