@@ -11,9 +11,10 @@ const Topbar = ({ onToggleSidebar }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-     localStorage.removeItem('token');
-    navigate('/');
-  };
+  localStorage.removeItem('token');
+  window.history.pushState(null, '', '/');
+  window.location.replace('/');
+};
 
      useEffect(() => {
     token(handleLogout);
