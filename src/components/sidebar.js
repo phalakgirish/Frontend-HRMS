@@ -21,6 +21,14 @@ const Sidebar = ({ collapsed, expanded }) => {
         document.documentElement.style.setProperty('--hover-top', `${itemRect.top}px`);
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        window.history.pushState(null, "", "/");
+        window.onpopstate = () => {
+            window.history.go(1);
+        };
+        window.location.href = "/";
+    };
 
     return (
         <div className={`sidebar ${collapsed ? "collapsed" : ""} ${expanded ? "expanded" : ""}`}>
@@ -286,7 +294,7 @@ const Sidebar = ({ collapsed, expanded }) => {
 
                 <li className="sidebar-item">
                     <Link to="/constants">
-                    <FaBars className="me-2 sideicon" /> {!collapsed && <span className="label">Constants</span>}
+                        <FaBars className="me-2 sideicon" /> {!collapsed && <span className="label">Constants</span>}
                     </Link>
                 </li>
 
@@ -316,7 +324,7 @@ const Sidebar = ({ collapsed, expanded }) => {
 
 
 
-                <li className="sidebar-item">
+                <li className="sidebar-item" onClick={handleLogout}>
                     <FaSignOutAlt className="me-2 sideicon" /> {!collapsed && <span className="label">Logout</span>}
                 </li>
 

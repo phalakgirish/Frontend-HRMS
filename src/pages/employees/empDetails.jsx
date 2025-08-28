@@ -2,6 +2,12 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { getEmployee, createEmployee, updateEmployee, deleteEmployee } from '../../api/employeeApi';
+import BasicInformationForm from './details.jsx/BasicInformation';
+import ProfilePicture from './details.jsx/ProfilePicture';
+import FamilyDetails from './details.jsx/FamilyDetails';
+import Document from './details.jsx/Document';
+import Qualification from './details.jsx/Qualification';
+import WorkExperience from './details.jsx/WorkExperience';
 
 const EmpDetails = () => {
     const location = useLocation();
@@ -98,10 +104,37 @@ const EmpDetails = () => {
     const renderContent = () => {
         switch (selectedDepartment) {
             case 'Basic Information':
+                return <BasicInformationForm form={form} setForm={setForm} handleSubmit={handleSubmit} />;
+
+            case 'Profile Picture':
+                return <ProfilePicture form={form} setForm={setForm} handleSubmit={handleSubmit} />;
+
+            case 'Family Details':
+                return <FamilyDetails form={form} setForm={setForm} handleSubmit={handleSubmit} />;
+
+            case 'Document':
+                return <Document form={form} setForm={setForm} handleSubmit={handleSubmit} />;
+
+            case 'Qualification':
+                return <Qualification form={form} setForm={setForm} handleSubmit={handleSubmit} />;
+
+                case 'Work Experience':
+                return <WorkExperience form={form} setForm={setForm} handleSubmit={handleSubmit} />;
+
+
+            case 'CTC':
                 return (
                     <div>
-                        <h6 className="mb-3">Basic Information</h6>
-                        <div className="container-fluid mt-4">
+                        <h5 className="mb-3">Monthly</h5>
+                        <h6 className="mb-3">A. SALARY</h6>
+
+                        <div className='row'>
+                            <div className='col-md-3'>
+                                <label>BASIC</label>
+                                <input type="text" className='form-control' />
+                            </div>
+                        </div>
+                        {/* <div className="container-fluid mt-4">
                             <form>
                                 <div className="row">
                                     <div className="col-md-12 mb-3">
@@ -270,53 +303,7 @@ const EmpDetails = () => {
                                 </div>
 
                             </form>
-                        </div>
-                    </div>
-                );
-            case 'Profile Picture':
-                return (
-                    <div>
-                        <h6 className="mb-3">Profile Picture</h6>
-                        <div className="text-start">
-                            <img
-                                src="/avatar2.jpg"
-                                alt="Profile"
-                                className="img-thumbnail"
-                                style={{ width: '80px', height: '80px' }}
-                            />
-                        </div>
-                    </div>
-                );
-            case 'Family Details':
-                return (
-                    <div className="table-responsive">
-                        <table className="table table-bordered">
-                            <thead>
-                                <tr className="bg-primary text-white">
-                                    <th>Name</th>
-                                    <th>Relation</th>
-                                    <th>Email</th>
-                                    <th>Mobile</th>
-                                    <th>DOB</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white text-dark">
-                                <tr>
-                                    <td>Ravi Sharma</td>
-                                    <td>Father</td>
-                                    <td>ravi@example.com</td>
-                                    <td>9876543210</td>
-                                    <td>12/04/1970</td>
-                                </tr>
-                                <tr>
-                                    <td>Sunita Sharma</td>
-                                    <td>Mother</td>
-                                    <td>sunita@example.com</td>
-                                    <td>9876543211</td>
-                                    <td>25/08/1973</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        </div> */}
                     </div>
                 );
             default:
@@ -339,7 +326,7 @@ const EmpDetails = () => {
                             <ul className="list-group list-group-flush">
                                 {[
                                     'Basic Information', 'Profile Picture', 'Family Details', 'Document',
-                                    'Qualification', 'Woork Experience', 'Bank Account', 'Leave', 'Shift', 'Location',
+                                    'Qualification', 'Work Experience', 'Bank Account', 'Leave', 'Shift', 'Location',
                                     'Assets', 'CTC', 'Form 16'
                                 ].map((dept, index) => {
                                     const icons = {
@@ -348,7 +335,7 @@ const EmpDetails = () => {
                                         'Family Details': 'fas fa-users',
                                         'Document': 'fas fa-file-alt',
                                         'Qualification': 'fas fa-graduation-cap',
-                                        'Woork Experience': 'fas fa-briefcase',
+                                        'Work Experience': 'fas fa-briefcase',
                                         'Bank Account': 'fas fa-university',
                                         'Leave': 'fas fa-calendar-alt',
                                         'Shift': 'fas fa-clock',

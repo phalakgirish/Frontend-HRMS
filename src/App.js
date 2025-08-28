@@ -59,6 +59,7 @@ import SettingPage from './pages/more/setting-page';
 import Constants from './pages/more/constants';
 import Login from './Login/Login-page';
 import TrainingDetail from './pages/training/trainingDetail';
+import PrivateRoute from './Login/privateRoute';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -132,87 +133,94 @@ function App() {
     <Layout collapsed={collapsed} toggleSidebar={toggleSidebar}>
       <Routes>
 
+        {/* <Route path="/" element={<Login />} /> */}
+
+        {/* <Route path="/dashboard" element={<Dashboard />} /> */}
+
         <Route path="/" element={<Login />} />
 
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route element={<PrivateRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
 
-        {/* Organization */}
-        <Route path="/location" element={<Location />} />
-        <Route path="/department" element={<Department />} />
-        <Route path="/designation" element={<Designation />} />
-        <Route path="/announcements" element={<Announcements />} />
-        <Route path="/orgpolicies" element={<OrgPolicies />} />
-        <Route path="/expense" element={<Expense />} />
+          {/* Organization */}
 
-        {/* Employees */}
-        <Route path="/employees" element={<Employees />} />
-        <Route path="/empDetails/:empId" element={<EmpDetails />} />
-        <Route path="/awards" element={<Awards />} />
-        <Route path="/transfers" element={<Transfers />} />
-        <Route path="/resignations" element={<Resignations />} />
-        <Route path="/travels" element={<Travels />} />
-        <Route path="/promotions" element={<Promotions />} />
-        <Route path="/complaints" element={<Complaints />} />
-        <Route path="/warnings" element={<Warnings />} />
-        <Route path="/terminations" element={<Terminations />} />
-        <Route path="/lastLogin" element={<EmployeeLastLogin />} />
-        <Route path="/employeeExit" element={<Employeeexit />} />
+          <Route path="/location" element={<Location />} />
+          <Route path="/department" element={<Department />} />
+          <Route path="/designation" element={<Designation />} />
+          <Route path="/announcements" element={<Announcements />} />
+          <Route path="/orgpolicies" element={<OrgPolicies />} />
+          <Route path="/expense" element={<Expense />} />
 
-        {/* Performance */}
-        <Route path="/performanceIndicator" element={<PerformanceIndicator />} />
-        <Route path="/performanceAppraisal" element={<PerformanceAppraisal />} />
+          {/* Employees */}
+          <Route path="/employees" element={<Employees />} />
+          <Route path="/empDetails/:empId" element={<EmpDetails />} />
+          <Route path="/awards" element={<Awards />} />
+          <Route path="/transfers" element={<Transfers />} />
+          <Route path="/resignations" element={<Resignations />} />
+          <Route path="/travels" element={<Travels />} />
+          <Route path="/promotions" element={<Promotions />} />
+          <Route path="/complaints" element={<Complaints />} />
+          <Route path="/warnings" element={<Warnings />} />
+          <Route path="/terminations" element={<Terminations />} />
+          <Route path="/lastLogin" element={<EmployeeLastLogin />} />
+          <Route path="/employeeExit" element={<Employeeexit />} />
 
-        {/* Attendance */}
-        <Route path="/attendance" element={<Attendance />} />
-        <Route path="/datewiseattendance" element={<DatewiseAttendance />} />
-        <Route path="/updateattendance" element={<UpdateAttendance />} />
-        <Route path="/importattendance" element={<ImportAttendance />} />
-        <Route path="/leaves" element={<Leave />} />
-        <Route path="/leaveDetail/:id" element={<LeaveDetail />} />
-        <Route path="/officeshifts" element={<OfficeShifts />} />
-        <Route path="/holidays" element={<Holidays />} />
+          {/* Performance */}
+          <Route path="/performanceIndicator" element={<PerformanceIndicator />} />
+          <Route path="/performanceAppraisal" element={<PerformanceAppraisal />} />
 
-        {/* Payroll */}
-        <Route path="/managesalary" element={<ManageSalary />} />
-        <Route path="/generatepayslip" element={<GeneratePayslip />} />
-        <Route path="/paymenthistory" element={<PaymentHistory />} />
-        <Route path="/payslip/:empId" element={<Payslip />} />
+          {/* Attendance */}
+          <Route path="/attendance" element={<Attendance />} />
+          <Route path="/datewiseattendance" element={<DatewiseAttendance />} />
+          <Route path="/updateattendance" element={<UpdateAttendance />} />
+          <Route path="/importattendance" element={<ImportAttendance />} />
+          <Route path="/leaves" element={<Leave />} />
+          <Route path="/leaveDetail/:id" element={<LeaveDetail />} />
+          <Route path="/officeshifts" element={<OfficeShifts />} />
+          <Route path="/holidays" element={<Holidays />} />
 
-        {/* Projects */}
-        <Route path="/projects" element={<Projects />} />
-        <Route path="/projectDetails/:id" element={<ProjectDetails />} />
+          {/* Payroll */}
+          <Route path="/managesalary" element={<ManageSalary />} />
+          <Route path="/generatepayslip" element={<GeneratePayslip />} />
+          <Route path="/paymenthistory" element={<PaymentHistory />} />
+          <Route path="/payslip/:empId" element={<Payslip />} />
 
-        {/* Support */}
-        <Route path="/supportrequest" element={<SupportRequest />} />
-        <Route path="/ticketDetail/:employee" element={<TicketDetail />} />
+          {/* Projects */}
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/projectDetails/:id" element={<ProjectDetails />} />
 
-        {/* Files */}
-        <Route path="/filesmanager" element={<FilesManager />} />
+          {/* Support */}
+          <Route path="/supportrequest" element={<SupportRequest />} />
+          <Route path="/ticketDetail/:employee" element={<TicketDetail />} />
 
-        {/* Recruitment */}
-        <Route path="/jobcandidates" element={<JobCandidates />} />
-        <Route path="/offer/:id" element={<OfferLetter />} />
-        <Route path="/appointment/:id" element={<AppointmentLetter />} />
+          {/* Files */}
+          <Route path="/filesmanager" element={<FilesManager />} />
 
-        {/* Reports */}
-        <Route path="/accountstatements" element={<AccountStatement />} />
-        <Route path="/expensereport" element={<ExpenseReport />} />
-        <Route path="/incomereport" element={<IncomeReport />} />
-        <Route path="/transferreport" element={<TransferReport />} />
+          {/* Recruitment */}
+          <Route path="/jobcandidates" element={<JobCandidates />} />
+          <Route path="/offer/:id" element={<OfferLetter />} />
+          <Route path="/appointment/:id" element={<AppointmentLetter />} />
 
-        {/* Training */}
-        <Route path="/traininglist" element={<TrainingList />} />
-        <Route path="/trainingDetail/:trainer" element={<TrainingDetail />} />
-        <Route path="/trainingtype" element={<TrainingType />} />
-        <Route path="/trainerslist" element={<TrainersList />} />
+          {/* Reports */}
+          <Route path="/accountstatements" element={<AccountStatement />} />
+          <Route path="/expensereport" element={<ExpenseReport />} />
+          <Route path="/incomereport" element={<IncomeReport />} />
+          <Route path="/transferreport" element={<TransferReport />} />
 
-        {/* More */}
-        <Route path="/settingPage" element={<SettingPage />} />
-        <Route path="/constants" element={<Constants />} />
-        <Route path="/databasebackup" element={<DatabaseBackup />} />
-        <Route path="/emailtemplates" element={<EmailTemplates />} />
-        <Route path="/policies" element={<Policies />} />
-        <Route path="/setroles" element={<SetRoles />} />
+          {/* Training */}
+          <Route path="/traininglist" element={<TrainingList />} />
+          <Route path="/trainingDetail/:trainer" element={<TrainingDetail />} />
+          <Route path="/trainingtype" element={<TrainingType />} />
+          <Route path="/trainerslist" element={<TrainersList />} />
+
+          {/* More */}
+          <Route path="/settingPage" element={<SettingPage />} />
+          <Route path="/constants" element={<Constants />} />
+          <Route path="/databasebackup" element={<DatabaseBackup />} />
+          <Route path="/emailtemplates" element={<EmailTemplates />} />
+          <Route path="/policies" element={<Policies />} />
+          <Route path="/setroles" element={<SetRoles />} />
+        </Route>
       </Routes>
 
 
@@ -225,7 +233,7 @@ function App() {
         theme="dark"
       />
 
-{/* <ToastContainer position="top-right" autoClose={2000} /> */}
+      {/* <ToastContainer position="top-right" autoClose={2000} /> */}
 
     </Layout>
 
