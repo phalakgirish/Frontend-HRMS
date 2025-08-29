@@ -2,7 +2,8 @@ import React from "react";
 import { useState, useRef } from "react";
 import DataTable from 'react-data-table-component';
 
-const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
+const Assets = ({ form, setForm, handleSubmit,mode }) => {
+
 
     const [showModal, setShowModal] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
@@ -24,20 +25,6 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
     //     addedBy: '',
     //     description: ''
     // });
-
-    const fileInputRef = useRef(null);
-    const [selectedFile, setSelectedFile] = useState(null);
-
-    const handleBrowseClick = () => {
-        fileInputRef.current.click();
-    };
-
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setSelectedFile(file);
-        }
-    };
 
     // const [errors, setErrors] = useState({});
 
@@ -218,12 +205,13 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
             allowOverflow: true,
             button: true,
         },
-        { name: 'Company Name', selector: row => row.documentType },
-        { name: 'From Date', selector: row => row.title },
-        { name: 'To Date', selector: row => row.notificationEmail },
-        { name: 'Post', selector: row => row.notificationEmail },
-        { name: 'Description', selector: row => row.notificationEmail }
-
+        { name: 'Assets Type', selector: row => row.documentType },
+        { name: 'Brand', selector: row => row.title },
+        { name: 'Model No', selector: row => row.notificationEmail },
+        { name: 'Serial No', selector: row => row.notificationEmail },
+        { name: 'Cost', selector: row => row.notificationEmail },
+        { name: 'Quantity', selector: row => row.notificationEmail },
+        { name: 'Insurance', selector: row => row.notificationEmail }
 
     ];
 
@@ -280,52 +268,77 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
         <div>
             {mode === "edit" && (
 
-                <div className="container-fluid mt-4">
-                    <form>
-                        <div className="row">
-                            <div className="col-md-6">
-                                <div className="mb-3">
-                                    <label>Company Name</label>
-                                    <input type="text" className="form-control" placeholder="Company Name" />
-                                </div>
-
-                                <div className="mb-3">
-                                    <label>Time Period (From)</label>
-                                    <input type="date" className="form-control" />
-                                </div>
-                            </div>
-
-                            {/* Right Column */}
-                            <div className="col-md-6">
-
-                                <div className="mb-3">
-                                    <label>Post</label>
-                                    <input type="text" className="form-control" placeholder="Post" />
-                                </div>
-
-                                <div className="mb-3">
-                                    <label>Time Period (To)</label>
-                                    <input type="date" className="form-control" />
-                                </div>
+            <div className="container-fluid mt-4">
+                <form>
+                    <div className="row">
+                        <div className="col-md-6">
+                            <div className="mb-3">
+                                <label>Assets Type</label>
+                                <select className="form-select">
+                                    <option value="">Select One</option>
+                                    <option value="Mobile">Mobile</option>
+                                    <option value="Laptop">Laptop</option>
+                                </select>
                             </div>
 
                             <div className="mb-3">
-                                <label>Description</label>
-                                <textarea type="text" className="form-control" placeholder="Description" />
+                                <label>Model Number</label>
+                                <input type="text" className="form-control" placeholder="Model Number" />
                             </div>
 
+                             <div className="mb-3">
+                                <label>Issue Date</label>
+                                <input type="date" className="form-control" />
+                            </div>
+
+                             <div className="mb-3">
+                                <label>Quantity</label>
+                                <input type="text" className="form-control" placeholder="Quantity" />
+                            </div>
                         </div>
 
-                        <div className="text-start mb-4">
-                            <button type="submit" className="btn btn-sm add-btn">Save</button>
+
+                        {/* Right Column */}
+                        <div className="col-md-6">
+
+                            <div className="mb-3">
+                                <label>Brand</label>
+                                <input type="text" className="form-control" placeholder="Brand" />
+                            </div>
+
+                            <div className="mb-3">
+                                <label>Serial No</label>
+                                <input type="text" className="form-control" placeholder="Serial No" />
+                            </div>
+
+                               <div className="mb-3">
+                            <label>Cost</label>
+                            <input type="text" className="form-control" placeholder="Cost" />
                         </div>
-                    </form>
-                </div>
+
+                        <div className="mb-3">
+                            <label>Insurance</label>
+                            <input type="text" className="form-control" placeholder="Insurance" />
+                        </div>
+                        </div>
+
+                    </div>
+
+                    <div className="mb-3">
+                            <label>Remark</label>
+                            <textarea type="text" className="form-control" placeholder="Remark" />
+                        </div>
+
+                    <div className="text-start mb-4">
+                        <button type="submit" className="btn btn-sm add-btn">Save</button>
+                    </div>
+                </form>
+            </div>
             )}
 
             <div className="card no-radius">
                 <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
-                    <span>List All Work Experience Details</span>
+                    <span>List All Assets</span>
                     {/* <button className="btn btn-sm add-btn" onClick={toggleAddForm}>{showAddForm ? '- Hide' : '+ Add New'}</button> */}
                 </div>
 
@@ -593,4 +606,4 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
 
     );
 };
-export default WorkExperience;
+export default Assets;

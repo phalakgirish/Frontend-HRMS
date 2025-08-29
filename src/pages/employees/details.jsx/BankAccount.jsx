@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useRef } from "react";
 import DataTable from 'react-data-table-component';
 
-const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
+const BankAccount = ({ form, setForm, handleSubmit ,mode }) => {
 
     const [showModal, setShowModal] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
@@ -218,11 +218,11 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
             allowOverflow: true,
             button: true,
         },
-        { name: 'Company Name', selector: row => row.documentType },
-        { name: 'From Date', selector: row => row.title },
-        { name: 'To Date', selector: row => row.notificationEmail },
-        { name: 'Post', selector: row => row.notificationEmail },
-        { name: 'Description', selector: row => row.notificationEmail }
+        { name: 'Account Title', selector: row => row.documentType },
+        { name: 'Account Number', selector: row => row.title },
+        { name: 'Bank Name', selector: row => row.notificationEmail },
+        { name: 'Bank Code', selector: row => row.notificationEmail },
+        { name: 'Bank Branch', selector: row => row.notificationEmail }
 
 
     ];
@@ -285,33 +285,48 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
                         <div className="row">
                             <div className="col-md-6">
                                 <div className="mb-3">
-                                    <label>Company Name</label>
-                                    <input type="text" className="form-control" placeholder="Company Name" />
+                                    <label>Account Title</label>
+                                    <input type="text" className="form-control" placeholder="Account Title" />
                                 </div>
 
                                 <div className="mb-3">
-                                    <label>Time Period (From)</label>
-                                    <input type="date" className="form-control" />
-                                </div>
+                                    <label>Account Number</label>
+                                    <input type="text" className="form-control" placeholder="Account Number" />                            </div>
                             </div>
 
                             {/* Right Column */}
                             <div className="col-md-6">
 
                                 <div className="mb-3">
-                                    <label>Post</label>
-                                    <input type="text" className="form-control" placeholder="Post" />
+                                    <label>Bank Name</label>
+                                    <input type="text" className="form-control" placeholder="Bank Name" />
                                 </div>
 
                                 <div className="mb-3">
-                                    <label>Time Period (To)</label>
-                                    <input type="date" className="form-control" />
+                                    <label>Bank Code</label>
+                                    <input type="text" className="form-control" placeholder="Bank Code" />
                                 </div>
                             </div>
 
                             <div className="mb-3">
-                                <label>Description</label>
-                                <textarea type="text" className="form-control" placeholder="Description" />
+                                <label>Bank Branch</label>
+                                <input type="text" className="form-control" placeholder="Bank Branch" />
+                            </div>
+
+                            <div className="mb-3">
+                                <label>Document File</label>
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    style={{ display: "none" }}
+                                    onChange={handleFileChange}
+                                    accept="image/*"
+                                />
+                                <div className="text-start">
+                                    <button type="button" className="btn btn-sm add-btn" onClick={handleBrowseClick}>
+                                        Browse
+                                    </button>
+                                </div>
                             </div>
 
                         </div>
@@ -325,7 +340,7 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
 
             <div className="card no-radius">
                 <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
-                    <span>List All Work Experience Details</span>
+                    <span>List All Bank Account Details</span>
                     {/* <button className="btn btn-sm add-btn" onClick={toggleAddForm}>{showAddForm ? '- Hide' : '+ Add New'}</button> */}
                 </div>
 
@@ -593,4 +608,4 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
 
     );
 };
-export default WorkExperience;
+export default BankAccount;

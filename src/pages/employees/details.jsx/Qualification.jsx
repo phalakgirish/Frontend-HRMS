@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useRef } from "react";
 import DataTable from 'react-data-table-component';
 
-const Qualification = ({ form, setForm, handleSubmit }) => {
+const Qualification = ({ form, setForm, handleSubmit,mode }) => {
 
     const [showModal, setShowModal] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
@@ -275,6 +275,8 @@ const Qualification = ({ form, setForm, handleSubmit }) => {
 
     return (
         <div>
+                        {mode === "edit" && (
+
             <div className="container-fluid mt-4">
                 <form>
                     <div className="row">
@@ -319,10 +321,11 @@ const Qualification = ({ form, setForm, handleSubmit }) => {
                     </div>
                 </form>
             </div>
+                        )}
 
             <div className="card no-radius">
                 <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
-                    <span>List All Documents</span>
+                    <span>List All Qualifications</span>
                     {/* <button className="btn btn-sm add-btn" onClick={toggleAddForm}>{showAddForm ? '- Hide' : '+ Add New'}</button> */}
                 </div>
 

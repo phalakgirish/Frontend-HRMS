@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useRef } from "react";
 import DataTable from 'react-data-table-component';
 
-const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
+const Location = ({ form, setForm, handleSubmit,mode  }) => {
 
     const [showModal, setShowModal] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
@@ -218,13 +218,8 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
             allowOverflow: true,
             button: true,
         },
-        { name: 'Company Name', selector: row => row.documentType },
-        { name: 'From Date', selector: row => row.title },
-        { name: 'To Date', selector: row => row.notificationEmail },
-        { name: 'Post', selector: row => row.notificationEmail },
-        { name: 'Description', selector: row => row.notificationEmail }
-
-
+        { name: 'Date', selector: row => row.documentType },
+        { name: 'Location', selector: row => row.title }
     ];
 
 
@@ -282,37 +277,27 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
 
                 <div className="container-fluid mt-4">
                     <form>
-                        <div className="row">
-                            <div className="col-md-6">
-                                <div className="mb-3">
-                                    <label>Company Name</label>
-                                    <input type="text" className="form-control" placeholder="Company Name" />
-                                </div>
-
-                                <div className="mb-3">
-                                    <label>Time Period (From)</label>
-                                    <input type="date" className="form-control" />
-                                </div>
+                        <div className="row d-flex">
+                            <div className="col-md-4 mb-3">
+                                <label>From Date</label>
+                                <input type="date" className="form-control" />
                             </div>
 
-                            {/* Right Column */}
-                            <div className="col-md-6">
-
-                                <div className="mb-3">
-                                    <label>Post</label>
-                                    <input type="text" className="form-control" placeholder="Post" />
-                                </div>
-
-                                <div className="mb-3">
-                                    <label>Time Period (To)</label>
-                                    <input type="date" className="form-control" />
-                                </div>
+                            <div className="col-md-4 mb-3">
+                                <label>To Date</label>
+                                <input type="date" className="form-control" />
                             </div>
 
-                            <div className="mb-3">
-                                <label>Description</label>
-                                <textarea type="text" className="form-control" placeholder="Description" />
+                            <div className="col-md-4 mb-3">
+                                <label>Office Loocation</label>
+                                <select className="form-select">
+                                    <option value="">Select One</option>
+                                    <option value="Head Office - Mumbai">Head Office - Mumbai</option>
+                                    <option value="Bangalore">Bangalore</option>
+                                </select>
                             </div>
+
+
 
                         </div>
 
@@ -325,7 +310,7 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
 
             <div className="card no-radius">
                 <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
-                    <span>List All Work Experience Details</span>
+                    <span>List All Location Details</span>
                     {/* <button className="btn btn-sm add-btn" onClick={toggleAddForm}>{showAddForm ? '- Hide' : '+ Add New'}</button> */}
                 </div>
 
@@ -593,4 +578,4 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
 
     );
 };
-export default WorkExperience;
+export default Location;
