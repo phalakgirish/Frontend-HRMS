@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useRef } from "react";
 import DataTable from 'react-data-table-component';
 
-const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
+const CTC = ({ form, setForm, handleSubmit }) => {
 
     const [showModal, setShowModal] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
@@ -24,20 +24,6 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
     //     addedBy: '',
     //     description: ''
     // });
-
-    const fileInputRef = useRef(null);
-    const [selectedFile, setSelectedFile] = useState(null);
-
-    const handleBrowseClick = () => {
-        fileInputRef.current.click();
-    };
-
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setSelectedFile(file);
-        }
-    };
 
     // const [errors, setErrors] = useState({});
 
@@ -218,12 +204,13 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
             allowOverflow: true,
             button: true,
         },
-        { name: 'Company Name', selector: row => row.documentType },
-        { name: 'From Date', selector: row => row.title },
-        { name: 'To Date', selector: row => row.notificationEmail },
-        { name: 'Post', selector: row => row.notificationEmail },
-        { name: 'Description', selector: row => row.notificationEmail }
-
+        { name: 'Assets Type', selector: row => row.documentType },
+        { name: 'Brand', selector: row => row.title },
+        { name: 'Model No', selector: row => row.notificationEmail },
+        { name: 'Serial No', selector: row => row.notificationEmail },
+        { name: 'Cost', selector: row => row.notificationEmail },
+        { name: 'Quantity', selector: row => row.notificationEmail },
+        { name: 'Insurance', selector: row => row.notificationEmail }
 
     ];
 
@@ -278,59 +265,206 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
 
     return (
         <div>
-            {mode === "edit" && (
+            <div className="container-fluid mt-4">
+                <form>
+                    <div className="row gx-3">
 
-                <div className="container-fluid mt-4">
-                    <form>
-                        <div className="row">
-                            <div className="col-md-6">
-                                <div className="mb-3">
-                                    <label>Company Name</label>
-                                    <input type="text" className="form-control" placeholder="Company Name" />
+                        <div className="col-md-6 border p-2 rounded">
+                            <h5>Monthly</h5><hr />
+                            <h6>A. SALARY</h6><hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label">Basic</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="Basic" />
                                 </div>
+                            </div> <hr />
 
-                                <div className="mb-3">
-                                    <label>Time Period (From)</label>
-                                    <input type="date" className="form-control" />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label">HRA</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="HRA" />
+                                </div>
+                            </div> <hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label">LTA</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="LTA" />
+                                </div>
+                            </div> <hr />
+
+                            <h6>B. SPECIAL ALLOWANCES</h6><hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label">Conveyance Allowance</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="Conveyance Allowance" />
+                                </div>
+                            </div> <hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label">Medical Allowance</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="Medical Allowance" />
+                                </div>
+                            </div> <hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label">Executive Allowance</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="Executive Allowance" />
+                                </div>
+                            </div> <hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label fw-bold">Gross Salary*</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="Gross Salary" />
+                                </div>
+                            </div> <hr />
+
+                            <h6>D. STATUTORY BENEFITS</h6><hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label">Provident Fund (Employer’s Contribution)</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="Provident Fund" />
+                                </div>
+                            </div> <hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label">ESC (If applicable)</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="ESC" />
+                                </div>
+                            </div> <hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label">Gratuity</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="Gratuity" />
+                                </div>
+                            </div> <hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label fw-bold" style={{ fontSize: "12px" }}>TOTAL MONTHLY ( A + B + C )</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="TOTAL MONTHLY ( A + B + C )" />
                                 </div>
                             </div>
 
-                            {/* Right Column */}
-                            <div className="col-md-6">
-
-                                <div className="mb-3">
-                                    <label>Post</label>
-                                    <input type="text" className="form-control" placeholder="Post" />
-                                </div>
-
-                                <div className="mb-3">
-                                    <label>Time Period (To)</label>
-                                    <input type="date" className="form-control" />
-                                </div>
-                            </div>
-
-                            <div className="mb-3">
-                                <label>Description</label>
-                                <textarea type="text" className="form-control" placeholder="Description" />
-                            </div>
 
                         </div>
 
-                        <div className="text-start mb-4">
-                            <button type="submit" className="btn btn-sm add-btn">Save</button>
-                        </div>
-                    </form>
-                </div>
-            )}
 
-            <div className="card no-radius">
+                        {/* Right Column */}
+                        <div className="col-md-6 border p-2 rounded">
+                            <h5>Annual</h5><hr />
+                            <h6>A. SALARY</h6><hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label">Basic</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="Basic" />
+                                </div>
+                            </div> <hr />
+
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label">HRA</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="HRA" />
+                                </div>
+                            </div> <hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label">LTA</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="LTA" />
+                                </div>
+                            </div> <hr />
+
+                            <h6>B. SPECIAL ALLOWANCES</h6><hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label">Conveyance Allowance</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="Conveyance Allowance" />
+                                </div>
+                            </div> <hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label">Medical Allowance</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="Medical Allowance" />
+                                </div>
+                            </div> <hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label">Executive Allowance</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="Executive Allowance" />
+                                </div>
+                            </div> <hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label fw-bold">Gross Salary*</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="Gross Salary" />
+                                </div>
+                            </div> <hr />
+
+                            <h6>D. STATUTORY BENEFITS</h6><hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label">Provident Fund (Employer’s Contribution)</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="Provident Fund" />
+                                </div>
+                            </div> <hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label">ESC (If applicable)</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="ESC" />
+                                </div>
+                            </div> <hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label">Gratuity</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="Gratuity" />
+                                </div>
+                            </div> <hr />
+
+                            <div className="row mb-3">
+                                <label className="col-sm-5 col-form-label fw-bold" style={{ fontSize: "12px" }}>TOTAL MONTHLY ( A + B + C )</label>
+                                <div className="col-sm-6">
+                                    <input type="text" className="form-control" placeholder="TOTAL MONTHLY ( A + B + C )" />
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                    <div className="text-start mb-4 mt-3">
+                        <button type="submit" className="btn btn-sm add-btn">Save</button>
+                    </div>
+                </form>
+            </div>
+
+            {/* <div className="card no-radius">
                 <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
-                    <span>List All Work Experience Details</span>
-                    {/* <button className="btn btn-sm add-btn" onClick={toggleAddForm}>{showAddForm ? '- Hide' : '+ Add New'}</button> */}
-                </div>
+                    <span>List All Documents</span> */}
+            {/* <button className="btn btn-sm add-btn" onClick={toggleAddForm}>{showAddForm ? '- Hide' : '+ Add New'}</button> */}
+            {/* </div> */}
 
 
-                <div className="px-3 mt-4">
+            {/* <div className="px-3 mt-4">
                     <div className="d-flex justify-content-between align-items-center mb-2">
                         <div className="d-flex align-items-center gap-2">
                             <label htmlFor="entriesSelect" className="mb-0 ms-4">Show</label>
@@ -418,9 +552,9 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
                     >
                         Next
                     </button>
-                </div>
+                </div> */}
 
-                {/* {showModal && selectedRow && (
+            {/* {showModal && selectedRow && (
                     <div className="modal show fade d-block" tabIndex="-1" role="dialog">
                         <div className="modal-dialog modal-dialog-centered" role="document">
                             <div className="modal-content">
@@ -588,9 +722,9 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
                 )} */}
 
 
-            </div>
         </div>
+        // </div>
 
     );
 };
-export default WorkExperience;
+export default CTC;

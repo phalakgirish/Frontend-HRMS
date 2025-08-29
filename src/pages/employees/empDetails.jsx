@@ -8,11 +8,19 @@ import FamilyDetails from './details.jsx/FamilyDetails';
 import Document from './details.jsx/Document';
 import Qualification from './details.jsx/Qualification';
 import WorkExperience from './details.jsx/WorkExperience';
+import BankAccount from './details.jsx/BankAccount';
+import Leave from './details.jsx/Leave';
+import Shift from './details.jsx/Shift';
+import Location from './details.jsx/Location';
+import ChangePassword from './details.jsx/ChangePassword';
+import Assets from './details.jsx/Assets';
+import CTC from './details.jsx/CTC';
+import Form16 from './details.jsx/Form16';
 
 const EmpDetails = () => {
     const location = useLocation();
     const [selectedDepartment, setSelectedDepartment] = useState('Basic Information');
-    const { employee } = location.state || {};
+    const { employee,mode="edit" } = location.state || {};
     const [editId, setEditId] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
 
@@ -104,208 +112,48 @@ const EmpDetails = () => {
     const renderContent = () => {
         switch (selectedDepartment) {
             case 'Basic Information':
-                return <BasicInformationForm form={form} setForm={setForm} handleSubmit={handleSubmit} />;
+                return <BasicInformationForm form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
 
             case 'Profile Picture':
-                return <ProfilePicture form={form} setForm={setForm} handleSubmit={handleSubmit} />;
+                return <ProfilePicture form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
 
             case 'Family Details':
-                return <FamilyDetails form={form} setForm={setForm} handleSubmit={handleSubmit} />;
+                return <FamilyDetails form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
 
             case 'Document':
-                return <Document form={form} setForm={setForm} handleSubmit={handleSubmit} />;
+                return <Document form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
 
             case 'Qualification':
-                return <Qualification form={form} setForm={setForm} handleSubmit={handleSubmit} />;
+                return <Qualification form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
 
-                case 'Work Experience':
-                return <WorkExperience form={form} setForm={setForm} handleSubmit={handleSubmit} />;
+            case 'Work Experience':
+                return <WorkExperience form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
 
+            case 'Bank Account':
+                return <BankAccount form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
+
+            case 'Leave':
+                return <Leave form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />
+
+            case 'Shift':
+                return <Shift form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />
+
+            case 'Location':
+                return <Location form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />
+
+
+            case 'Change Password':
+                return <ChangePassword form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />
+
+            case 'Assets':
+                return <Assets form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />
 
             case 'CTC':
-                return (
-                    <div>
-                        <h5 className="mb-3">Monthly</h5>
-                        <h6 className="mb-3">A. SALARY</h6>
+                return <CTC form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />
 
-                        <div className='row'>
-                            <div className='col-md-3'>
-                                <label>BASIC</label>
-                                <input type="text" className='form-control' />
-                            </div>
-                        </div>
-                        {/* <div className="container-fluid mt-4">
-                            <form>
-                                <div className="row">
-                                    <div className="col-md-12 mb-3">
-                                        <label>Name</label>
-                                        <input type="text" className="form-control" value={form.name}
-                                            onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name" />
-                                    </div>
+                 case 'Form 16':
+                return <Form16 form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />
 
-                                    <div className="col-md-4 mb-3">
-                                        <label>Employee ID</label>
-                                        <input type="text" className="form-control" value={form.id}
-                                            onChange={(e) => setForm({ ...form, id: e.target.value })} placeholder="Employee ID" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Username</label>
-                                        <input type="text" className="form-control" value={form.username}
-                                            onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="Username" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Email</label>
-                                        <input type="text" className="form-control" value={form.email}
-                                            onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Email" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Department</label>
-                                        <input type="text" className="form-control" value={form.department}
-                                            onChange={(e) => setForm({ ...form, department: e.target.value })} placeholder="Department" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Designation</label>
-                                        <input type="text" className="form-control" value={form.designation}
-                                            onChange={(e) => setForm({ ...form, designation: e.target.value })} placeholder="Designation" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Role</label>
-                                        <input type="text" className="form-control" value={form.role}
-                                            onChange={(e) => setForm({ ...form, role: e.target.value })} placeholder="Role" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Date of Birth</label>
-                                        <input type="text" className="form-control" value={form.dateofBirth}
-                                            onChange={(e) => setForm({ ...form, dateofBirth: e.target.value })} placeholder="Date of Birth" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Date of Joining</label>
-                                        <input type="text" className="form-control" value={form.joiningDate}
-                                            onChange={(e) => setForm({ ...form, joiningDate: e.target.value })} placeholder="Date of Joining" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Gender</label>
-                                        <input type="text" className="form-control" value={form.gender}
-                                            onChange={(e) => setForm({ ...form, gender: e.target.value })} placeholder="Gender" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Marital Status</label>
-                                        <input type="text" className="form-control" value={form.maritalStatus}
-                                            onChange={(e) => setForm({ ...form, maritalStatus: e.target.value })} placeholder="Marital Status" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Contact Number</label>
-                                        <input type="text" className="form-control" value={form.contactNumber}
-                                            onChange={(e) => setForm({ ...form, contactNumber: e.target.value })} placeholder="Contact Number" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Employee Category</label>
-                                        <input type="text" className="form-control" value={form.employeeCategory}
-                                            onChange={(e) => setForm({ ...form, employeeCategory: e.target.value })} placeholder="Employee Category" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Reporting to</label>
-                                        <input type="text" className="form-control" value={form.reportingTo}
-                                            onChange={(e) => setForm({ ...form, reportingTo: e.target.value })} placeholder="Reporting to" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Approval By 1</label>
-                                        <input type="text" className="form-control" placeholder="Approval By 1" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Approval By 2</label>
-                                        <input type="text" className="form-control" placeholder="Approval By 2" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Status</label>
-                                        <input type="text" className="form-control" value={form.status}
-                                            onChange={(e) => setForm({ ...form, status: e.target.value })} placeholder="Status" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Employee CTC</label>
-                                        <input type="text" className="form-control" value={form.employeeCtc}
-                                            onChange={(e) => setForm({ ...form, employeeCtc: e.target.value })} placeholder="Employee CTC" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Probation Date</label>
-                                        <input type="text" className="form-control" value={form.probationDate}
-                                            onChange={(e) => setForm({ ...form, probationDate: e.target.value })} placeholder="Probation Date" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Confirmation Date</label>
-                                        <input type="text" className="form-control" value={form.confirmationDate}
-                                            onChange={(e) => setForm({ ...form, confirmationDate: e.target.value })} placeholder="Confirmation Date" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Blood Group</label>
-                                        <input type="text" className="form-control" value={form.bloodGroup}
-                                            onChange={(e) => setForm({ ...form, bloodGroup: e.target.value })} placeholder="Blood Group" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Religion</label>
-                                        <input type="text" className="form-control" value={form.relogion}
-                                            onChange={(e) => setForm({ ...form, relogion: e.target.value })} placeholder="Religion" />
-                                    </div>
-
-                                    <div className="col-md-4 mb-3">
-                                        <label>Cast</label>
-                                        <input type="text" className="form-control" value={form.cast}
-                                            onChange={(e) => setForm({ ...form, cast: e.target.value })} placeholder="Cast" />
-                                    </div>
-
-                                    <div className="col-md-6 mb-3">
-                                        <label>Address</label>
-                                        <textarea
-                                            placeholder="Address"
-                                            className="form-control" value={form.address}
-                                            onChange={(e) => setForm({ ...form, address: e.target.value })}
-                                            rows={3}
-                                        ></textarea>
-                                    </div>
-
-
-                                    <div className="col-md-6 mb-3">
-                                        <label>Grade</label>
-                                        <input type="text" className="form-control" value={form.grade}
-                                            onChange={(e) => setForm({ ...form, grade: e.target.value })} placeholder="Employee Grade" />
-                                    </div>
-
-                                </div>
-
-                                <div className="text-start">
-                                    <button type="submit" onClick={(e) => handleSubmit(e)} className="btn btn-sm add-btn mb-2">Save</button>
-                                </div>
-
-                            </form>
-                        </div> */}
-                    </div>
-                );
             default:
                 return <p>{selectedDepartment} Section Coming Soon...</p>;
         }
@@ -327,7 +175,7 @@ const EmpDetails = () => {
                                 {[
                                     'Basic Information', 'Profile Picture', 'Family Details', 'Document',
                                     'Qualification', 'Work Experience', 'Bank Account', 'Leave', 'Shift', 'Location',
-                                    'Assets', 'CTC', 'Form 16'
+                                    'Change Password', 'Assets', 'CTC', 'Form 16'
                                 ].map((dept, index) => {
                                     const icons = {
                                         'Basic Information': 'fas fa-user',
@@ -340,6 +188,7 @@ const EmpDetails = () => {
                                         'Leave': 'fas fa-calendar-alt',
                                         'Shift': 'fas fa-clock',
                                         'Location': 'fas fa-map-marker-alt',
+                                        'Change Password': 'fas fa-key',
                                         'Assets': 'fas fa-laptop',
                                         'CTC': 'fas fa-rupee-sign',
                                         'Form 16': 'fas fa-file-invoice-dollar'

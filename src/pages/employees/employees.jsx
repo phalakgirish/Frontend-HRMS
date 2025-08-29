@@ -263,34 +263,34 @@ const Employees = () => {
         setEditId(row._id);
         setForm({
             id: row.id || "",
-        firstName: row.firstName || "",
-        lastName: row.lastName || "",
-        company: row.company || "",
-        username: row.username || "",
-        email: row.email || "",
-        designation: row.designation || "",
-        role: row.role || "",
-        employeeCtc: row.employeeCtc || "",
-        monthlyCtc: row.monthlyCtc || "",
-        status: row.status || "",
-        department: row.department || "",
-        dateofBirth: row.dateofBirth || "",
-        joiningDate: row.joiningDate || "",
-        gender: row.gender || "",
-        maritalStatus: row.maritalStatus || "",
-        contactNumber: row.contactNumber || "",
-        employeeCategory: row.employeeCategory || "",
-        reportingTo: row.reportingTo || "",
-        probationDate: row.probationDate || "",
-        confirmationDate: row.confirmationDate || "",
-        bloodGroup: row.bloodGroup || "",
-        religion: row.religion || "",
-        cast: row.cast || "",
-        address: row.address || "",
-        grade: row.grade || "",
-        password: "",          // usually blank for edit
-        confirmPassword: "",   // usually blank for edit
-        locationName: row.locationName || ""
+            firstName: row.firstName || "",
+            lastName: row.lastName || "",
+            company: row.company || "",
+            username: row.username || "",
+            email: row.email || "",
+            designation: row.designation || "",
+            role: row.role || "",
+            employeeCtc: row.employeeCtc || "",
+            monthlyCtc: row.monthlyCtc || "",
+            status: row.status || "",
+            department: row.department || "",
+            dateofBirth: row.dateofBirth || "",
+            joiningDate: row.joiningDate || "",
+            gender: row.gender || "",
+            maritalStatus: row.maritalStatus || "",
+            contactNumber: row.contactNumber || "",
+            employeeCategory: row.employeeCategory || "",
+            reportingTo: row.reportingTo || "",
+            probationDate: row.probationDate || "",
+            confirmationDate: row.confirmationDate || "",
+            bloodGroup: row.bloodGroup || "",
+            religion: row.religion || "",
+            cast: row.cast || "",
+            address: row.address || "",
+            grade: row.grade || "",
+            password: "",          // usually blank for edit
+            confirmPassword: "",   // usually blank for edit
+            locationName: row.locationName || ""
         });
         setShowEditModal(true);
         setSelectedRow(row);
@@ -331,13 +331,13 @@ const Employees = () => {
                 <div className="d-flex">
                     <button
                         className="btn btn-outline-secondary btn-sm"
-                        onClick={() => navigate(`/empDetails/${row.id}`, { state: { employee: row } })}
+                        onClick={() => navigate(`/empDetails/${row.id}`, { state: { employee: row, mode: "view" } })}
                     >
                         <i className="fas fa-arrow-right"></i>
                     </button>
                     <button
                         className="btn btn-outline-secondary btn-sm"
-                        onClick={() => handleEdit(row)}
+                        onClick={() => navigate(`/empDetails/${row.id}`, { state: { employee: row, mode: "edit" } })}
                     >
                         <i className="fas fa-edit"></i>
                     </button>
@@ -361,7 +361,6 @@ const Employees = () => {
                 </span>
             ),
             selector: row => row.id,
-            sortable: true,
             wrap: true,
             maxWidth: '200px',
         },
@@ -369,23 +368,22 @@ const Employees = () => {
         {
             name: 'Name',
             selector: row => `${row.firstName} ${row.lastName}`,
-            sortable: true,
             wrap: true,
             maxWidth: '200px',
         },
 
         {
-            name: 'Company', selector: row => row.company, sortable: true,
+            name: 'Company', selector: row => row.company,
             wrap: true, maxWidth: '200px',
         },
         { name: 'Username', selector: row => row.username },
         {
-            name: 'Email', selector: row => row.email, sortable: true,
+            name: 'Email', selector: row => row.email,
             wrap: true, maxWidth: '200px',
         },
         { name: 'Role', selector: row => row.role },
         {
-            name: 'Designation', selector: row => row.designation, sortable: true,
+            name: 'Designation', selector: row => row.designation,
             wrap: true, maxWidth: '200px',
         },
         { name: 'Employee CTC', selector: row => row.employeeCtc },
@@ -460,7 +458,7 @@ const Employees = () => {
         cells: {
             style: {
                 fontSize: '14px',
-                whiteSpace: 'normal', // allow text to wrap
+                whiteSpace: 'normal',
                 wordBreak: 'break-word',
             },
         },
@@ -472,10 +470,10 @@ const Employees = () => {
             when: (row, index) => index % 2 === 0,
             style: {
                 backgroundColor: 'white',
-                minHeight: '60px', // ensure taller row
+                minHeight: '60px',
                 paddingTop: '10px',
                 paddingBottom: '10px',
-                whiteSpace: 'normal', // wrap text
+                whiteSpace: 'normal',
                 wordBreak: 'break-word',
             },
         },
@@ -1261,7 +1259,7 @@ const Employees = () => {
                     </button>
                 </div>
 
-                {showModal && selectedRow && (
+                {/* {showModal && selectedRow && (
                     <div className="modal show fade d-block" tabIndex="-1" role="dialog">
                         <div className="modal-dialog modal-dialog-centered" role="document">
                             <div className="modal-content">
@@ -1292,9 +1290,9 @@ const Employees = () => {
                             </div>
                         </div>
                     </div>
-                )}
+                )} */}
 
-                {showEditModal && selectedRow && (
+                {/* {showEditModal && selectedRow && (
                     <>
 
                         <div className="custom-backdrop"></div>
@@ -1308,7 +1306,7 @@ const Employees = () => {
                                     <div className="modal-body">
                                         <form onSubmit={handleSubmit}>
                                             <div className="row">
-                                                {/* Left Column */}
+
                                                 <div className="col-md-6">
                                                     <div className='row'>
                                                         <div className="col-md-6 mb-3">
@@ -1367,7 +1365,6 @@ const Employees = () => {
                                                             </select>
                                                         </div>
 
-                                                        {/* Designation */}
                                                         <div className="col-md-6 mb-3">
                                                             <label>Designation</label>
                                                             {departmentDesignations[form.department]?.length > 0 ? (
@@ -1595,7 +1592,6 @@ const Employees = () => {
                                                     </div>
                                                 </div>
 
-                                                {/* Right Column */}
                                                 <div className="col-md-6">
 
                                                     <div className='row'>
@@ -1896,7 +1892,7 @@ const Employees = () => {
                             </div>
                         </div>
                     </>
-                )}
+                )} */}
 
 
             </div>

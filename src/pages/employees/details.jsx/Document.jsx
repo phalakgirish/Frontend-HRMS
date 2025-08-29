@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useRef } from "react";
 import DataTable from 'react-data-table-component';
 
-const Document = ({ form, setForm, handleSubmit }) => {
+const Document = ({ form, setForm, handleSubmit, mode }) => {
 
     const [showModal, setShowModal] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
@@ -276,85 +276,88 @@ const Document = ({ form, setForm, handleSubmit }) => {
 
     return (
         <div>
-            <div className="container-fluid mt-4">
-                <form>
-                    <div className="row">
-                        <div className="col-md-6">
-                            <div className="mb-3">
-                                <label>Document Type</label>
-                                <select id="relation"
-                                    className="form-control">
-                                    <option value="">Choose Document Type</option>
-                                    <option value="Driving License">Driving License</option>
-                                    <option value="Passport">Passport</option>
-                                    <option value="Visa">Visa</option>
-                                    <option value="PAN Card">PAN Card</option>
-                                    <option value="PF No">PF No</option>
-                                    <option value="ESI No">ESI No</option>
-                                    <option value="UAN">UAN</option>
-                                    <option value="Aadhar Card">Aadhar Card</option>
-                                </select>
+            {mode === "edit" && (
+
+                <div className="container-fluid mt-4">
+                    <form>
+                        <div className="row">
+                            <div className="col-md-6">
+                                <div className="mb-3">
+                                    <label>Document Type</label>
+                                    <select id="relation"
+                                        className="form-control">
+                                        <option value="">Choose Document Type</option>
+                                        <option value="Driving License">Driving License</option>
+                                        <option value="Passport">Passport</option>
+                                        <option value="Visa">Visa</option>
+                                        <option value="PAN Card">PAN Card</option>
+                                        <option value="PF No">PF No</option>
+                                        <option value="ESI No">ESI No</option>
+                                        <option value="UAN">UAN</option>
+                                        <option value="Aadhar Card">Aadhar Card</option>
+                                    </select>
+                                </div>
+
+                                <div className="mb-3">
+                                    <label>Document Title</label>
+                                    <input type="text" className="form-control" placeholder="Document Title" />
+                                </div>
+
+                                <div className="mb-3">
+                                    <label>Description</label>
+                                    <textarea type="text" className="form-control" placeholder="Description" />
+                                </div>
+
+                                <div className="mb-3">
+                                    <label>Send notification email when expired? </label>
+                                    <select id="relation"
+                                        className="form-control">
+                                        <option value="">Choose One</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+
                             </div>
 
-                            <div className="mb-3">
-                                <label>Document Title</label>
-                                <input type="text" className="form-control" placeholder="Document Title" />
-                            </div>
+                            {/* Right Column */}
+                            <div className="col-md-6">
 
-                            <div className="mb-3">
-                                <label>Description</label>
-                                <textarea type="text" className="form-control" placeholder="Description" />
-                            </div>
+                                <div className="mb-3">
+                                    <label>Date of Expiry</label>
+                                    <input type="date" className="form-control mb-3" />
+                                </div>
 
-                            <div className="mb-3">
-                                <label>Send notification email when expired? </label>
-                                <select id="relation"
-                                    className="form-control">
-                                    <option value="">Choose One</option>
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
-                                </select>
+                                <div className="mb-3">
+                                    <label>Notification Email</label>
+                                    <input type="text" className="form-control mb-3" placeholder="Notification Email" />
+                                </div>
+
+                                <div className="mb-3">
+                                    <label>Document File</label>
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        style={{ display: "none" }}
+                                        onChange={handleFileChange}
+                                        accept="image/*"
+                                    /> <br />
+                                    <button type="button" className="btn btn-sm add-btn" onClick={handleBrowseClick}>
+                                        Browse
+                                    </button>
+                                    <label style={{ fontSize: "11px" }} className="ms-3"> Upload files only: png, jpg, jpeg, gif, txt, pdf, xls, xlsx, doc, docx
+                                    </label>
+                                </div>
                             </div>
 
                         </div>
 
-                        {/* Right Column */}
-                        <div className="col-md-6">
-
-                            <div className="mb-3">
-                                <label>Date of Expiry</label>
-                                <input type="date" className="form-control mb-3" />
-                            </div>
-
-                            <div className="mb-3">
-                                <label>Notification Email</label>
-                                <input type="text" className="form-control mb-3" placeholder="Notification Email" />
-                            </div>
-
-                            <div className="mb-3">
-                                <label>Document File</label>
-                                <input
-                                    type="file"
-                                    ref={fileInputRef}
-                                    style={{ display: "none" }}
-                                    onChange={handleFileChange}
-                                    accept="image/*"
-                                /> <br />
-                                <button type="button" className="btn btn-sm add-btn" onClick={handleBrowseClick}>
-                                    Browse
-                                </button>
-                                <label style={{ fontSize: "11px" }} className="ms-3"> Upload files only: png, jpg, jpeg, gif, txt, pdf, xls, xlsx, doc, docx
-                                </label>
-                            </div>
+                        <div className="text-start mb-4">
+                            <button type="submit" className="btn btn-sm add-btn">Save</button>
                         </div>
-
-                    </div>
-
-                    <div className="text-start mb-4">
-                        <button type="submit" className="btn btn-sm add-btn">Save</button>
-                    </div>
-                </form>
-            </div>
+                    </form>
+                </div>
+            )}
 
             <div className="card no-radius">
                 <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
