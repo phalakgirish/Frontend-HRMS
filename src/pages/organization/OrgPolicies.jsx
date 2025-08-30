@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef } from 'react';
 import DataTable from 'react-data-table-component';
 import './organization.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
@@ -15,7 +15,8 @@ const OrgPolicies = () => {
     const [description, setDescription] = useState('');
     const [Orgpolicy, setOrgpolicy] = useState([]);
     const [paginated, setPaginated] = useState([]);
-
+    const editorRef = useRef(null);
+    const [editorKey, setEditorKey] = useState(0);
     const [form, setForm] = useState({
         company: '',
         title: '',
@@ -391,6 +392,7 @@ const OrgPolicies = () => {
                                         <div className={errors.description ? "is-invalid" : ""}>
 
                                             <CKEditor
+                                                key={editorKey}
                                                 editor={ClassicEditor}
                                                 data={description || ""}
                                                 onChange={(event, editor) => {

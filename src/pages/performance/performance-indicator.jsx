@@ -494,10 +494,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("customerExperience", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.customerExperience && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -521,10 +521,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("marketing", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
 
                                         </select>
                                         {errors.marketing && (
@@ -548,10 +548,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("management", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
 
                                         </select>
                                         {errors.management && (
@@ -575,10 +575,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("administration", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
 
                                         </select>
                                         {errors.administration && (
@@ -602,10 +602,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("presentationSkill", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.presentationSkill && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -628,10 +628,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("qualityOfWork", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.qualityOfWork && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -654,10 +654,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("efficiency", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.efficiency && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -687,10 +687,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("integrity", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.integrity && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -713,10 +713,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("professionalism", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.professionalism && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -739,10 +739,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("teamWork", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.teamWork && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -765,10 +765,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("criticalThinking", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.criticalThinking && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -791,10 +791,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("conflictManagement", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.conflictManagement && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -817,10 +817,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("attendance", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.attendance && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -843,10 +843,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("abilityToMeetDeadline", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.abilityToMeetDeadline && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -1162,10 +1162,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("customerExperience", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.customerExperience && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -1189,10 +1189,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("marketing", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
 
                                         </select>
                                         {errors.marketing && (
@@ -1216,10 +1216,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("management", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
 
                                         </select>
                                         {errors.management && (
@@ -1243,10 +1243,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("administration", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
 
                                         </select>
                                         {errors.administration && (
@@ -1270,10 +1270,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("presentationSkill", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.presentationSkill && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -1296,10 +1296,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("qualityOfWork", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.qualityOfWork && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -1322,10 +1322,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("efficiency", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.efficiency && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -1355,10 +1355,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("integrity", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.integrity && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -1381,10 +1381,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("professionalism", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.professionalism && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -1407,10 +1407,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("teamWork", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.teamWork && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -1433,10 +1433,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("criticalThinking", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.criticalThinking && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -1459,10 +1459,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("conflictManagement", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.conflictManagement && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -1485,10 +1485,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("attendance", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.attendance && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}
@@ -1511,10 +1511,10 @@ const PerformanceIndicator = () => {
                                             onBlur={(e) => validateField("abilityToMeetDeadline", e.target.value)}
                                         >
                                             <option value="">None</option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                            <option value="expert">Expert/Leader</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert/Leader</option>
                                         </select>
                                         {errors.abilityToMeetDeadline && (
                                             <p className="text-danger mb-0 ms-3" style={{ fontSize: '13px' }}>Required!</p>)}

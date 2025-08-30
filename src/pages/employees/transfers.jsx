@@ -425,8 +425,8 @@ const Transfers = () => {
                                                 onBlur={(e) => validateField("transferToLocation", e.target.value)}
                                             >
                                                 <option value="">Select Location</option>
-                                                <option value="mumbai">Head Office - Mumbai</option>
-                                                <option value="bangalore">Bangalore</option>
+                                                <option value="Head Office - Mumbai">Head Office - Mumbai</option>
+                                                <option value="Bangalore">Bangalore</option>
                                             </select>
                                             {errors.transferToLocation && (
                                                 <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.transferToLocation}</p>
@@ -445,9 +445,9 @@ const Transfers = () => {
                                                 onBlur={(e) => validateField("status", e.target.value)}
                                             >
                                                 <option value="">Status</option>
-                                                <option value="pending">Pending</option>
-                                                <option value="accepted">Accepted</option>
-                                                <option value="rejected">Rejected</option>
+                                                <option value="Pending">Pending</option>
+                                                <option value="Accepted">Accepted</option>
+                                                <option value="Rejected">Rejected</option>
                                             </select>
                                             {errors.status && (
                                                 <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.status}</p>

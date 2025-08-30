@@ -187,7 +187,7 @@ const Designation = () => {
             allowOverflow: true,
             button: true,
         },
-        { name: 'Designation', selector: row => row.designation, sortable: true },
+        { name: 'Designation', selector: row => row.designation },
         { name: 'Deparment', selector: row => row.department },
         { name: 'Expence Limit', selector: row => row.expenceLimit },
         { name: 'Added By', selector: row => row.addedBy }
@@ -261,7 +261,7 @@ const Designation = () => {
     //backend
     const totalEntries = designation.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
-    console.log('Paginated data:', paginated);
+    // console.log('Paginated data:', paginated);
 
     const paginate = (data, page) => {
         const start = (page - 1) * rowsPerPage;

@@ -447,7 +447,7 @@ const TrainersList = () => {
                                                 onBlur={(e) => validateField("designation", e.target.value)}
                                             >
                                                 <option value="">designation</option>
-                                                <option value="asst">Asst. Dealer</option>
+                                                <option value="Asst. Dealer">Asst. Dealer</option>
                                             </select>
 
                                             {errors.designation && (
@@ -769,7 +769,7 @@ const TrainersList = () => {
                                                                 onBlur={(e) => validateField("designation", e.target.value)}
                                                             >
                                                                 <option value="">designation</option>
-                                                                <option value="asst">Asst. Dealer</option>
+                                                                <option value="Asst. Dealer">Asst. Dealer</option>
                                                             </select>
 
                                                             {errors.designation && (
