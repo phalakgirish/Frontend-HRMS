@@ -39,7 +39,7 @@ const Leave = () => {
     const [errors, setErrors] = useState({});
     const validateForm = () => {
         let newErrors = {};
-        const requiredFields = ["employee", "leaveType", "appliedOn", "endDate", "reason"]; 
+        const requiredFields = ["employee", "leaveType", "appliedOn", "endDate", "reason"];
         requiredFields.forEach((field) => {
             if (!form[field] || form[field].toString().trim() === "") {
                 newErrors[field] = `${field.replace(/([A-Z])/g, " $1")} is required`;
@@ -153,50 +153,50 @@ const Leave = () => {
     // };
 
     const handleSubmit = async (e) => {
-        
-  e.preventDefault();
-  if (validateForm()) {
-    try {
 
-      const payload = {
-        
-        ...form,
-        days: Number(form.days),           
-        // status: form.status || "pending", 
-      };
-        console.log("Submitting payload:", payload);
+        e.preventDefault();
+        if (validateForm()) {
+            try {
+
+                const payload = {
+
+                    ...form,
+                    days: Number(form.days),
+                    // status: form.status || "pending", 
+                };
+                console.log("Submitting payload:", payload);
 
 
-      if (editId) {
-        await updateLeave(editId, payload);
-        toast.success("Leave updated successfully!");
-      } else {
-        await createLeave(payload);
-        toast.success("Leave saved successfully!");
-      }
+                if (editId) {
+                    await updateLeave(editId, payload);
+                    toast.success("Leave updated successfully!");
+                } else {
+                    await createLeave(payload);
+                    toast.success("Leave saved successfully!");
+                }
 
-      fetchLeave();
+                fetchLeave();
 
-      setForm({
-        employee: "",
-        leaveType: "",
-        appliedOn: "",
-        endDate: "",
-        requestDuration: "",
-        days: "",
-        reason: "",
-        // status: "", 
-        addedBy: "",
-      });
-      setEditId(null);
-      setShowEditModal(false);
-      setShowAddForm(false);
-    } catch (err) {
-      console.error("Error saving Leave:", err.response?.data || err);
-      toast.error("Leave failed to save!");
-    }
-  }
-};
+                setForm({
+                    employee: "",
+                    leaveType: "",
+                    appliedOn: "",
+                    endDate: "",
+                    requestDuration: "",
+                    days: "",
+                    reason: "",
+                    // status: "", 
+                    addedBy: "",
+                });
+                setEditId(null);
+                setShowEditModal(false);
+                setShowAddForm(false);
+            } catch (err) {
+                console.error("Error saving Leave:", err.response?.data || err);
+                toast.error("Leave failed to save!");
+            }
+        }
+    };
 
 
     const emptyForm = {
@@ -421,13 +421,13 @@ const Leave = () => {
                                             onBlur={(e) => validateField("leaveType", e.target.value)}
                                         >
                                             <option value="">Choose Leave Type...</option>
-                                            <option value="casual">Casual Leave</option>
-                                            <option value="medical">Medical Leave</option>
-                                            <option value="maternity">Maternity Leave</option>
-                                            <option value="half">Half Day</option>
-                                            <option value="com">COM Off</option>
-                                            <option value="sick">Sick Leave</option>
-                                            <option value="earning">Earning Leave</option>
+                                            <option value="Casual Leave">Casual Leave</option>
+                                            <option value="Medical Leave">Medical Leave</option>
+                                            <option value="Maternity Leave">Maternity Leave</option>
+                                            <option value="Half Day">Half Day</option>
+                                            <option value="COM Off">COM Off</option>
+                                            <option value="Sick Leave">Sick Leave</option>
+                                            <option value="Earning Leave">Earning Leave</option>
                                         </select>
                                         {errors.leaveType && (
                                             <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Leave Type is required!</p>)}
@@ -723,13 +723,13 @@ const Leave = () => {
                                                             onBlur={(e) => validateField("leaveType", e.target.value)}
                                                         >
                                                             <option value="">Choose Leave Type...</option>
-                                                            <option value="casual">Casual Leave</option>
-                                                            <option value="medical">Medical Leave</option>
-                                                            <option value="maternity">Maternity Leave</option>
-                                                            <option value="half">Half Day</option>
-                                                            <option value="com">COM Off</option>
-                                                            <option value="sick">Sick Leave</option>
-                                                            <option value="earning">Earning Leave</option>
+                                                            <option value="Casual Leave">Casual Leave</option>
+                                                            <option value="Medical Leave">Medical Leave</option>
+                                                            <option value="Maternity Leave">Maternity Leave</option>
+                                                            <option value="Half Day">Half Day</option>
+                                                            <option value="COM Off">COM Off</option>
+                                                            <option value="Sick Leave">Sick Leave</option>
+                                                            <option value="Earning Leave">Earning Leave</option>
                                                         </select>
                                                         {errors.leaveType && (
                                                             <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Leave Type is required!</p>)}

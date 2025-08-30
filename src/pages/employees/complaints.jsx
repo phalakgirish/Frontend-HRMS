@@ -459,9 +459,9 @@ const Complaints = () => {
                                             onBlur={(e) => validateField("approvalStatus", e.target.value)}
                                         >
                                             <option value="">Status</option>
-                                            <option value="pending">Pending</option>
-                                            <option value="accepted">Accepted</option>
-                                            <option value="rejected">Rejected</option>
+                                            <option value="Pending">Pending</option>
+                                            <option value="Accepted">Accepted</option>
+                                            <option value="Rejected">Rejected</option>
                                         </select>
                                         {errors.approvalStatus && (
                                             <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Approval Status is required!</p>)}

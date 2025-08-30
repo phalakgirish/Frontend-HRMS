@@ -455,8 +455,8 @@ const Employeeexit = () => {
                                                 onBlur={(e) => validateField("inactivateAccount", e.target.value)}
                                             >
                                                 <option value="">Inactivate Employee Account</option>
-                                                <option value="yes">Yes</option>
-                                                <option value="no">No</option>
+                                                <option value="Yes">Yes</option>
+                                                <option value="No">No</option>
                                             </select>
                                             {errors.inactivateAccount && (
                                                 <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This field is required!</p>)}
@@ -809,8 +809,8 @@ const Employeeexit = () => {
                                                                 onBlur={(e) => validateField("inactivateAccount", e.target.value)}
                                                             >
                                                                 <option value="">Inactivate Employee Account</option>
-                                                                <option value="yes">Yes</option>
-                                                                <option value="no">No</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
                                                             </select>
                                                             {errors.inactivateAccount && (
                                                                 <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This field is required!</p>)}

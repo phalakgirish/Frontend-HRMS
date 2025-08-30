@@ -587,10 +587,10 @@ const PerformanceAppraisal = () => {
                                                 onBlur={(e) => validateField("customerExperience", e.target.value)}
                                             >
                                                 <option value="">None</option>
-                                                <option value="beginner">Beginner</option>
-                                                <option value="intermediate">Intermediate</option>
-                                                <option value="advanced">Advanced</option>
-                                                <option value="expert">Expert/Leader</option>
+                                                <option value="Beginner">Beginner</option>
+                                                <option value="Intermediate">Intermediate</option>
+                                                <option value="Advanced">Advanced</option>
+                                                <option value="Expert">Expert/Leader</option>
                                             </select>
 
                                             {/* Error below input */}
@@ -627,10 +627,10 @@ const PerformanceAppraisal = () => {
                                                 onBlur={(e) => validateField("marketing", e.target.value)}
                                             >
                                                 <option value="">None</option>
-                                                <option value="beginner">Beginner</option>
-                                                <option value="intermediate">Intermediate</option>
-                                                <option value="advanced">Advanced</option>
-                                                <option value="expert">Expert/Leader</option>
+                                                <option value="Beginner">Beginner</option>
+                                                <option value="Intermediate">Intermediate</option>
+                                                <option value="Advanced">Advanced</option>
+                                                <option value="Expert">Expert/Leader</option>
                                             </select>
 
                                             {/* Error below input */}
@@ -665,10 +665,10 @@ const PerformanceAppraisal = () => {
                                                 onBlur={(e) => validateField("management", e.target.value)}
                                             >
                                                 <option value="">None</option>
-                                                <option value="beginner">Beginner</option>
-                                                <option value="intermediate">Intermediate</option>
-                                                <option value="advanced">Advanced</option>
-                                                <option value="expert">Expert/Leader</option>
+                                                <option value="Beginner">Beginner</option>
+                                                <option value="Intermediate">Intermediate</option>
+                                                <option value="Advanced">Advanced</option>
+                                                <option value="Expert">Expert/Leader</option>
                                             </select>
 
                                             {/* Error below input */}
@@ -702,10 +702,10 @@ const PerformanceAppraisal = () => {
                                                 onBlur={(e) => validateField("administration", e.target.value)}
                                             >
                                                 <option value="">None</option>
-                                                <option value="beginner">Beginner</option>
-                                                <option value="intermediate">Intermediate</option>
-                                                <option value="advanced">Advanced</option>
-                                                <option value="expert">Expert/Leader</option>
+                                                <option value="Beginner">Beginner</option>
+                                                <option value="Intermediate">Intermediate</option>
+                                                <option value="Advanced">Advanced</option>
+                                                <option value="Expert">Expert/Leader</option>
                                             </select>
 
                                             {/* Error below input */}
@@ -739,10 +739,10 @@ const PerformanceAppraisal = () => {
                                                 onBlur={(e) => validateField("presentationSkill", e.target.value)}
                                             >
                                                 <option value="">None</option>
-                                                <option value="beginner">Beginner</option>
-                                                <option value="intermediate">Intermediate</option>
-                                                <option value="advanced">Advanced</option>
-                                                <option value="expert">Expert/Leader</option>
+                                                <option value="Beginner">Beginner</option>
+                                                <option value="Intermediate">Intermediate</option>
+                                                <option value="Advanced">Advanced</option>
+                                                <option value="Expert">Expert/Leader</option>
                                             </select>
 
                                             {/* Error below input */}
@@ -776,10 +776,10 @@ const PerformanceAppraisal = () => {
                                                 onBlur={(e) => validateField("qualityOfWork", e.target.value)}
                                             >
                                                 <option value="">None</option>
-                                                <option value="beginner">Beginner</option>
-                                                <option value="intermediate">Intermediate</option>
-                                                <option value="advanced">Advanced</option>
-                                                <option value="expert">Expert/Leader</option>
+                                                <option value="Beginner">Beginner</option>
+                                                <option value="Intermediate">Intermediate</option>
+                                                <option value="Advanced">Advanced</option>
+                                                <option value="Expert">Expert/Leader</option>
                                             </select>
 
                                             {/* Error below input */}
@@ -813,10 +813,10 @@ const PerformanceAppraisal = () => {
                                                 onBlur={(e) => validateField("efficiency", e.target.value)}
                                             >
                                                 <option value="">None</option>
-                                                <option value="beginner">Beginner</option>
-                                                <option value="intermediate">Intermediate</option>
-                                                <option value="advanced">Advanced</option>
-                                                <option value="expert">Expert/Leader</option>
+                                                <option value="Beginner">Beginner</option>
+                                                <option value="Intermediate">Intermediate</option>
+                                                <option value="Advanced">Advanced</option>
+                                                <option value="Expert">Expert/Leader</option>
                                             </select>
 
                                             {/* Error below input */}
@@ -884,10 +884,10 @@ const PerformanceAppraisal = () => {
                                                 onBlur={(e) => validateField("integrity", e.target.value)}
                                             >
                                                 <option value="">None</option>
-                                                <option value="beginner">Beginner</option>
-                                                <option value="intermediate">Intermediate</option>
-                                                <option value="advanced">Advanced</option>
-                                                <option value="expert">Expert/Leader</option>
+                                                <option value="Beginner">Beginner</option>
+                                                <option value="Intermediate">Intermediate</option>
+                                                <option value="Advanced">Advanced</option>
+                                                <option value="Expert">Expert/Leader</option>
                                             </select>
 
                                             {/* Error below input */}
@@ -921,10 +921,10 @@ const PerformanceAppraisal = () => {
                                                 onBlur={(e) => validateField("professionalism", e.target.value)}
                                             >
                                                 <option value="">None</option>
-                                                <option value="beginner">Beginner</option>
-                                                <option value="intermediate">Intermediate</option>
-                                                <option value="advanced">Advanced</option>
-                                                <option value="expert">Expert/Leader</option>
+                                                <option value="Beginner">Beginner</option>
+                                                <option value="Intermediate">Intermediate</option>
+                                                <option value="Advanced">Advanced</option>
+                                                <option value="Expert">Expert/Leader</option>
                                             </select>
 
                                             {/* Error below input */}
@@ -958,10 +958,10 @@ const PerformanceAppraisal = () => {
                                                 onBlur={(e) => validateField("teamWork", e.target.value)}
                                             >
                                                 <option value="">None</option>
-                                                <option value="beginner">Beginner</option>
-                                                <option value="intermediate">Intermediate</option>
-                                                <option value="advanced">Advanced</option>
-                                                <option value="expert">Expert/Leader</option>
+                                                <option value="Beginner">Beginner</option>
+                                                <option value="Intermediate">Intermediate</option>
+                                                <option value="Advanced">Advanced</option>
+                                                <option value="Expert">Expert/Leader</option>
                                             </select>
 
                                             {/* Error below input */}
@@ -995,10 +995,10 @@ const PerformanceAppraisal = () => {
                                                 onBlur={(e) => validateField("criticalThinking", e.target.value)}
                                             >
                                                 <option value="">None</option>
-                                                <option value="beginner">Beginner</option>
-                                                <option value="intermediate">Intermediate</option>
-                                                <option value="advanced">Advanced</option>
-                                                <option value="expert">Expert/Leader</option>
+                                                <option value="Beginner">Beginner</option>
+                                                <option value="Intermediate">Intermediate</option>
+                                                <option value="Advanced">Advanced</option>
+                                                <option value="Expert">Expert/Leader</option>
                                             </select>
 
                                             {/* Error below input */}
@@ -1032,10 +1032,10 @@ const PerformanceAppraisal = () => {
                                                 onBlur={(e) => validateField("conflictManagement", e.target.value)}
                                             >
                                                 <option value="">None</option>
-                                                <option value="beginner">Beginner</option>
-                                                <option value="intermediate">Intermediate</option>
-                                                <option value="advanced">Advanced</option>
-                                                <option value="expert">Expert/Leader</option>
+                                                <option value="Beginner">Beginner</option>
+                                                <option value="Intermediate">Intermediate</option>
+                                                <option value="Advanced">Advanced</option>
+                                                <option value="Expert">Expert/Leader</option>
                                             </select>
 
                                             {/* Error below input */}
@@ -1069,10 +1069,10 @@ const PerformanceAppraisal = () => {
                                                 onBlur={(e) => validateField("attendance", e.target.value)}
                                             >
                                                 <option value="">None</option>
-                                                <option value="beginner">Beginner</option>
-                                                <option value="intermediate">Intermediate</option>
-                                                <option value="advanced">Advanced</option>
-                                                <option value="expert">Expert/Leader</option>
+                                                <option value="Beginner">Beginner</option>
+                                                <option value="Intermediate">Intermediate</option>
+                                                <option value="Advanced">Advanced</option>
+                                                <option value="Expert">Expert/Leader</option>
                                             </select>
 
                                             {/* Error below input */}
@@ -1106,10 +1106,10 @@ const PerformanceAppraisal = () => {
                                                 onBlur={(e) => validateField("abilityToMeetDeadline", e.target.value)}
                                             >
                                                 <option value="">None</option>
-                                                <option value="beginner">Beginner</option>
-                                                <option value="intermediate">Intermediate</option>
-                                                <option value="advanced">Advanced</option>
-                                                <option value="expert">Expert/Leader</option>
+                                                <option value="Beginner">Beginner</option>
+                                                <option value="Intermediate">Intermediate</option>
+                                                <option value="Advanced">Advanced</option>
+                                                <option value="Expert">Expert/Leader</option>
                                             </select>
 
                                             {/* Error below input */}
@@ -1542,10 +1542,10 @@ const PerformanceAppraisal = () => {
                                                                 onBlur={(e) => validateField("customerExperience", e.target.value)}
                                                             >
                                                                 <option value="">None</option>
-                                                                <option value="beginner">Beginner</option>
-                                                                <option value="intermediate">Intermediate</option>
-                                                                <option value="advanced">Advanced</option>
-                                                                <option value="expert">Expert/Leader</option>
+                                                                <option value="Beginner">Beginner</option>
+                                                                <option value="Intermediate">Intermediate</option>
+                                                                <option value="Advanced">Advanced</option>
+                                                                <option value="Expert">Expert/Leader</option>
                                                             </select>
 
                                                             {/* Error below input */}
@@ -1582,10 +1582,10 @@ const PerformanceAppraisal = () => {
                                                                 onBlur={(e) => validateField("marketing", e.target.value)}
                                                             >
                                                                 <option value="">None</option>
-                                                                <option value="beginner">Beginner</option>
-                                                                <option value="intermediate">Intermediate</option>
-                                                                <option value="advanced">Advanced</option>
-                                                                <option value="expert">Expert/Leader</option>
+                                                                <option value="Beginner">Beginner</option>
+                                                                <option value="Intermediate">Intermediate</option>
+                                                                <option value="Advanced">Advanced</option>
+                                                                <option value="Expert">Expert/Leader</option>
                                                             </select>
 
                                                             {/* Error below input */}
@@ -1620,10 +1620,10 @@ const PerformanceAppraisal = () => {
                                                                 onBlur={(e) => validateField("management", e.target.value)}
                                                             >
                                                                 <option value="">None</option>
-                                                                <option value="beginner">Beginner</option>
-                                                                <option value="intermediate">Intermediate</option>
-                                                                <option value="advanced">Advanced</option>
-                                                                <option value="expert">Expert/Leader</option>
+                                                                <option value="Beginner">Beginner</option>
+                                                                <option value="Intermediate">Intermediate</option>
+                                                                <option value="Advanced">Advanced</option>
+                                                                <option value="Expert">Expert/Leader</option>
                                                             </select>
 
                                                             {/* Error below input */}
@@ -1657,10 +1657,10 @@ const PerformanceAppraisal = () => {
                                                                 onBlur={(e) => validateField("administration", e.target.value)}
                                                             >
                                                                 <option value="">None</option>
-                                                                <option value="beginner">Beginner</option>
-                                                                <option value="intermediate">Intermediate</option>
-                                                                <option value="advanced">Advanced</option>
-                                                                <option value="expert">Expert/Leader</option>
+                                                                <option value="Beginner">Beginner</option>
+                                                                <option value="Intermediate">Intermediate</option>
+                                                                <option value="Advanced">Advanced</option>
+                                                                <option value="Expert">Expert/Leader</option>
                                                             </select>
 
                                                             {/* Error below input */}
@@ -1694,10 +1694,10 @@ const PerformanceAppraisal = () => {
                                                                 onBlur={(e) => validateField("presentationSkill", e.target.value)}
                                                             >
                                                                 <option value="">None</option>
-                                                                <option value="beginner">Beginner</option>
-                                                                <option value="intermediate">Intermediate</option>
-                                                                <option value="advanced">Advanced</option>
-                                                                <option value="expert">Expert/Leader</option>
+                                                                <option value="Beginner">Beginner</option>
+                                                                <option value="Intermediate">Intermediate</option>
+                                                                <option value="Advanced">Advanced</option>
+                                                                <option value="Expert">Expert/Leader</option>
                                                             </select>
 
                                                             {/* Error below input */}
@@ -1731,10 +1731,10 @@ const PerformanceAppraisal = () => {
                                                                 onBlur={(e) => validateField("qualityOfWork", e.target.value)}
                                                             >
                                                                 <option value="">None</option>
-                                                                <option value="beginner">Beginner</option>
-                                                                <option value="intermediate">Intermediate</option>
-                                                                <option value="advanced">Advanced</option>
-                                                                <option value="expert">Expert/Leader</option>
+                                                                <option value="Beginner">Beginner</option>
+                                                                <option value="Intermediate">Intermediate</option>
+                                                                <option value="Advanced">Advanced</option>
+                                                                <option value="Expert">Expert/Leader</option>
                                                             </select>
 
                                                             {/* Error below input */}
@@ -1768,10 +1768,10 @@ const PerformanceAppraisal = () => {
                                                                 onBlur={(e) => validateField("efficiency", e.target.value)}
                                                             >
                                                                 <option value="">None</option>
-                                                                <option value="beginner">Beginner</option>
-                                                                <option value="intermediate">Intermediate</option>
-                                                                <option value="advanced">Advanced</option>
-                                                                <option value="expert">Expert/Leader</option>
+                                                                <option value="Beginner">Beginner</option>
+                                                                <option value="Intermediate">Intermediate</option>
+                                                                <option value="Advanced">Advanced</option>
+                                                                <option value="Expert">Expert/Leader</option>
                                                             </select>
 
                                                             {/* Error below input */}
@@ -1839,10 +1839,10 @@ const PerformanceAppraisal = () => {
                                                                 onBlur={(e) => validateField("integrity", e.target.value)}
                                                             >
                                                                 <option value="">None</option>
-                                                                <option value="beginner">Beginner</option>
-                                                                <option value="intermediate">Intermediate</option>
-                                                                <option value="advanced">Advanced</option>
-                                                                <option value="expert">Expert/Leader</option>
+                                                                <option value="Beginner">Beginner</option>
+                                                                <option value="Intermediate">Intermediate</option>
+                                                                <option value="Advanced">Advanced</option>
+                                                                <option value="Expert">Expert/Leader</option>
                                                             </select>
 
                                                             {/* Error below input */}
@@ -1876,10 +1876,10 @@ const PerformanceAppraisal = () => {
                                                                 onBlur={(e) => validateField("professionalism", e.target.value)}
                                                             >
                                                                 <option value="">None</option>
-                                                                <option value="beginner">Beginner</option>
-                                                                <option value="intermediate">Intermediate</option>
-                                                                <option value="advanced">Advanced</option>
-                                                                <option value="expert">Expert/Leader</option>
+                                                                <option value="Beginner">Beginner</option>
+                                                                <option value="Intermediate">Intermediate</option>
+                                                                <option value="Advanced">Advanced</option>
+                                                                <option value="Expert">Expert/Leader</option>
                                                             </select>
 
                                                             {/* Error below input */}
@@ -1913,10 +1913,10 @@ const PerformanceAppraisal = () => {
                                                                 onBlur={(e) => validateField("teamWork", e.target.value)}
                                                             >
                                                                 <option value="">None</option>
-                                                                <option value="beginner">Beginner</option>
-                                                                <option value="intermediate">Intermediate</option>
-                                                                <option value="advanced">Advanced</option>
-                                                                <option value="expert">Expert/Leader</option>
+                                                                <option value="Beginner">Beginner</option>
+                                                                <option value="Intermediate">Intermediate</option>
+                                                                <option value="Advanced">Advanced</option>
+                                                                <option value="Expert">Expert/Leader</option>
                                                             </select>
 
                                                             {/* Error below input */}
@@ -1950,10 +1950,10 @@ const PerformanceAppraisal = () => {
                                                                 onBlur={(e) => validateField("criticalThinking", e.target.value)}
                                                             >
                                                                 <option value="">None</option>
-                                                                <option value="beginner">Beginner</option>
-                                                                <option value="intermediate">Intermediate</option>
-                                                                <option value="advanced">Advanced</option>
-                                                                <option value="expert">Expert/Leader</option>
+                                                                <option value="Beginner">Beginner</option>
+                                                                <option value="Intermediate">Intermediate</option>
+                                                                <option value="Advanced">Advanced</option>
+                                                                <option value="Expert">Expert/Leader</option>
                                                             </select>
 
                                                             {/* Error below input */}
@@ -1987,10 +1987,10 @@ const PerformanceAppraisal = () => {
                                                                 onBlur={(e) => validateField("conflictManagement", e.target.value)}
                                                             >
                                                                 <option value="">None</option>
-                                                                <option value="beginner">Beginner</option>
-                                                                <option value="intermediate">Intermediate</option>
-                                                                <option value="advanced">Advanced</option>
-                                                                <option value="expert">Expert/Leader</option>
+                                                                <option value="Beginner">Beginner</option>
+                                                                <option value="Intermediate">Intermediate</option>
+                                                                <option value="Advanced">Advanced</option>
+                                                                <option value="Expert">Expert/Leader</option>
                                                             </select>
 
                                                             {/* Error below input */}
@@ -2024,10 +2024,10 @@ const PerformanceAppraisal = () => {
                                                                 onBlur={(e) => validateField("attendance", e.target.value)}
                                                             >
                                                                 <option value="">None</option>
-                                                                <option value="beginner">Beginner</option>
-                                                                <option value="intermediate">Intermediate</option>
-                                                                <option value="advanced">Advanced</option>
-                                                                <option value="expert">Expert/Leader</option>
+                                                                <option value="Beginner">Beginner</option>
+                                                                <option value="Intermediate">Intermediate</option>
+                                                                <option value="Advanced">Advanced</option>
+                                                                <option value="Expert">Expert/Leader</option>
                                                             </select>
 
                                                             {/* Error below input */}
@@ -2061,10 +2061,10 @@ const PerformanceAppraisal = () => {
                                                                 onBlur={(e) => validateField("abilityToMeetDeadline", e.target.value)}
                                                             >
                                                                 <option value="">None</option>
-                                                                <option value="beginner">Beginner</option>
-                                                                <option value="intermediate">Intermediate</option>
-                                                                <option value="advanced">Advanced</option>
-                                                                <option value="expert">Expert/Leader</option>
+                                                                <option value="Beginner">Beginner</option>
+                                                                <option value="Intermediate">Intermediate</option>
+                                                                <option value="Advanced">Advanced</option>
+                                                                <option value="Expert">Expert/Leader</option>
                                                             </select>
 
                                                             {/* Error below input */}

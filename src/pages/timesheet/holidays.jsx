@@ -385,8 +385,8 @@ const Holidays = () => {
                                             onBlur={(e) => validateField("status", e.target.value)}
                                         >
                                             <option value="">Select Status</option>
-                                            <option value="published">Published</option>
-                                            <option value="unpublished">Unpublished</option>
+                                            <option value="Published">Published</option>
+                                            <option value="Unpublished">Unpublished</option>
                                         </select>
                                         {errors.status && (
                                             <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Status is required!</p>)}
@@ -627,8 +627,8 @@ const Holidays = () => {
                                                             onBlur={(e) => validateField("status", e.target.value)}
                                                         >
                                                             <option value="">Select Status</option>
-                                                            <option value="published">Published</option>
-                                                            <option value="unpublished">Unpublished</option>
+                                                            <option value="Published">Published</option>
+                                                            <option value="Unpublished">Unpublished</option>
                                                         </select>
                                                         {errors.status && (
                                                             <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Status is required!</p>)}
