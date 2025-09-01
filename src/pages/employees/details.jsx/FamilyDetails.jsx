@@ -1,398 +1,438 @@
 import React from "react";
-import { useState,useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import DataTable from 'react-data-table-component';
+import { getFamilyDetail, createFamilyDetail, updateFamilyDetail, deleteFamilyDetail } from "./apis/familyDetailsApi";
+import { toast } from "react-toastify";
+import { useParams } from "react-router-dom";
 
-const FamilyDetails = ({ form, setForm, handleSubmit,mode }) => {
+const FamilyDetails = ({ mode }) => {
+    const { empId } = useParams();
+    const [paginated, setPaginated] = useState([]);
+    const [selectedRow, setSelectedRow] = useState(null);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showModal, setShowModal] = useState(false);
 
-        const [showModal, setShowModal] = useState(false);
-        const [selectedRow, setSelectedRow] = useState(null);
-        const [showEditModal, setShowEditModal] = useState(false);
-        const [description, setDescription] = useState('');
-        const editorRef = useRef(null);
-        const [editorKey, setEditorKey] = useState(0);
-    
-        //from backend
-        const [Promotion, setPromotion] = useState([]);
-        const [paginated, setPaginated] = useState([]);
-    
-        const [editId, setEditId] = useState(null);
-    
-        // const [form, setForm] = useState({
-        //     employeeName: '',
-        //     PromotionTitle: '',
-        //     PromotionDate: '',
-        //     addedBy: '',
-        //     description: ''
-        // });
-    
-        // const [errors, setErrors] = useState({});
-     
-        // const validateForm = () => {
-        //     let newErrors = {};
-    
-        //     Object.keys(form).forEach((field) => {
-        //         if (!form[field] || form[field].toString().trim() === "") {
-        //             newErrors[field] = `${field.replace(/([A-Z])/g, " $1")} is required`;
-        //         }
-        //     });
-    
-        //     setErrors(newErrors);
-        //     return Object.keys(newErrors).length === 0;
-        // };
-    
-        // useEffect(() => {
-        //     fetchPromotion();
-        // }, []);
-    
-        // const fetchPromotion = async () => {
-        //     try {
-        //         const response = await getPromotion();
-        //         setPromotion(response.data);
-        //         paginate(response.data, currentPage);
-        //     } catch (error) {
-        //         console.error('Error fetching Promotion:', error);
-        //     }
-        // };
-    
-        // const validateField = (fieldName, value = "") => {
-        //     let error = "";
-    
-        //     let displayName = fieldName
-        //         .replace(/([A-Z])/g, " $1")
-        //         .replace(/^./, str => str.toUpperCase());
-    
-        //     value = value.toString();
-    
-        //     switch (fieldName) {
-        //         case "employeeName":
-        //             if (!value.trim()) error = `${displayName} is required`;
-        //             break;
-    
-        //         case "PromotionTitle":
-        //             if (!value.trim()) error = `${displayName} is required`;
-        //             break;
-    
-        //         case "PromotionDate":
-        //             if (!value.trim()) error = `${displayName} is required`;
-        //             break;
-    
-        //         case "description":
-        //             if (!value.trim()) error = `${displayName} is required`;
-        //             break;
-    
-        //         case "addedBy":
-        //             if (!value.trim()) error = `${displayName} is required`;
-        //             break;
-    
-        //         default:
-        //             break;
-        //     }
-    
-        //     setErrors(prev => ({ ...prev, [fieldName]: error }));
-        //     return error;
-        // };
-    
-    
-        // const handleSubmit = async (e) => {
-        //     e.preventDefault();
-        //     if (validateForm()) {
-    
-        //         try {
-        //             const payload = { ...form, description };
-        //             if (editId) {
-        //                 await updatePromotion(editId, form);
-        //                 toast.success("Promotion updated successfully!");
-    
-        //             } else {
-        //                 await createPromotion(form);
-        //                 toast.success("Promotion saved successfully!");
-    
-        //             }
-        //             fetchPromotion();
-        //             setForm({
-        //                 employeeName: '',
-        //                 PromotionTitle: '',
-        //                 PromotionDate: '',
-        //                 addedBy: '',
-        //                 description: ''
-        //             });
-        //             setDescription("");
-        //             setEditId("");
-        //             setShowEditModal(false);
-        //         } catch (err) {
-        //             console.error("Error saving Promotion:", err);
-        //             toast.error("Promotion failedd to save!");
-    
-        //         }
-        //     }
-        // };
-    
-    
-    
-        // const handleEdit = (row) => {
-        //     setForm({
-        //         employeeName: row.employeeName,
-        //         PromotionTitle: row.PromotionTitle,
-        //         PromotionDate: row.PromotionDate,
-        //         addedBy: row.addedBy,
-        //         description: row.description
-        //     });
-        //     setEditId(row._id);
-        //     setShowEditModal(true);
-        //     setSelectedRow(row);
-        // };
-    
-        // const handleDelete = async (id) => {
-        //     const confirmDelete = window.confirm("Are you sure you want to delete this Promotion?");
-        //     if (!confirmDelete) return;
-        //     try {
-        //         await deletePromotion(id);
-        //         fetchPromotion();
-        //     } catch (err) {
-        //         console.error("Error deleting Promotion:", err);
-        //     }
-        // };
-    
-        const handleView = (row) => {
-            setSelectedRow(row);
-            setShowModal(true);
-        };
-    
-    
-        // const emptyForm = {
-        //     employeeName: '',
-        //     PromotionTitle: '',
-        //     PromotionDate: '',
-        //     addedBy: '',
-        //     description: ''
-        // };
-    
-        // const resetForm = () => {
-        //     setForm(emptyForm);
-        //     setEditId(null);
-        //     setShowEditModal(false);
-        // };
-        
-    
-    
-        const columns = [
-            {
-                name: 'Action',
-                cell: (row) => (
-                    <div className="d-flex">
-                        <button
-                            className="btn btn-outline-secondary btn-sm"
-                            onClick={() => handleView(row)}
-                        >
-                            <i className="fas fa-eye"></i>
-                        </button>
-                        <button
-                            className="btn btn-outline-secondary btn-sm"
-                            // onClick={() => handleEdit(row)}
-                        >
-                            <i className="fas fa-edit"></i>
-                        </button>
-                        <button
-                            className="btn btn-danger btn-sm"
-                            // onClick={() => handleDelete(row._id)}
-                        >
-                            <i className="fas fa-trash-alt text-white"></i>
-                        </button>
-                    </div>
-                ),
-                ignoreRowClick: true,
-                allowOverflow: true,
-                button: true,
-            },
-            { name: 'Name', selector: row => row.name },
-            { name: 'Relation', selector: row => row.relation },
-            { name: 'Email', selector: row => row.email },
-            { name: 'Mobile', selector: row => row.mobile },
-            { name: 'Date of Birth', selector: row => row.dateOfBirth }
+    const [familyList, setFamilyList] = useState([]);
+    const [form, setForm] = useState({
+        family_relation: "",
+        family_name: "",
+        family_primary_contact: "",
+        family_dependent_contact: "",
+        family_email_work: "",
+        family_email_personal: "",
+        family_address: "",
+        family_mobile: "",
+        family_phone_work: "",
+        family_city: "",
+        family_state: "",
+        family_pincode: "",
+        family_country: "",
+        family_dob: "",
+    });
+    const [editId, setEditId] = useState(null);
 
-        ];
-    
-      
-        const customStyles = {
-            headCells: {
-                style: {
-                    backgroundColor: '#2b528c',
-                    color: 'white',
-                    fontSize: '14px',
-                },
+    const handleView = (row) => {
+        setSelectedRow(row);
+        setShowModal(true);
+    };
+
+
+
+    // Reset form
+    const resetForm = () => {
+        setForm({
+            family_relation: "",
+            family_name: "",
+            family_primary_contact: "",
+            family_dependent_contact: "",
+            family_email_work: "",
+            family_email_personal: "",
+            family_address: "",
+            family_mobile: "",
+            family_phone_work: "",
+            family_city: "",
+            family_state: "",
+            family_pincode: "",
+            family_country: "",
+            family_dob: "",
+        });
+        setEditId(null);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!empId) return toast.error("Employee ID missing");
+
+        const payload = { ...form, employeeId: empId };
+        console.log("this is sent data:", payload);
+
+        try {
+            if (editId) {
+                await updateFamilyDetail(editId, payload);
+                toast.success("Family detail updated!");
+            } else {
+                await createFamilyDetail(payload);
+                toast.success("Family detail added!");
+            }
+
+            await fetchFamily();
+            resetForm();
+            setShowEditModal(false);
+        } catch (err) {
+            console.error("Error saving family detail:", err);
+            toast.error("Failed to save!");
+        }
+    };
+
+    const fetchFamily = async () => {
+        if (!empId) return;
+        try {
+            const res = await getFamilyDetail(empId);
+            console.log("Family list:", res.data);
+            setFamilyList(res.data);
+        } catch (err) {
+            console.error("Error fetching family:", err);
+        }
+    };
+
+    useEffect(() => {
+        fetchFamily();
+    }, [empId]);
+
+
+    const handleEdit = (row) => {
+        setForm({
+            family_relation: row.family_relation || "",
+            family_name: row.family_name || "",
+            family_primary_contact: row.family_primary_contact || false,
+            family_dependent_contact: row.family_dependent_contact || false,
+            family_email_work: row.family_email_work || "",
+            family_email_personal: row.family_email_personal || "",
+            family_address: row.family_address || "",
+            family_mobile: row.family_mobile || "",
+            family_phone_work: row.family_phone_work || "",
+            family_city: row.family_city || "",
+            family_state: row.family_state || "",
+            family_pincode: row.family_pincode || "",
+            family_country: row.family_country || "",
+            family_dob: row.family_dob ? row.family_dob.split("T")[0] : "", // For date input
+        });
+
+        setEditId(row._id);
+        setShowEditModal(true);
+        setSelectedRow(row);
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this record?")) return;
+
+        try {
+            await deleteFamilyDetail(id);
+            fetchFamily();
+            toast.success("Deleted successfully!");
+        } catch (err) {
+            console.error("Error deleting:", err);
+            toast.error("Failed to delete!");
+        }
+    };
+
+
+
+
+    const columns = [
+        {
+            name: 'Action',
+            cell: (row) => (
+                <div className="d-flex">
+                    <button
+                        className="btn btn-outline-secondary btn-sm"
+                        onClick={() => handleView(row)}
+                    >
+                        <i className="fas fa-eye"></i>
+                    </button>
+                    <button
+                        className="btn btn-outline-secondary btn-sm"
+                        onClick={() => handleEdit(row)}
+                    >
+                        <i className="fas fa-edit"></i>
+                    </button>
+                    <button
+                        className="btn btn-danger btn-sm"
+                        onClick={() => handleDelete(row._id)}
+                    >
+                        <i className="fas fa-trash-alt text-white"></i>
+                    </button>
+                </div>
+            ),
+            ignoreRowClick: true,
+            allowOverflow: true,
+            button: true,
+        },
+        { name: 'Name', selector: row => row.family_name || '-' },
+        { name: 'Relation', selector: row => row.family_relation || '-' },
+        { name: 'Email', selector: row => row.family_email_work || '-' },
+        { name: 'Mobile', selector: row => row.family_mobile || '-' },
+        { name: 'Date of Birth', selector: row => row.family_dob || '-' }
+
+    ];
+
+
+    const customStyles = {
+        headCells: {
+            style: {
+                backgroundColor: '#2b528c',
+                color: 'white',
+                fontSize: '14px',
             },
-        };
-    
-        const conditionalRowStyles = [
-            {
-                when: (row, index) => index % 2 === 0,
-                style: {
-                    backgroundColor: 'white',
-                },
+        },
+    };
+
+    const conditionalRowStyles = [
+        {
+            when: (row, index) => index % 2 === 0,
+            style: {
+                backgroundColor: 'white',
             },
-            {
-                when: (row, index) => index % 2 !== 0,
-                style: {
-                    backgroundColor: '#f8f9fa',
-                },
+        },
+        {
+            when: (row, index) => index % 2 !== 0,
+            style: {
+                backgroundColor: '#f8f9fa',
             },
-        ];
-    
-        const [currentPage, setCurrentPage] = useState(1);
-        const [rowsPerPage, setRowsPerPage] = useState(10);
-    
-        const totalEntries = Promotion.length;
-        const totalPages = Math.ceil(totalEntries / rowsPerPage);
-        console.log('Paginated data:', paginated);
-    
-        const paginate = (data, page) => {
-            const start = (page - 1) * rowsPerPage;
-            const end = start + rowsPerPage;
-            setPaginated(data.slice(start, end));
-            setCurrentPage(page);
-        };
-    
-        const startEntry = (currentPage - 1) * rowsPerPage + 1;
-        const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
-    
-        const [showAddForm, setShowAddForm] = useState(false);
-    
-        const toggleAddForm = () => {
-            setShowAddForm((prev) => !prev);
-        };
+        },
+    ];
+
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+
+    const totalEntries = familyList.length;
+    const totalPages = Math.ceil(totalEntries / rowsPerPage);
+    // console.log('Paginated data:', paginated);
+
+    const paginate = (data, page) => {
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        setPaginated(data.slice(start, end));
+        setCurrentPage(page);
+    };
+    const startEntry = (currentPage - 1) * rowsPerPage + 1;
+    const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
+    const [showAddForm, setShowAddForm] = useState(false);
+
+    const toggleAddForm = () => {
+        setShowAddForm((prev) => !prev);
+    };
+
+    useEffect(() => {
+        paginate(familyList, currentPage);
+    }, [familyList, currentPage, rowsPerPage]);
+
 
     return (
         <div>
-                        {mode === "edit" && (
+            {mode === "edit" && (
 
-            <div className="container-fluid mt-4">
-                <form>
-                    <div className="row">
-                        <div className="col-md-6">
-                            <div className="mb-3">
-                                <label>Relation</label>
-                                <select id="relation"
-                                    className="form-control">
-                                    <option value="">Select One</option>
-                                    <option value="Self">Self</option>
-                                    <option value="Parent">Parent</option>
-                                    <option value="Spouse">Spouse</option>
-                                    <option value="Child">Child</option>
-                                    <option value="Sibling">Sibling</option>
-                                    <option value="In Laws">In Laws</option>
-                                </select>
-                            </div>
+                <div className="container-fluid mt-4">
+                    <form onSubmit={handleSubmit}>
+                        <div className="row">
+                            <div className="col-md-6">
+                                <div className="mb-3">
+                                    <label>Relation</label>
+                                    <select
+                                        name="family_relation"
+                                        className="form-control"
+                                        value={form.family_relation}
+                                        onChange={(e) => setForm({ ...form, family_relation: e.target.value })}
+                                    >
+                                        <option value="">Select One</option>
+                                        <option value="Self">Self</option>
+                                        <option value="Parent">Parent</option>
+                                        <option value="Spouse">Spouse</option>
+                                        <option value="Child">Child</option>
+                                        <option value="Sibling">Sibling</option>
+                                        <option value="In Laws">In Laws</option>
+                                    </select>
+                                </div>
 
-                            <div className="mb-3 d-flex gap-3 align-items-center">
-                                <div className="form-check">
+                                <div className="mb-3 d-flex gap-3 align-items-center">
+                                    <div className="form-check">
+                                        <input
+                                            type="checkbox"
+                                            id="primaryContact"
+                                            checked={form.family_primary_contact || false}
+                                            onChange={(e) =>
+                                                setForm({ ...form, family_primary_contact: e.target.checked })
+                                            }
+                                            style={{ width: "16px", height: "16px" }}
+                                        />
+
+                                        <label className="form-check-label ms-2" htmlFor="primaryContact">
+                                            Primary Contact
+                                        </label>
+                                    </div>
+
+                                    <div className="form-check">
+                                        <input
+                                            type="checkbox"
+                                            id="dependantContact"
+                                            checked={form.family_dependent_contact || false}
+                                            onChange={(e) =>
+                                                setForm({ ...form, family_dependent_contact: e.target.checked })
+                                            }
+                                            style={{ width: "16px", height: "16px" }}
+                                        />
+
+
+
+                                        <label className="form-check-label ms-2" htmlFor="dependant">
+                                            Dependant
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div className="mb-3">
+                                    <label>Name</label>
                                     <input
-                                        className="form-check-input"
-                                        type="checkbox"
-                                        id="primaryContact"
-                                        style={{ width: "16px", height: "16px" }}
+                                        type="text"
+                                        placeholder="Name"
+                                        className="form-control"
+                                        name="family_name"
+                                        value={form.family_name}
+                                        onChange={(e) => setForm({ ...form, family_name: e.target.value })}
                                     />
-                                    <label className="form-check-label ms-2" htmlFor="primaryContact">
-                                        Primary Contact
-                                    </label>
                                 </div>
 
-                                <div className="form-check">
+                                <div className="mb-3 col-md-12">
+                                    <label>Phone</label>
+                                    <div className="d-flex gap-4">
+                                        <input
+                                            type="text"
+                                            placeholder="Work"
+                                            className="form-control mb-3"
+                                            name="family_phone_work"
+                                            value={form.family_phone_work}
+                                            onChange={(e) => setForm({ ...form, family_phone_work: e.target.value })}
+                                        />
+                                        <input type="text" className="form-control" style={{ width: "150px" }} placeholder="Ext" />
+                                    </div>
+                                </div>
+
+                                <div className="mb-3 col-md-12">
                                     <input
-                                        className="form-check-input"
-                                        type="checkbox"
-                                        id="dependant"
-                                        style={{ width: "16px", height: "16px" }}
+                                        type="text"
+                                        placeholder="Mobile"
+                                        className="form-control mb-3"
+                                        name="family_mobile"
+                                        value={form.family_mobile}
+                                        onChange={(e) => setForm({ ...form, family_mobile: e.target.value })}
                                     />
-                                    <label className="form-check-label ms-2" htmlFor="dependant">
-                                        Dependant
-                                    </label>
+                                    <input type="text" className="form-control" placeholder="Home" />
+                                </div>
+
+                                <div className="mb-3 col-md-12">
+                                    <label>Date of Birth</label>
+                                    <input
+                                        type="date"
+                                        placeholder="Mobile"
+                                        className="form-control mb-3"
+                                        name="family_dob"
+                                        value={form.family_dob}
+                                        onChange={(e) => setForm({ ...form, family_dob: e.target.value })}
+                                    />
+                                </div>
+
+
+                            </div>
+
+                            {/* Right Column */}
+                            <div className="col-md-6">
+
+                                <div className="mb-3">
+                                    <label>Email</label>
+                                    <input type="text" className="form-control mb-3" placeholder="Work"
+                                        name="family_email_work"
+                                        value={form.family_email_work}
+                                        onChange={(e) => setForm({ ...form, family_email_work: e.target.value })}
+                                    />
+                                    <input type="text" className="form-control" placeholder="Personal"
+                                        name="family_email_personal"
+                                        value={form.family_email_personal}
+                                        onChange={(e) => setForm({ ...form, family_email_personal: e.target.value })}
+                                    />
+                                </div>
+
+                                <div className="mb-3">
+                                    <label>Address</label>
+                                    <input type="text" className="form-control mb-3" placeholder="Address Line 1"
+                                        name="family_address"
+                                        value={form.family_address}
+                                        onChange={(e) => setForm({ ...form, family_address: e.target.value })}
+                                    />
+                                    <input type="text" className="form-control" placeholder="Address Line 2" />
+                                </div>
+
+                                <div className="row mb-3">
+                                    <div className="col-md-4">
+                                        <input type="text" className="form-control" placeholder="City"
+                                            name="family_city"
+                                            value={form.family_city}
+                                            onChange={(e) => setForm({ ...form, family_city: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="col-md-4">
+                                        <input type="text" className="form-control" placeholder="State"
+                                            name="family_state"
+                                            value={form.family_state}
+                                            onChange={(e) => setForm({ ...form, family_state: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="col-md-4">
+                                        <input type="text" className="form-control" placeholder="Zip Code"
+                                            name="family_pincode"
+                                            value={form.family_pincode}
+                                            onChange={(e) => setForm({ ...form, family_pincode: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="mb-3">
+                                    <label>Country</label>
+                                    <select
+                                        name="family_country"
+                                        className="form-control"
+                                        value={form.family_country}
+                                        onChange={(e) => setForm({ ...form, family_country: e.target.value })}
+                                    >
+                                        <option value="">Select Country</option>
+                                        <option value="US">United States</option>
+                                        <option value="CA">Canada</option>
+                                        <option value="GB">United Kingdom</option>
+                                        <option value="AU">Australia</option>
+                                        <option value="IN">India</option>
+                                        <option value="DE">Germany</option>
+                                        <option value="FR">France</option>
+                                        <option value="JP">Japan</option>
+                                        <option value="CN">China</option>
+                                        <option value="BR">Brazil</option>
+                                        <option value="ZA">South Africa</option>
+                                        <option value="RU">Russia</option>
+                                        <option value="MX">Mexico</option>
+                                        <option value="IT">Italy</option>
+                                        <option value="ES">Spain</option>
+                                    </select>
                                 </div>
                             </div>
-
-                            <div className="mb-3">
-                                <label>Name</label>
-                                <input type="text" className="form-control" placeholder="Name" />
-                            </div>
-
-                            <div className="mb-3 col-md-12">
-                                <label>Phone</label>
-                                <div className="d-flex gap-4">
-                                    <input type="text" className="form-control" placeholder="Work" />
-                                    <input type="text" className="form-control" style={{ width: "150px" }} placeholder="Ext" />
-                                </div>
-                            </div>
-
-                            <div className="mb-3 col-md-12">
-                                <input type="text" className="form-control mb-3" placeholder="Mobile" />
-                                <input type="text" className="form-control" placeholder="Home" />
-                            </div>
-
-                            <div className="mb-3 col-md-12">
-                                <label>Date of Birth</label>
-                                <input type="date" className="form-control" placeholder="Mobile" />
-                            </div>
-
 
                         </div>
 
-                        {/* Right Column */}
-                        <div className="col-md-6">
-
-                            <div className="mb-3">
-                                <label>Email</label>
-                                <input type="text" className="form-control mb-3" placeholder="Work" />
-                                <input type="text" className="form-control" placeholder="Personal" />
-                            </div>
-
-                            <div className="mb-3">
-                                <label>Address</label>
-                                <input type="text" className="form-control mb-3" placeholder="Address Line 1" />
-                                <input type="text" className="form-control" placeholder="Address Line 2" />
-                            </div>
-
-                            <div className="row mb-3">
-                                <div className="col-md-4">
-                                    <input type="text" className="form-control" placeholder="City" />
-                                </div>
-                                <div className="col-md-4">
-                                    <input type="text" className="form-control" placeholder="State" />
-                                </div>
-                                <div className="col-md-4">
-                                    <input type="text" className="form-control" placeholder="Zip Code" />
-                                </div>
-                            </div>
-
-                            <div className="mb-3">
-                                <label>Country</label>
-                                <select className="form-select">
-                                    <option value="">Select Country</option>
-                                    <option value="US">United States</option>
-                                    <option value="CA">Canada</option>
-                                    <option value="GB">United Kingdom</option>
-                                    <option value="AU">Australia</option>
-                                    <option value="IN">India</option>
-                                    <option value="DE">Germany</option>
-                                    <option value="FR">France</option>
-                                    <option value="JP">Japan</option>
-                                    <option value="CN">China</option>
-                                    <option value="BR">Brazil</option>
-                                    <option value="ZA">South Africa</option>
-                                    <option value="RU">Russia</option>
-                                    <option value="MX">Mexico</option>
-                                    <option value="IT">Italy</option>
-                                    <option value="ES">Spain</option>
-                                </select>
-                            </div>
+                        <div className="text-start mb-4">
+                            <button type="submit" className="btn btn-sm add-btn">Save</button>
                         </div>
-
-                    </div>
-
-                    <div className="text-start mb-4">
-                        <button type="submit" className="btn btn-sm add-btn">Save</button>
-                    </div>
-                </form>
-            </div>
-                        )}
+                    </form>
+                </div>
+            )}
 
             <div className="card no-radius">
                 <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
@@ -491,7 +531,7 @@ const FamilyDetails = ({ form, setForm, handleSubmit,mode }) => {
                     </button>
                 </div>
 
-                {/* {showModal && selectedRow && (
+                {showModal && selectedRow && (
                     <div className="modal show fade d-block" tabIndex="-1" role="dialog">
                         <div className="modal-dialog modal-dialog-centered" role="document">
                             <div className="modal-content">
@@ -504,12 +544,16 @@ const FamilyDetails = ({ form, setForm, handleSubmit,mode }) => {
                                     ></button>
                                 </div>
                                 <div className="modal-body">
-                                    <p><strong>Promotion For:</strong> {selectedRow.employeeName}</p>
-                                    <p><strong>Promotion Title:</strong> {selectedRow.PromotionTitle}</p>
-                                    <p><strong>Promotion Date:</strong> {selectedRow.PromotionDate}</p>
-                                    <p>
-                                        <strong>Description:</strong> {selectedRow.description.replace(/<[^>]+>/g, '')}
-                                    </p>
+                                    <p><strong>Relation:</strong> {selectedRow.family_relation}</p>
+                                    <p><strong>Email(Work):</strong> {selectedRow.family_email_work}</p>
+                                    <p><strong>Email(Personal):</strong> {selectedRow.family_email_personal}</p>
+                                    <p><strong>Name:</strong> {selectedRow.family_name}</p>
+                                    <p><strong>Address:</strong> {selectedRow.family_address}</p>
+                                    <p><strong>Phone:</strong> {selectedRow.family_phone_work}</p>
+                                    <p><strong>Mobile:</strong> {selectedRow.family_mobile}</p>
+                                    <p><strong>Country:</strong> {selectedRow.family_country}</p>
+                                    <p><strong>Date of Birth:</strong> {selectedRow.family_dob}</p>
+
                                 </div>
 
                                 <div className="modal-footer">
@@ -541,107 +585,190 @@ const FamilyDetails = ({ form, setForm, handleSubmit,mode }) => {
                                             <div className="row">
                                                 <div className="col-md-6">
                                                     <div className="mb-3">
-                                                        <label>Promotion For</label>
-                                                        <select id="resignEmployee" value={form.employeeName}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, employeeName: value });
-                                                                validateField("employeeName", value);
-                                                            }}
-                                                            className={`form-control ${errors.employeeName ? "is-invalid" : ""}`}
-                                                            onBlur={(e) => validateField("employeeName", e.target.value)}
+                                                        <label>Relation</label>
+                                                        <select
+                                                            name="family_relation"
+                                                            className="form-control"
+                                                            value={form.family_relation}
+                                                            onChange={(e) => setForm({ ...form, family_relation: e.target.value })}
                                                         >
-                                                            <option value="">Select Department</option>
-                                                            <option value="Admin">Admin Admin</option>
-                                                            <option value="Anjali Patle">Anjali Patle</option>
-                                                            <option value="Amit Kumar">Amit Kumar</option>
-                                                            <option value="Aniket Rane">Aniket Rane</option>
-                                                            <option value="Shubham Kadam">Shubham Kadam</option>
-                                                            <option value="Abhijieet Tawate">Abhijieet Tawate</option>
-                                                            <option value="Pravin Bildlan">Pravin Bildlan</option>
-                                                            <option value="Amit Pednekar">Amit Pednekar</option>
-                                                            <option value="Mahendra Chaudhary">Mahendra Chaudhary</option>
-                                                            <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
-                                                            <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
+                                                            <option value="">Select One</option>
+                                                            <option value="Self">Self</option>
+                                                            <option value="Parent">Parent</option>
+                                                            <option value="Spouse">Spouse</option>
+                                                            <option value="Child">Child</option>
+                                                            <option value="Sibling">Sibling</option>
+                                                            <option value="In Laws">In Laws</option>
                                                         </select>
-                                                        {errors.employeeName && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Employee Name is required!</p>)}
+                                                    </div>
+
+                                                    <div className="mb-3 d-flex gap-3 align-items-center">
+                                                        <div className="form-check">
+                                                            <input
+                                                                type="checkbox"
+                                                                id="primaryContact"
+                                                                checked={form.family_primary_contact || false}
+                                                                onChange={(e) =>
+                                                                    setForm({ ...form, family_primary_contact: e.target.checked })
+                                                                }
+                                                                style={{ width: "16px", height: "16px" }}
+                                                            />
+
+                                                            <label className="form-check-label ms-2" htmlFor="primaryContact">
+                                                                Primary Contact
+                                                            </label>
+                                                        </div>
+
+                                                        <div className="form-check">
+                                                            <input
+                                                                type="checkbox"
+                                                                id="dependantContact"
+                                                                checked={form.family_dependent_contact || false}
+                                                                onChange={(e) =>
+                                                                    setForm({ ...form, family_dependent_contact: e.target.checked })
+                                                                }
+                                                                style={{ width: "16px", height: "16px" }}
+                                                            />
+
+
+
+                                                            <label className="form-check-label ms-2" htmlFor="dependant">
+                                                                Dependant
+                                                            </label>
+                                                        </div>
                                                     </div>
 
                                                     <div className="mb-3">
-                                                        <label>Promotion Title</label>
-                                                        <input type="text" value={form.PromotionTitle}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, PromotionTitle: value });
-                                                                validateField("PromotionTitle", value);
-                                                            }}
-                                                            className={`form-control ${errors.PromotionTitle ? "is-invalid" : ""}`}
-                                                            placeholder="Promotion Title"
-                                                            onBlur={(e) => validateField("PromotionTitle", e.target.value)}
-
+                                                        <label>Name</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Name"
+                                                            className="form-control"
+                                                            name="family_name"
+                                                            value={form.family_name}
+                                                            onChange={(e) => setForm({ ...form, family_name: e.target.value })}
                                                         />
-                                                        {errors.PromotionTitle && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Promotion Title is required!</p>)}
                                                     </div>
 
-                                                    <div className="mb-3">
-                                                        <label>Promotion Date</label>
-                                                        <input type="date" value={form.PromotionDate}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, PromotionDate: value });
-                                                                validateField("PromotionDate", value);
-                                                            }}
-                                                            className={`form-control ${errors.PromotionDate ? "is-invalid" : ""}`}
-                                                            placeholder="Promotion Date"
-                                                            onBlur={(e) => validateField("PromotionDate", e.target.value)}
-
-                                                        />
-                                                        {errors.PromotionDate && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Promotion Date is required!</p>)}
+                                                    <div className="mb-3 col-md-12">
+                                                        <label>Phone</label>
+                                                        <div className="d-flex gap-4">
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Work"
+                                                                className="form-control mb-3"
+                                                                name="family_phone_work"
+                                                                value={form.family_phone_work}
+                                                                onChange={(e) => setForm({ ...form, family_phone_work: e.target.value })}
+                                                            />
+                                                            <input type="text" className="form-control" style={{ width: "150px" }} placeholder="Ext" />
+                                                        </div>
                                                     </div>
+
+                                                    <div className="mb-3 col-md-12">
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Mobile"
+                                                            className="form-control mb-3"
+                                                            name="family_mobile"
+                                                            value={form.family_mobile}
+                                                            onChange={(e) => setForm({ ...form, family_mobile: e.target.value })}
+                                                        />
+                                                        <input type="text" className="form-control" placeholder="Home" />
+                                                    </div>
+
+                                                    <div className="mb-3 col-md-12">
+                                                        <label>Date of Birth</label>
+                                                        <input
+                                                            type="date"
+                                                            placeholder="Mobile"
+                                                            className="form-control mb-3"
+                                                            name="family_dob"
+                                                            value={form.family_dob}
+                                                            onChange={(e) => setForm({ ...form, family_dob: e.target.value })}
+                                                        />
+                                                    </div>
+
 
                                                 </div>
 
+                                                {/* Right Column */}
                                                 <div className="col-md-6">
 
                                                     <div className="mb-3">
-                                                        <label>Added By</label>
-                                                        <select id="addedBy" value={form.addedBy}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, addedBy: value });
-                                                                validateField("addedBy", value);
-                                                            }}
-                                                            className={`form-control ${errors.addedBy ? "is-invalid" : ""}`}
-                                                            onBlur={(e) => validateField("addedBy", e.target.value)}
-                                                        >
-                                                            <option value="">Added By</option>
-                                                            <option value="Admin">Admin Admin</option>
-                                                            <option value="Anjali Patle">Anjali Patle</option>
-                                                            <option value="Amit Kumar">Amit Kumar</option>
-                                                            <option value="Aniket Rane">Aniket Rane</option>
-                                                        </select>
-                                                        {errors.addedBy && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This field is required!</p>)}
+                                                        <label>Email</label>
+                                                        <input type="text" className="form-control mb-3" placeholder="Work"
+                                                            name="family_email_work"
+                                                            value={form.family_email_work}
+                                                            onChange={(e) => setForm({ ...form, family_email_work: e.target.value })}
+                                                        />
+                                                        <input type="text" className="form-control" placeholder="Personal"
+                                                            name="family_email_personal"
+                                                            value={form.family_email_personal}
+                                                            onChange={(e) => setForm({ ...form, family_email_personal: e.target.value })}
+                                                        />
                                                     </div>
 
-                                                    <label>Description</label>
-                                                    <CKEditor
-                                                        editor={ClassicEditor}
-                                                        data={form.description || ""}
-                                                        onChange={(event, editor) => {
-                                                            const newData = editor.getData();
-                                                            setForm({ ...form, description: newData });
-                                                        }}
-                                                        onBlur={() => validateField("description", form.description)}
-                                                    />
-                                                    {errors.description && (
-                                                        <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
-                                                            Description is Required
-                                                        </p>
-                                                    )}
+                                                    <div className="mb-3">
+                                                        <label>Address</label>
+                                                        <input type="text" className="form-control mb-3" placeholder="Address Line 1"
+                                                            name="family_address"
+                                                            value={form.family_address}
+                                                            onChange={(e) => setForm({ ...form, family_address: e.target.value })}
+                                                        />
+                                                        <input type="text" className="form-control" placeholder="Address Line 2" />
+                                                    </div>
+
+                                                    <div className="row mb-3">
+                                                        <div className="col-md-4">
+                                                            <input type="text" className="form-control" placeholder="City"
+                                                                name="family_city"
+                                                                value={form.family_city}
+                                                                onChange={(e) => setForm({ ...form, family_city: e.target.value })}
+                                                            />
+                                                        </div>
+                                                        <div className="col-md-4">
+                                                            <input type="text" className="form-control" placeholder="State"
+                                                                name="family_state"
+                                                                value={form.family_state}
+                                                                onChange={(e) => setForm({ ...form, family_state: e.target.value })}
+                                                            />
+                                                        </div>
+                                                        <div className="col-md-4">
+                                                            <input type="text" className="form-control" placeholder="Zip Code"
+                                                                name="family_pincode"
+                                                                value={form.family_pincode}
+                                                                onChange={(e) => setForm({ ...form, family_pincode: e.target.value })}
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="mb-3">
+                                                        <label>Country</label>
+                                                        <select
+                                                            name="family_country"
+                                                            className="form-control"
+                                                            value={form.family_country}
+                                                            onChange={(e) => setForm({ ...form, family_country: e.target.value })}
+                                                        >
+                                                            <option value="">Select Country</option>
+                                                            <option value="US">United States</option>
+                                                            <option value="CA">Canada</option>
+                                                            <option value="GB">United Kingdom</option>
+                                                            <option value="AU">Australia</option>
+                                                            <option value="IN">India</option>
+                                                            <option value="DE">Germany</option>
+                                                            <option value="FR">France</option>
+                                                            <option value="JP">Japan</option>
+                                                            <option value="CN">China</option>
+                                                            <option value="BR">Brazil</option>
+                                                            <option value="ZA">South Africa</option>
+                                                            <option value="RU">Russia</option>
+                                                            <option value="MX">Mexico</option>
+                                                            <option value="IT">Italy</option>
+                                                            <option value="ES">Spain</option>
+                                                        </select>
+                                                    </div>
                                                 </div>
 
                                             </div>
@@ -656,7 +783,7 @@ const FamilyDetails = ({ form, setForm, handleSubmit,mode }) => {
                             </div>
                         </div>
                     </>
-                )} */}
+                )}
 
 
             </div>
