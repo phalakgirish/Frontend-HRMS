@@ -7,15 +7,17 @@ export const getEmployeeQuali = (employeeId) => {
 };
 
 
-export const createEmployeeQuali = (payload) => {
-    return axios.post(`http://localhost:3000/employee-qualification`, payload);
-};
 
-export const updateEmployeeQuali = (id, payload) => {
-  return axios.put(`http://localhost:3000/employee-qualification/${id}`, payload);
+export const createEmployeeQuali = (data) => {
+  return axios.post("http://localhost:3000/employee-qualification", data);
 };
 
 
-export const deleteEmployeeQuali = (quali_id) => {
-  return axios.delete(`http://localhost:3000/employee-qualification/${quali_id}`);
+export const deleteEmployeeQuali = (id) => {
+  return axios.delete(`http://localhost:3000/employee-qualification/${id}`);
+};
+
+
+export const updateEmployeeQuali = (id, data) => {
+  return axios.put(`http://localhost:3000/employee-qualification/${id}`, data);
 };

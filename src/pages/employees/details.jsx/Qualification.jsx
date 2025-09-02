@@ -3,10 +3,12 @@ import { useState, useRef, useEffect } from "react";
 import DataTable from 'react-data-table-component';
 import { getEmployeeQuali, createEmployeeQuali, updateEmployeeQuali, deleteEmployeeQuali } from "./apis/qualificationDetailsApi";
 import { toast } from "react-toastify";
-import { useParams } from "react-router-dom";
-const Qualification = ({ mode }) => {
 
-    const { empId } = useParams();
+const Qualification = ({ mode,employeeId  }) => {
+
+     useEffect(() => {
+  }, [employeeId]);
+
     const [showModal, setShowModal] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -16,7 +18,6 @@ const Qualification = ({ mode }) => {
     const [qualificationList, setQualificationList] = useState([]);
 
     //from backend
-    const [Qualification, setQualification] = useState([]);
     const [paginated, setPaginated] = useState([]);
 
     const [editId, setEditId] = useState(null);
@@ -49,9 +50,10 @@ const Qualification = ({ mode }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!empId) return toast.error("Employee ID missing");
+        if (!employeeId) return toast.error("Employee ID missing");
+        console.log("employeeId from route:", employeeId);
 
-        const payload = { ...form, employeeId: empId };
+        const payload = { ...form, employeeId: employeeId };
         console.log("this is sent data:", payload);
 
         try {
@@ -63,7 +65,7 @@ const Qualification = ({ mode }) => {
                 toast.success("Qualification detail added!");
             }
 
-            await fetchQualification();
+            fetchQualification();
             resetForm();
             setShowEditModal(false);
         } catch (err) {
@@ -73,9 +75,9 @@ const Qualification = ({ mode }) => {
     };
 
     const fetchQualification = async () => {
-        if (!empId) return;
+        if (!employeeId) return;
         try {
-            const res = await getEmployeeQuali(empId);
+            const res = await getEmployeeQuali(employeeId);
             console.log("Qualification list:", res.data);
             setQualificationList(res.data);
         } catch (err) {
@@ -85,7 +87,7 @@ const Qualification = ({ mode }) => {
 
     useEffect(() => {
         fetchQualification();
-    }, [empId]);
+    }, [employeeId]);
 
 
     const handleEdit = (row) => {
@@ -201,10 +203,10 @@ const Qualification = ({ mode }) => {
         setShowAddForm((prev) => !prev);
     };
 
-     useEffect(() => {
-            paginate(qualificationList, currentPage);
-        }, [qualificationList, currentPage, rowsPerPage]);
-    
+    useEffect(() => {
+        paginate(qualificationList, currentPage);
+    }, [qualificationList, currentPage, rowsPerPage]);
+
 
     return (
         <div>
@@ -263,10 +265,10 @@ const Qualification = ({ mode }) => {
                             <div className="mb-3">
                                 <label>Description</label>
                                 <textarea type="text" className="form-control" placeholder="Description"
-                                 name="education_desc"
-                                        value={form.education_desc}
-                                        onChange={(e) => setForm({ ...form, education_desc: e.target.value })}
-                                         />
+                                    name="education_desc"
+                                    value={form.education_desc}
+                                    onChange={(e) => setForm({ ...form, education_desc: e.target.value })}
+                                />
                             </div>
 
                         </div>
@@ -375,12 +377,12 @@ const Qualification = ({ mode }) => {
                     </button>
                 </div>
 
-                 {showModal && selectedRow && (
+                {showModal && selectedRow && (
                     <div className="modal show fade d-block" tabIndex="-1" role="dialog">
                         <div className="modal-dialog modal-dialog-centered" role="document">
                             <div className="modal-content">
                                 <div className="modal-header">
-                                    <h5 className="modal-title">View Promotion</h5>
+                                    <h5 className="modal-title">View Qualifications</h5>
                                     <button
                                         type="button"
                                         className="btn-close"
@@ -417,69 +419,69 @@ const Qualification = ({ mode }) => {
                             <div className="modal-dialog modal-dialog-centered edit-modal">
                                 <div className="modal-content">
                                     <div className="modal-header">
-                                        <h5 className="modal-title">Edit Promotion</h5>
+                                        <h5 className="modal-title">Edit Qualification</h5>
                                         <button type="button" className="btn-close" onClick={() => setShowEditModal(false)}></button>
                                     </div>
                                     <div className="modal-body">
                                         <form onSubmit={handleSubmit}>
                                             <div className="row">
-                            <div className="col-md-6">
-                                <div className="mb-3">
-                                    <label>School/University</label>
-                                    <input
-                                        type="text"
-                                        placeholder="School"
-                                        className="form-control"
-                                        name="employee_school_university"
-                                        value={form.employee_school_university}
-                                        onChange={(e) => setForm({ ...form, employee_school_university: e.target.value })}
-                                    />
-                                </div>
+                                                <div className="col-md-6">
+                                                    <div className="mb-3">
+                                                        <label>School/University</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="School"
+                                                            className="form-control"
+                                                            name="employee_school_university"
+                                                            value={form.employee_school_university}
+                                                            onChange={(e) => setForm({ ...form, employee_school_university: e.target.value })}
+                                                        />
+                                                    </div>
 
-                                <div className="mb-3">
-                                    <label>Passout Year</label>
-                                    <input
-                                        type="date"
-                                        placeholder="School"
-                                        className="form-control"
-                                        name="employee_passout_year"
-                                        value={form.employee_passout_year}
-                                        onChange={(e) => setForm({ ...form, employee_passout_year: e.target.value })}
-                                    />
-                                </div>
-                            </div>
+                                                    <div className="mb-3">
+                                                        <label>Passout Year</label>
+                                                        <input
+                                                            type="date"
+                                                            placeholder="School"
+                                                            className="form-control"
+                                                            name="employee_passout_year"
+                                                            value={form.employee_passout_year}
+                                                            onChange={(e) => setForm({ ...form, employee_passout_year: e.target.value })}
+                                                        />
+                                                    </div>
+                                                </div>
 
-                            {/* Right Column */}
-                            <div className="col-md-6">
+                                                {/* Right Column */}
+                                                <div className="col-md-6">
 
-                                <div className="mb-3">
-                                    <label>Education Level</label>
-                                    <select
-                                        name="employee_education_level"
-                                        className="form-control"
-                                        value={form.employee_education_level}
-                                        onChange={(e) => setForm({ ...form, employee_education_level: e.target.value })}
-                                    >
-                                        <option value="">Choose One</option>
-                                        <option value="High School Diploma / GED">High School Diploma / GED</option>
-                                        <option value="Associate Degree">Associate Degree</option>
-                                        <option value="Graduate">Graduate</option>
-                                        <option value="Post Graduate">Post Graduate</option>
-                                        <option value="Doctorate">Doctorate</option>
-                                    </select>
-                                </div>
-                            </div>
+                                                    <div className="mb-3">
+                                                        <label>Education Level</label>
+                                                        <select
+                                                            name="employee_education_level"
+                                                            className="form-control"
+                                                            value={form.employee_education_level}
+                                                            onChange={(e) => setForm({ ...form, employee_education_level: e.target.value })}
+                                                        >
+                                                            <option value="">Choose One</option>
+                                                            <option value="High School Diploma / GED">High School Diploma / GED</option>
+                                                            <option value="Associate Degree">Associate Degree</option>
+                                                            <option value="Graduate">Graduate</option>
+                                                            <option value="Post Graduate">Post Graduate</option>
+                                                            <option value="Doctorate">Doctorate</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
 
-                            <div className="mb-3">
-                                <label>Description</label>
-                                <textarea type="text" className="form-control" placeholder="Description"
-                                 name="education_desc"
-                                        value={form.education_desc}
-                                        onChange={(e) => setForm({ ...form, education_desc: e.target.value })}
-                                         />
-                            </div>
+                                                <div className="mb-3">
+                                                    <label>Description</label>
+                                                    <textarea type="text" className="form-control" placeholder="Description"
+                                                        name="education_desc"
+                                                        value={form.education_desc}
+                                                        onChange={(e) => setForm({ ...form, education_desc: e.target.value })}
+                                                    />
+                                                </div>
 
-                        </div>
+                                            </div>
                                             <div className="text-end">
                                                 <button type="button" className="btn btn-sm btn-light me-2" onClick={() => { resetForm(); setShowEditModal(false) }}>Close</button>
                                                 <button type="submit" onClick={(e) => handleSubmit(e)} className="btn btn-sm add-btn">Update</button>
@@ -491,7 +493,7 @@ const Qualification = ({ mode }) => {
                             </div>
                         </div>
                     </>
-                )} 
+                )}
 
 
             </div>

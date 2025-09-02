@@ -3,10 +3,12 @@ import { useState, useRef, useEffect } from "react";
 import DataTable from 'react-data-table-component';
 import { getFamilyDetail, createFamilyDetail, updateFamilyDetail, deleteFamilyDetail } from "./apis/familyDetailsApi";
 import { toast } from "react-toastify";
-import { useParams } from "react-router-dom";
 
-const FamilyDetails = ({ mode }) => {
-    const { empId } = useParams();
+const FamilyDetails = ({ mode,employeeId }) => {
+
+     useEffect(() => {
+      }, [employeeId]);
+
     const [paginated, setPaginated] = useState([]);
     const [selectedRow, setSelectedRow] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -62,9 +64,9 @@ const FamilyDetails = ({ mode }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!empId) return toast.error("Employee ID missing");
+        if (!employeeId) return toast.error("Employee ID missing");
 
-        const payload = { ...form, employeeId: empId };
+        const payload = { ...form, employeeId: employeeId };
         console.log("this is sent data:", payload);
 
         try {
@@ -86,9 +88,9 @@ const FamilyDetails = ({ mode }) => {
     };
 
     const fetchFamily = async () => {
-        if (!empId) return;
+        if (!employeeId) return;
         try {
-            const res = await getFamilyDetail(empId);
+            const res = await getFamilyDetail(employeeId);
             console.log("Family list:", res.data);
             setFamilyList(res.data);
         } catch (err) {
@@ -98,7 +100,7 @@ const FamilyDetails = ({ mode }) => {
 
     useEffect(() => {
         fetchFamily();
-    }, [empId]);
+    }, [employeeId]);
 
 
     const handleEdit = (row) => {

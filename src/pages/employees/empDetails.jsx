@@ -118,19 +118,19 @@ const EmpDetails = () => {
                 return <ProfilePicture form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
 
             case 'Family Details':
-                return <FamilyDetails form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
+                return <FamilyDetails employeeId={form._id} form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
 
             case 'Document':
-                return <Document form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
+                return <Document employeeId={form._id} form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
 
             case 'Qualification':
-                return <Qualification form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
+                return <Qualification employeeId={form._id}  form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
 
             case 'Work Experience':
-                return <WorkExperience form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
+                return <WorkExperience employeeId={form._id}  form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
 
             case 'Bank Account':
-                return <BankAccount form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
+                return <BankAccount employeeId={form._id} form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
 
             case 'Leave':
                 return <Leave form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />

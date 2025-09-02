@@ -62,6 +62,11 @@ import TrainingDetail from './pages/training/trainingDetail';
 import PrivateRoute from './Login/privateRoute';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Qualification from './pages/employees/details.jsx/Qualification';
+import WorkExperience from './pages/employees/details.jsx/WorkExperience';
+import Document from './pages/employees/details.jsx/Document';
+import BankAccount from './pages/employees/details.jsx/BankAccount';
+import FamilyDetails from './pages/employees/details.jsx/FamilyDetails';
 
 function Layout({ children, collapsed, toggleSidebar }) {
   const location = useLocation();
@@ -153,7 +158,14 @@ function App() {
 
           {/* Employees */}
           <Route path="/employees" element={<Employees />} />
-          <Route path="/empDetails/:empId" element={<EmpDetails />} />
+          <Route path="/empDetails/:employeeId" element={<EmpDetails />} />
+          <Route path="/empDetails/:employeeId/familydetails" element={<FamilyDetails />} />
+          <Route path="/empDetails/:employeeId/qualification" element={<Qualification />} />
+          <Route path="/empDetails/:employeeId/experience" element={<WorkExperience />} />
+          <Route path="/empDetails/:employeeId/document" element={<Document />} />
+          <Route path="/empDetails/:employeeId/bankaccount" element={<BankAccount />} />
+
+
           <Route path="/awards" element={<Awards />} />
           <Route path="/transfers" element={<Transfers />} />
           <Route path="/resignations" element={<Resignations />} />

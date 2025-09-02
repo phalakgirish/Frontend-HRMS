@@ -7,15 +7,17 @@ export const getFamilyDetail = (employeeId) => {
 };
 
 
-export const createFamilyDetail = (payload) => {
-    return axios.post(`http://localhost:3000/employee-family`, payload);
-};
 
-export const updateFamilyDetail = (id, payload) => {
-  return axios.put(`http://localhost:3000/employee-family/${id}`, payload);
+export const createFamilyDetail = (data) => {
+  return axios.post("http://localhost:3000/employee-family", data);
 };
 
 
-export const deleteFamilyDetail = (familyId) => {
-  return axios.delete(`http://localhost:3000/employee-family/${familyId}`);
+export const deleteFamilyDetail = (id) => {
+  return axios.delete(`http://localhost:3000/employee-family/${id}`);
+};
+
+
+export const updateFamilyDetail = (id, data) => {
+  return axios.put(`http://localhost:3000/employee-family/${id}`, data);
 };
