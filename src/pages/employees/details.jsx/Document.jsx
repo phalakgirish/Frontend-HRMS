@@ -1,8 +1,13 @@
 import React from "react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import DataTable from 'react-data-table-component';
+import { getEmployeeDocument, createEmployeeDocument, updateEmployeeDocument, deleteEmployeeDocument } from "./apis/documentApi";
+import { toast } from "react-toastify";
 
-const Document = ({ form, setForm, handleSubmit, mode }) => {
+const Document = ({ mode, employeeId }) => {
+
+    useEffect(() => {
+    }, [employeeId]);
 
     const [showModal, setShowModal] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
@@ -10,23 +15,31 @@ const Document = ({ form, setForm, handleSubmit, mode }) => {
     const [description, setDescription] = useState('');
     const editorRef = useRef(null);
     const [editorKey, setEditorKey] = useState(0);
+    const [documentList, setDocumentList] = useState([]);
+    const fileInputRef = useRef(null);
+    const [selectedFile, setSelectedFile] = useState(null);
 
     //from backend
-    const [Promotion, setPromotion] = useState([]);
+    const [Document, setDocument] = useState([]);
     const [paginated, setPaginated] = useState([]);
 
     const [editId, setEditId] = useState(null);
 
-    // const [form, setForm] = useState({
-    //     employeeName: '',
-    //     PromotionTitle: '',
-    //     PromotionDate: '',
-    //     addedBy: '',
-    //     description: ''
-    // });
+    const [form, setForm] = useState({
+        document_type_id: "",
+        document_title: "",
+        document_doe: "",
+        document_notification_email: "",
+        document_desc: "",
+        document_file: "",
+        is_sendnotification_doe: ""
 
-    const fileInputRef = useRef(null);
-    const [selectedFile, setSelectedFile] = useState(null);
+    });
+
+    const handleView = (row) => {
+        setSelectedRow(row);
+        setShowModal(true);
+    };
 
     const handleBrowseClick = () => {
         fileInputRef.current.click();
@@ -35,157 +48,145 @@ const Document = ({ form, setForm, handleSubmit, mode }) => {
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setSelectedFile(file);
+            setForm({ ...form, document_file: file });
         }
     };
 
-    // const [errors, setErrors] = useState({});
 
-    // const validateForm = () => {
-    //     let newErrors = {};
 
-    //     Object.keys(form).forEach((field) => {
-    //         if (!form[field] || form[field].toString().trim() === "") {
-    //             newErrors[field] = `${field.replace(/([A-Z])/g, " $1")} is required`;
-    //         }
-    //     });
+    // Reset form
+    const resetForm = () => {
+        setForm({
+            document_type_id: "",
+            document_title: "",
+            document_doe: "",
+            document_notification_email: "",
+            document_desc: "",
+            document_file: "",
+            is_sendnotification_doe: ""
 
-    //     setErrors(newErrors);
-    //     return Object.keys(newErrors).length === 0;
-    // };
-
-    // useEffect(() => {
-    //     fetchPromotion();
-    // }, []);
-
-    // const fetchPromotion = async () => {
-    //     try {
-    //         const response = await getPromotion();
-    //         setPromotion(response.data);
-    //         paginate(response.data, currentPage);
-    //     } catch (error) {
-    //         console.error('Error fetching Promotion:', error);
-    //     }
-    // };
-
-    // const validateField = (fieldName, value = "") => {
-    //     let error = "";
-
-    //     let displayName = fieldName
-    //         .replace(/([A-Z])/g, " $1")
-    //         .replace(/^./, str => str.toUpperCase());
-
-    //     value = value.toString();
-
-    //     switch (fieldName) {
-    //         case "employeeName":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         case "PromotionTitle":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         case "PromotionDate":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         case "description":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         case "addedBy":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         default:
-    //             break;
-    //     }
-
-    //     setErrors(prev => ({ ...prev, [fieldName]: error }));
-    //     return error;
-    // };
-
+        });
+        setEditId(null);
+    };
 
     // const handleSubmit = async (e) => {
     //     e.preventDefault();
-    //     if (validateForm()) {
+    //     console.log("this is sending", form);
+    //     console.log("employeeId before payload:", employeeId);
 
-    //         try {
-    //             const payload = { ...form, description };
-    //             if (editId) {
-    //                 await updatePromotion(editId, form);
-    //                 toast.success("Promotion updated successfully!");
+    //     if (!employeeId) return toast.error("Employee ID missing");
+    //     console.log("employeeId from route:", employeeId);
 
-    //             } else {
-    //                 await createPromotion(form);
-    //                 toast.success("Promotion saved successfully!");
+    //     const payload = {
+    //         ...form, employeeId: employeeId,
+    //         // document_doe: form.document_doe ? new Date(form.document_doe) : null
 
-    //             }
-    //             fetchPromotion();
-    //             setForm({
-    //                 employeeName: '',
-    //                 PromotionTitle: '',
-    //                 PromotionDate: '',
-    //                 addedBy: '',
-    //                 description: ''
-    //             });
-    //             setDescription("");
-    //             setEditId("");
-    //             setShowEditModal(false);
-    //         } catch (err) {
-    //             console.error("Error saving Promotion:", err);
-    //             toast.error("Promotion failedd to save!");
+    //     };
+    //     console.log("this is sent data:", payload);
 
-    //         }
-    //     }
-    // };
-
-
-
-    // const handleEdit = (row) => {
-    //     setForm({
-    //         employeeName: row.employeeName,
-    //         PromotionTitle: row.PromotionTitle,
-    //         PromotionDate: row.PromotionDate,
-    //         addedBy: row.addedBy,
-    //         description: row.description
-    //     });
-    //     setEditId(row._id);
-    //     setShowEditModal(true);
-    //     setSelectedRow(row);
-    // };
-
-    // const handleDelete = async (id) => {
-    //     const confirmDelete = window.confirm("Are you sure you want to delete this Promotion?");
-    //     if (!confirmDelete) return;
     //     try {
-    //         await deletePromotion(id);
-    //         fetchPromotion();
+    //         if (editId) {
+    //             await updateEmployeeDocument(editId, payload);
+    //             toast.success("Document detail updated!");
+    //         } else {
+    //             await createEmployeeDocument(payload);
+    //             toast.success("Document detail added!");
+    //         }
+
+    //         fetchDocument();
+    //         resetForm();
+    //         setShowEditModal(false);
     //     } catch (err) {
-    //         console.error("Error deleting Promotion:", err);
+    //         console.error("Error saving Document detail:", err);
+    //         toast.error("Failed to save!");
     //     }
     // };
 
-    const handleView = (row) => {
-        setSelectedRow(row);
-        setShowModal(true);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!employeeId) return toast.error("Employee ID missing");
+
+        try {
+            const formData = new FormData();
+            formData.append("employeeId", employeeId);
+            formData.append("document_type_id", form.document_type_id);
+            formData.append("document_title", form.document_title);
+            formData.append("document_desc", form.document_desc);
+            formData.append("document_doe", form.document_doe);
+            formData.append("document_notification_email", form.document_notification_email);
+            formData.append("is_sendnotification_doe", form.is_sendnotification_doe);
+
+            if (form.document_file) {
+                formData.append("document_file", form.document_file);
+            }
+
+
+            if (editId) {
+                await updateEmployeeDocument(editId, formData);
+                toast.success("Document detail updated!");
+            } else {
+                await createEmployeeDocument(formData);
+                toast.success("Document detail added!");
+            }
+
+            fetchDocument();
+            resetForm();
+            setSelectedFile(null);
+            setShowEditModal(false);
+        } catch (err) {
+            console.error("Error saving Document detail:", err);
+            toast.error("Failed to save!");
+        }
     };
 
 
-    // const emptyForm = {
-    //     employeeName: '',
-    //     PromotionTitle: '',
-    //     PromotionDate: '',
-    //     addedBy: '',
-    //     description: ''
-    // };
+    const fetchDocument = async () => {
+        if (!employeeId) return;
+        try {
+            const res = await getEmployeeDocument(employeeId);
+            console.log("Document list:", res.data);
+            setDocumentList(res.data);
+        } catch (err) {
+            console.error("Error fetching Document:", err);
+        }
+    };
 
-    // const resetForm = () => {
-    //     setForm(emptyForm);
-    //     setEditId(null);
-    //     setShowEditModal(false);
-    // };
+    useEffect(() => {
+        fetchDocument();
+    }, [employeeId]);
+
+
+    const handleEdit = (row) => {
+        setForm({
+            document_type_id: row.document_type_id,
+            document_title: row.document_title,
+            document_doe: row.document_doe || '',
+            document_notification_email: row.document_notification_email,
+            document_desc: row.document_desc,
+            document_file: row.document_file,
+            is_sendnotification_doe: row.is_sendnotification_doe
+
+        });
+
+        setEditId(row._id);
+        setShowEditModal(true);
+        setSelectedRow(row);
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this record?")) return;
+
+        try {
+            await deleteEmployeeDocument(id);
+            fetchDocument();
+            toast.success("Deleted successfully!");
+        } catch (err) {
+            console.error("Error deleting:", err);
+            toast.error("Failed to delete!");
+        }
+    };
+
 
 
 
@@ -202,13 +203,13 @@ const Document = ({ form, setForm, handleSubmit, mode }) => {
                     </button>
                     <button
                         className="btn btn-outline-secondary btn-sm"
-                    // onClick={() => handleEdit(row)}
+                        onClick={() => handleEdit(row)}
                     >
                         <i className="fas fa-edit"></i>
                     </button>
                     <button
                         className="btn btn-danger btn-sm"
-                    // onClick={() => handleDelete(row._id)}
+                        onClick={() => handleDelete(row._id)}
                     >
                         <i className="fas fa-trash-alt text-white"></i>
                     </button>
@@ -218,10 +219,10 @@ const Document = ({ form, setForm, handleSubmit, mode }) => {
             allowOverflow: true,
             button: true,
         },
-        { name: 'Document Type', selector: row => row.documentType },
-        { name: 'Title', selector: row => row.title },
-        { name: 'Notification Email', selector: row => row.notificationEmail },
-        { name: 'Date of Expiry', selector: row => row.dateOfExpiry }
+        { name: 'Document Type', selector: row => row.document_type_id },
+        { name: 'Title', selector: row => row.document_title },
+        { name: 'Notification Email', selector: row => row.document_notification_email },
+        { name: 'Date of Expiry', selector: row => row.document_doe }
 
     ];
 
@@ -254,9 +255,9 @@ const Document = ({ form, setForm, handleSubmit, mode }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    const totalEntries = Promotion.length;
+    const totalEntries = documentList.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
-    console.log('Paginated data:', paginated);
+    // console.log('Paginated data:', paginated);
 
     const paginate = (data, page) => {
         const start = (page - 1) * rowsPerPage;
@@ -267,25 +268,32 @@ const Document = ({ form, setForm, handleSubmit, mode }) => {
 
     const startEntry = (currentPage - 1) * rowsPerPage + 1;
     const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
-
     const [showAddForm, setShowAddForm] = useState(false);
 
     const toggleAddForm = () => {
         setShowAddForm((prev) => !prev);
     };
 
+    useEffect(() => {
+        paginate(documentList, currentPage);
+    }, [documentList, currentPage, rowsPerPage]);
+
     return (
         <div>
             {mode === "edit" && (
 
                 <div className="container-fluid mt-4">
-                    <form>
+                    <form onSubmit={handleSubmit}>
                         <div className="row">
                             <div className="col-md-6">
                                 <div className="mb-3">
                                     <label>Document Type</label>
-                                    <select id="relation"
-                                        className="form-control">
+                                    <select
+                                        name="document_type_id"
+                                        className="form-control"
+                                        value={form.document_type_id}
+                                        onChange={(e) => setForm({ ...form, document_type_id: e.target.value })}
+                                    >
                                         <option value="">Choose Document Type</option>
                                         <option value="Driving License">Driving License</option>
                                         <option value="Passport">Passport</option>
@@ -300,18 +308,33 @@ const Document = ({ form, setForm, handleSubmit, mode }) => {
 
                                 <div className="mb-3">
                                     <label>Document Title</label>
-                                    <input type="text" className="form-control" placeholder="Document Title" />
+                                    <input
+                                        type="text"
+                                        placeholder="Document Title"
+                                        className="form-control"
+                                        name="document_title"
+                                        value={form.document_title}
+                                        onChange={(e) => setForm({ ...form, document_title: e.target.value })}
+                                    />
                                 </div>
 
                                 <div className="mb-3">
                                     <label>Description</label>
-                                    <textarea type="text" className="form-control" placeholder="Description" />
+                                    <textarea type="text" className="form-control" placeholder="Description"
+                                        name="document_desc"
+                                        value={form.document_desc}
+                                        onChange={(e) => setForm({ ...form, document_desc: e.target.value })}
+                                    />
                                 </div>
 
                                 <div className="mb-3">
                                     <label>Send notification email when expired? </label>
-                                    <select id="relation"
-                                        className="form-control">
+                                    <select
+                                        name="is_sendnotification_doe"
+                                        className="form-control"
+                                        value={form.is_sendnotification_doe}
+                                        onChange={(e) => setForm({ ...form, is_sendnotification_doe: e.target.value })}
+                                    >
                                         <option value="">Choose One</option>
                                         <option value="Yes">Yes</option>
                                         <option value="No">No</option>
@@ -325,12 +348,25 @@ const Document = ({ form, setForm, handleSubmit, mode }) => {
 
                                 <div className="mb-3">
                                     <label>Date of Expiry</label>
-                                    <input type="date" className="form-control mb-3" />
+                                    <input
+                                        type="date"
+                                        className="form-control"
+                                        name="document_doe"
+                                        value={form.document_doe}
+                                        onChange={(e) => setForm({ ...form, document_doe: e.target.value })}
+                                    />
                                 </div>
 
                                 <div className="mb-3">
                                     <label>Notification Email</label>
-                                    <input type="text" className="form-control mb-3" placeholder="Notification Email" />
+                                    <input
+                                        type="text"
+                                        placeholder="Notification Email"
+                                        className="form-control"
+                                        name="document_notification_email"
+                                        value={form.document_notification_email}
+                                        onChange={(e) => setForm({ ...form, document_notification_email: e.target.value })}
+                                    />
                                 </div>
 
                                 <div className="mb-3">
@@ -338,16 +374,20 @@ const Document = ({ form, setForm, handleSubmit, mode }) => {
                                     <input
                                         type="file"
                                         ref={fileInputRef}
-                                        style={{ display: "none" }}
-                                        onChange={handleFileChange}
-                                        accept="image/*"
-                                    /> <br />
-                                    <button type="button" className="btn btn-sm add-btn" onClick={handleBrowseClick}>
-                                        Browse
-                                    </button>
-                                    <label style={{ fontSize: "11px" }} className="ms-3"> Upload files only: png, jpg, jpeg, gif, txt, pdf, xls, xlsx, doc, docx
-                                    </label>
+                                        accept=".png,.jpg,.jpeg,.gif,.txt,.pdf,.xls,.xlsx,.doc,.docx"
+                                        className="form-control"
+                                        name="document_file"
+                                        onChange={(e) => {
+                                            const file = e.target.files[0]; 
+                                            setForm({ ...form, document_file: file }); 
+                                        }}
+                                    />
+
+                                    <small style={{ fontSize: "11px" }} className="text-muted ms-1">
+                                        Upload files only: png, jpg, jpeg, gif, txt, pdf, xls, xlsx, doc, docx
+                                    </small>
                                 </div>
+
                             </div>
 
                         </div>
@@ -456,12 +496,12 @@ const Document = ({ form, setForm, handleSubmit, mode }) => {
                     </button>
                 </div>
 
-                {/* {showModal && selectedRow && (
+                {showModal && selectedRow && (
                     <div className="modal show fade d-block" tabIndex="-1" role="dialog">
                         <div className="modal-dialog modal-dialog-centered" role="document">
                             <div className="modal-content">
                                 <div className="modal-header">
-                                    <h5 className="modal-title">View Promotion</h5>
+                                    <h5 className="modal-title">View Documents Details</h5>
                                     <button
                                         type="button"
                                         className="btn-close"
@@ -469,12 +509,34 @@ const Document = ({ form, setForm, handleSubmit, mode }) => {
                                     ></button>
                                 </div>
                                 <div className="modal-body">
-                                    <p><strong>Promotion For:</strong> {selectedRow.employeeName}</p>
-                                    <p><strong>Promotion Title:</strong> {selectedRow.PromotionTitle}</p>
-                                    <p><strong>Promotion Date:</strong> {selectedRow.PromotionDate}</p>
+                                    <p><strong>Document Type:</strong> {selectedRow.document_type_id}</p>
+                                    <p><strong>Docuumnt Title:</strong> {selectedRow.document_title}</p>
+                                    <p><strong>Date of Expiry:</strong> {selectedRow.document_doe}</p>
+                                    <p><strong>Notification Email:</strong> {selectedRow.document_notification_email}</p>
+
                                     <p>
-                                        <strong>Description:</strong> {selectedRow.description.replace(/<[^>]+>/g, '')}
+                                        <strong>Description:</strong> {selectedRow.document_desc.replace(/<[^>]+>/g, '')}
                                     </p>
+
+                                    <p>
+                                        <strong>Document File:</strong>
+                                        {selectedRow.document_file ? (
+                                            <a
+                                                href={`http://localhost:3000/employee-document/download/${selectedRow.document_file.split('/').pop()}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="ms-2"
+                                            >
+                                                Download
+                                            </a>
+                                        ) : (
+                                            "No file uploaded"
+                                        )}
+
+                                    </p>
+
+                                    <p><strong>Notification Confirmation:</strong> {selectedRow.is_sendnotification_doe}</p>
+
                                 </div>
 
                                 <div className="modal-footer">
@@ -498,7 +560,7 @@ const Document = ({ form, setForm, handleSubmit, mode }) => {
                             <div className="modal-dialog modal-dialog-centered edit-modal">
                                 <div className="modal-content">
                                     <div className="modal-header">
-                                        <h5 className="modal-title">Edit Promotion</h5>
+                                        <h5 className="modal-title">Edit Documents Details</h5>
                                         <button type="button" className="btn-close" onClick={() => setShowEditModal(false)}></button>
                                     </div>
                                     <div className="modal-body">
@@ -506,107 +568,107 @@ const Document = ({ form, setForm, handleSubmit, mode }) => {
                                             <div className="row">
                                                 <div className="col-md-6">
                                                     <div className="mb-3">
-                                                        <label>Promotion For</label>
-                                                        <select id="resignEmployee" value={form.employeeName}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, employeeName: value });
-                                                                validateField("employeeName", value);
-                                                            }}
-                                                            className={`form-control ${errors.employeeName ? "is-invalid" : ""}`}
-                                                            onBlur={(e) => validateField("employeeName", e.target.value)}
+                                                        <label>Document Type</label>
+                                                        <select
+                                                            name="document_type_id"
+                                                            className="form-control"
+                                                            value={form.document_type_id}
+                                                            onChange={(e) => setForm({ ...form, document_type_id: e.target.value })}
                                                         >
-                                                            <option value="">Select Department</option>
-                                                            <option value="Admin">Admin Admin</option>
-                                                            <option value="Anjali Patle">Anjali Patle</option>
-                                                            <option value="Amit Kumar">Amit Kumar</option>
-                                                            <option value="Aniket Rane">Aniket Rane</option>
-                                                            <option value="Shubham Kadam">Shubham Kadam</option>
-                                                            <option value="Abhijieet Tawate">Abhijieet Tawate</option>
-                                                            <option value="Pravin Bildlan">Pravin Bildlan</option>
-                                                            <option value="Amit Pednekar">Amit Pednekar</option>
-                                                            <option value="Mahendra Chaudhary">Mahendra Chaudhary</option>
-                                                            <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
-                                                            <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
+                                                            <option value="">Choose Document Type</option>
+                                                            <option value="Driving License">Driving License</option>
+                                                            <option value="Passport">Passport</option>
+                                                            <option value="Visa">Visa</option>
+                                                            <option value="PAN Card">PAN Card</option>
+                                                            <option value="PF No">PF No</option>
+                                                            <option value="ESI No">ESI No</option>
+                                                            <option value="UAN">UAN</option>
+                                                            <option value="Aadhar Card">Aadhar Card</option>
                                                         </select>
-                                                        {errors.employeeName && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Employee Name is required!</p>)}
                                                     </div>
 
                                                     <div className="mb-3">
-                                                        <label>Promotion Title</label>
-                                                        <input type="text" value={form.PromotionTitle}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, PromotionTitle: value });
-                                                                validateField("PromotionTitle", value);
-                                                            }}
-                                                            className={`form-control ${errors.PromotionTitle ? "is-invalid" : ""}`}
-                                                            placeholder="Promotion Title"
-                                                            onBlur={(e) => validateField("PromotionTitle", e.target.value)}
-
+                                                        <label>Document Title</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Document Title"
+                                                            className="form-control"
+                                                            name="document_title"
+                                                            value={form.document_title}
+                                                            onChange={(e) => setForm({ ...form, document_title: e.target.value })}
                                                         />
-                                                        {errors.PromotionTitle && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Promotion Title is required!</p>)}
                                                     </div>
 
                                                     <div className="mb-3">
-                                                        <label>Promotion Date</label>
-                                                        <input type="date" value={form.PromotionDate}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, PromotionDate: value });
-                                                                validateField("PromotionDate", value);
-                                                            }}
-                                                            className={`form-control ${errors.PromotionDate ? "is-invalid" : ""}`}
-                                                            placeholder="Promotion Date"
-                                                            onBlur={(e) => validateField("PromotionDate", e.target.value)}
-
+                                                        <label>Description</label>
+                                                        <textarea type="text" className="form-control" placeholder="Description"
+                                                            name="document_desc"
+                                                            value={form.document_desc}
+                                                            onChange={(e) => setForm({ ...form, document_desc: e.target.value })}
                                                         />
-                                                        {errors.PromotionDate && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Promotion Date is required!</p>)}
+                                                    </div>
+
+                                                    <div className="mb-3">
+                                                        <label>Send notification email when expired? </label>
+                                                        <select
+                                                            name="is_sendnotification_doe"
+                                                            className="form-control"
+                                                            value={form.is_sendnotification_doe}
+                                                            onChange={(e) => setForm({ ...form, is_sendnotification_doe: e.target.value })}
+                                                        >
+                                                            <option value="">Choose One</option>
+                                                            <option value="Yes">Yes</option>
+                                                            <option value="No">No</option>
+                                                        </select>
                                                     </div>
 
                                                 </div>
 
+                                                {/* Right Column */}
                                                 <div className="col-md-6">
 
                                                     <div className="mb-3">
-                                                        <label>Added By</label>
-                                                        <select id="addedBy" value={form.addedBy}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, addedBy: value });
-                                                                validateField("addedBy", value);
-                                                            }}
-                                                            className={`form-control ${errors.addedBy ? "is-invalid" : ""}`}
-                                                            onBlur={(e) => validateField("addedBy", e.target.value)}
-                                                        >
-                                                            <option value="">Added By</option>
-                                                            <option value="Admin">Admin Admin</option>
-                                                            <option value="Anjali Patle">Anjali Patle</option>
-                                                            <option value="Amit Kumar">Amit Kumar</option>
-                                                            <option value="Aniket Rane">Aniket Rane</option>
-                                                        </select>
-                                                        {errors.addedBy && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This field is required!</p>)}
+                                                        <label>Date of Expiry</label>
+                                                        <input
+                                                            type="date"
+                                                            className="form-control"
+                                                            name="document_doe"
+                                                            value={form.document_doe}
+                                                            onChange={(e) => setForm({ ...form, document_doe: e.target.value })}
+                                                        />
                                                     </div>
 
-                                                    <label>Description</label>
-                                                    <CKEditor
-                                                        editor={ClassicEditor}
-                                                        data={form.description || ""}
-                                                        onChange={(event, editor) => {
-                                                            const newData = editor.getData();
-                                                            setForm({ ...form, description: newData });
-                                                        }}
-                                                        onBlur={() => validateField("description", form.description)}
-                                                    />
-                                                    {errors.description && (
-                                                        <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
-                                                            Description is Required
-                                                        </p>
-                                                    )}
+                                                    <div className="mb-3">
+                                                        <label>Notification Email</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Notification Email"
+                                                            className="form-control"
+                                                            name="document_notification_email"
+                                                            value={form.document_notification_email}
+                                                            onChange={(e) => setForm({ ...form, document_notification_email: e.target.value })}
+                                                        />
+                                                    </div>
+
+                                                    {/* <div className="mb-3">
+                                                        <label>Document File</label>
+                                                        <input
+                                                            type="file"
+                                                            ref={fileInputRef}
+                                                            accept=".png,.jpg,.jpeg,.gif,.txt,.pdf,.xls,.xlsx,.doc,.docx"
+                                                            className="form-control"
+                                                            name="document_file"
+                                                            onChange={(e) => {
+                                                                const file = e.target.files[0]; 
+                                                                setForm({ ...form, document_file: file }); 
+                                                            }}
+                                                        />
+
+                                                        <small style={{ fontSize: "11px" }} className="text-muted ms-1">
+                                                            Upload files only: png, jpg, jpeg, gif, txt, pdf, xls, xlsx, doc, docx
+                                                        </small>
+                                                    </div> */}
+
                                                 </div>
 
                                             </div>
@@ -621,7 +683,7 @@ const Document = ({ form, setForm, handleSubmit, mode }) => {
                             </div>
                         </div>
                     </>
-                )} */}
+                )}
 
 
             </div>

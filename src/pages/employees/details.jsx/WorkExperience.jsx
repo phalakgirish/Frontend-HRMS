@@ -1,8 +1,14 @@
 import React from "react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import DataTable from 'react-data-table-component';
+import { getEmployeeExperience, createEmployeeExperience, updateEmployeeExperience, deleteEmployeeExperience } from "./apis/employeeExperienceApi";
+import { toast } from "react-toastify";
 
-const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
+const WorkExperience = ({ mode, employeeId }) => {
+
+
+    useEffect(() => {
+    }, [employeeId]);
 
     const [showModal, setShowModal] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
@@ -10,162 +16,21 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
     const [description, setDescription] = useState('');
     const editorRef = useRef(null);
     const [editorKey, setEditorKey] = useState(0);
+    const [experienceList, setExperienceList] = useState([]);
 
     //from backend
-    const [Promotion, setPromotion] = useState([]);
+    const [Experience, setExperience] = useState([]);
     const [paginated, setPaginated] = useState([]);
 
     const [editId, setEditId] = useState(null);
 
-    // const [form, setForm] = useState({
-    //     employeeName: '',
-    //     PromotionTitle: '',
-    //     PromotionDate: '',
-    //     addedBy: '',
-    //     description: ''
-    // });
-
-    const fileInputRef = useRef(null);
-    const [selectedFile, setSelectedFile] = useState(null);
-
-    const handleBrowseClick = () => {
-        fileInputRef.current.click();
-    };
-
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setSelectedFile(file);
-        }
-    };
-
-    // const [errors, setErrors] = useState({});
-
-    // const validateForm = () => {
-    //     let newErrors = {};
-
-    //     Object.keys(form).forEach((field) => {
-    //         if (!form[field] || form[field].toString().trim() === "") {
-    //             newErrors[field] = `${field.replace(/([A-Z])/g, " $1")} is required`;
-    //         }
-    //     });
-
-    //     setErrors(newErrors);
-    //     return Object.keys(newErrors).length === 0;
-    // };
-
-    // useEffect(() => {
-    //     fetchPromotion();
-    // }, []);
-
-    // const fetchPromotion = async () => {
-    //     try {
-    //         const response = await getPromotion();
-    //         setPromotion(response.data);
-    //         paginate(response.data, currentPage);
-    //     } catch (error) {
-    //         console.error('Error fetching Promotion:', error);
-    //     }
-    // };
-
-    // const validateField = (fieldName, value = "") => {
-    //     let error = "";
-
-    //     let displayName = fieldName
-    //         .replace(/([A-Z])/g, " $1")
-    //         .replace(/^./, str => str.toUpperCase());
-
-    //     value = value.toString();
-
-    //     switch (fieldName) {
-    //         case "employeeName":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         case "PromotionTitle":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         case "PromotionDate":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         case "description":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         case "addedBy":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         default:
-    //             break;
-    //     }
-
-    //     setErrors(prev => ({ ...prev, [fieldName]: error }));
-    //     return error;
-    // };
-
-
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault();
-    //     if (validateForm()) {
-
-    //         try {
-    //             const payload = { ...form, description };
-    //             if (editId) {
-    //                 await updatePromotion(editId, form);
-    //                 toast.success("Promotion updated successfully!");
-
-    //             } else {
-    //                 await createPromotion(form);
-    //                 toast.success("Promotion saved successfully!");
-
-    //             }
-    //             fetchPromotion();
-    //             setForm({
-    //                 employeeName: '',
-    //                 PromotionTitle: '',
-    //                 PromotionDate: '',
-    //                 addedBy: '',
-    //                 description: ''
-    //             });
-    //             setDescription("");
-    //             setEditId("");
-    //             setShowEditModal(false);
-    //         } catch (err) {
-    //             console.error("Error saving Promotion:", err);
-    //             toast.error("Promotion failedd to save!");
-
-    //         }
-    //     }
-    // };
-
-
-
-    // const handleEdit = (row) => {
-    //     setForm({
-    //         employeeName: row.employeeName,
-    //         PromotionTitle: row.PromotionTitle,
-    //         PromotionDate: row.PromotionDate,
-    //         addedBy: row.addedBy,
-    //         description: row.description
-    //     });
-    //     setEditId(row._id);
-    //     setShowEditModal(true);
-    //     setSelectedRow(row);
-    // };
-
-    // const handleDelete = async (id) => {
-    //     const confirmDelete = window.confirm("Are you sure you want to delete this Promotion?");
-    //     if (!confirmDelete) return;
-    //     try {
-    //         await deletePromotion(id);
-    //         fetchPromotion();
-    //     } catch (err) {
-    //         console.error("Error deleting Promotion:", err);
-    //     }
-    // };
+    const [form, setForm] = useState({
+        company_name: "",
+        designation: "",
+        from_date: "",
+        to_date: "",
+        desc: ""
+    });
 
     const handleView = (row) => {
         setSelectedRow(row);
@@ -173,19 +38,93 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
     };
 
 
-    // const emptyForm = {
-    //     employeeName: '',
-    //     PromotionTitle: '',
-    //     PromotionDate: '',
-    //     addedBy: '',
-    //     description: ''
-    // };
 
-    // const resetForm = () => {
-    //     setForm(emptyForm);
-    //     setEditId(null);
-    //     setShowEditModal(false);
-    // };
+    // Reset form
+    const resetForm = () => {
+        setForm({
+            company_name: "",
+            designation: "",
+            from_date: "",
+            to_date: "",
+            desc: ""
+        });
+        setEditId(null);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        console.log("this is sending", form);
+        console.log("employeeId before payload:", employeeId);
+
+        if (!employeeId) return toast.error("Employee ID missing");
+        console.log("employeeId from route:", employeeId);
+
+        const payload = { ...form, employeeId: employeeId };
+        console.log("this is sent data:", payload);
+
+        try {
+            if (editId) {
+                await updateEmployeeExperience(editId, payload);
+                toast.success("Experience detail updated!");
+            } else {
+                await createEmployeeExperience(payload);
+                toast.success("Experience detail added!");
+            }
+
+            fetchExperience();
+            resetForm();
+            setShowEditModal(false);
+        } catch (err) {
+            console.error("Error saving Experience detail:", err);
+            toast.error("Failed to save!");
+        }
+    };
+
+    const fetchExperience = async () => {
+        if (!employeeId) return;
+        try {
+            const res = await getEmployeeExperience(employeeId);
+            console.log("Experience list:", res.data);
+            setExperienceList(res.data);
+        } catch (err) {
+            console.error("Error fetching Experience:", err);
+        }
+    };
+
+    useEffect(() => {
+        fetchExperience();
+    }, [employeeId]);
+
+
+    const handleEdit = (row) => {
+        setForm({
+            company_name: row.company_name || "",
+            designation: row.designation || "",
+            from_date: row.from_date || "",
+            to_date: row.to_date || "",
+            desc: row.desc || ""
+        });
+
+        setEditId(row._id);
+        setShowEditModal(true);
+        setSelectedRow(row);
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this record?")) return;
+
+        try {
+            await deleteEmployeeExperience(id);
+            fetchExperience();
+            toast.success("Deleted successfully!");
+        } catch (err) {
+            console.error("Error deleting:", err);
+            toast.error("Failed to delete!");
+        }
+    };
+
+
+
 
 
 
@@ -202,13 +141,13 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
                     </button>
                     <button
                         className="btn btn-outline-secondary btn-sm"
-                    // onClick={() => handleEdit(row)}
+                        onClick={() => handleEdit(row)}
                     >
                         <i className="fas fa-edit"></i>
                     </button>
                     <button
                         className="btn btn-danger btn-sm"
-                    // onClick={() => handleDelete(row._id)}
+                        onClick={() => handleDelete(row._id)}
                     >
                         <i className="fas fa-trash-alt text-white"></i>
                     </button>
@@ -218,11 +157,11 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
             allowOverflow: true,
             button: true,
         },
-        { name: 'Company Name', selector: row => row.documentType },
-        { name: 'From Date', selector: row => row.title },
-        { name: 'To Date', selector: row => row.notificationEmail },
-        { name: 'Post', selector: row => row.notificationEmail },
-        { name: 'Description', selector: row => row.notificationEmail }
+        { name: 'Company Name', selector: row => row.company_name },
+        { name: 'From Date', selector: row => row.from_date },
+        { name: 'To Date', selector: row => row.to_date },
+        { name: 'Post', selector: row => row.designation },
+        { name: 'Description', selector: row => row.desc }
 
 
     ];
@@ -256,9 +195,9 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    const totalEntries = Promotion.length;
+    const totalEntries = experienceList.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
-    console.log('Paginated data:', paginated);
+    // console.log('Paginated data:', paginated);
 
     const paginate = (data, page) => {
         const start = (page - 1) * rowsPerPage;
@@ -269,29 +208,45 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
 
     const startEntry = (currentPage - 1) * rowsPerPage + 1;
     const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
-
     const [showAddForm, setShowAddForm] = useState(false);
 
     const toggleAddForm = () => {
         setShowAddForm((prev) => !prev);
     };
 
+    useEffect(() => {
+        paginate(experienceList, currentPage);
+    }, [experienceList, currentPage, rowsPerPage]);
+
     return (
         <div>
             {mode === "edit" && (
 
                 <div className="container-fluid mt-4">
-                    <form>
+                    <form onSubmit={handleSubmit}>
                         <div className="row">
                             <div className="col-md-6">
                                 <div className="mb-3">
                                     <label>Company Name</label>
-                                    <input type="text" className="form-control" placeholder="Company Name" />
+                                    <input
+                                        type="text"
+                                        placeholder="Company Name"
+                                        className="form-control"
+                                        name="company_name"
+                                        value={form.company_name}
+                                        onChange={(e) => setForm({ ...form, company_name: e.target.value })}
+                                    />
                                 </div>
 
                                 <div className="mb-3">
                                     <label>Time Period (From)</label>
-                                    <input type="date" className="form-control" />
+                                    <input
+                                        type="date"
+                                        className="form-control"
+                                        name="from_date"
+                                        value={form.from_date}
+                                        onChange={(e) => setForm({ ...form, from_date: e.target.value })}
+                                    />
                                 </div>
                             </div>
 
@@ -300,18 +255,35 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
 
                                 <div className="mb-3">
                                     <label>Post</label>
-                                    <input type="text" className="form-control" placeholder="Post" />
+                                    <input
+                                        type="text"
+                                        placeholder="Post"
+                                        className="form-control"
+                                        name="designation"
+                                        value={form.designation}
+                                        onChange={(e) => setForm({ ...form, designation: e.target.value })}
+                                    />
                                 </div>
 
                                 <div className="mb-3">
                                     <label>Time Period (To)</label>
-                                    <input type="date" className="form-control" />
+                                    <input
+                                        type="date"
+                                        className="form-control"
+                                        name="to_date"
+                                        value={form.to_date}
+                                        onChange={(e) => setForm({ ...form, to_date: e.target.value })}
+                                    />
                                 </div>
                             </div>
 
                             <div className="mb-3">
                                 <label>Description</label>
-                                <textarea type="text" className="form-control" placeholder="Description" />
+                                <textarea type="text"
+                                    name="desc"
+                                    value={form.desc}
+                                    onChange={(e) => setForm({ ...form, desc: e.target.value })}
+                                    className="form-control" placeholder="Description" />
                             </div>
 
                         </div>
@@ -420,12 +392,12 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
                     </button>
                 </div>
 
-                {/* {showModal && selectedRow && (
+                {showModal && selectedRow && (
                     <div className="modal show fade d-block" tabIndex="-1" role="dialog">
                         <div className="modal-dialog modal-dialog-centered" role="document">
                             <div className="modal-content">
                                 <div className="modal-header">
-                                    <h5 className="modal-title">View Promotion</h5>
+                                    <h5 className="modal-title">View Experience</h5>
                                     <button
                                         type="button"
                                         className="btn-close"
@@ -433,11 +405,12 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
                                     ></button>
                                 </div>
                                 <div className="modal-body">
-                                    <p><strong>Promotion For:</strong> {selectedRow.employeeName}</p>
-                                    <p><strong>Promotion Title:</strong> {selectedRow.PromotionTitle}</p>
-                                    <p><strong>Promotion Date:</strong> {selectedRow.PromotionDate}</p>
+                                    <p><strong>Company Name:</strong> {selectedRow.company_name}</p>
+                                    <p><strong>Post:</strong> {selectedRow.designation}</p>
+                                    <p><strong>Time period(from):</strong> {selectedRow.from_date}</p>
+                                    <p><strong>Time period(to):</strong> {selectedRow.to_date}</p>
                                     <p>
-                                        <strong>Description:</strong> {selectedRow.description.replace(/<[^>]+>/g, '')}
+                                        <strong>Description:</strong> {selectedRow.desc.replace(/<[^>]+>/g, '')}
                                     </p>
                                 </div>
 
@@ -462,7 +435,7 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
                             <div className="modal-dialog modal-dialog-centered edit-modal">
                                 <div className="modal-content">
                                     <div className="modal-header">
-                                        <h5 className="modal-title">Edit Promotion</h5>
+                                        <h5 className="modal-title">Edit Experience</h5>
                                         <button type="button" className="btn-close" onClick={() => setShowEditModal(false)}></button>
                                     </div>
                                     <div className="modal-body">
@@ -470,107 +443,63 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
                                             <div className="row">
                                                 <div className="col-md-6">
                                                     <div className="mb-3">
-                                                        <label>Promotion For</label>
-                                                        <select id="resignEmployee" value={form.employeeName}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, employeeName: value });
-                                                                validateField("employeeName", value);
-                                                            }}
-                                                            className={`form-control ${errors.employeeName ? "is-invalid" : ""}`}
-                                                            onBlur={(e) => validateField("employeeName", e.target.value)}
-                                                        >
-                                                            <option value="">Select Department</option>
-                                                            <option value="Admin">Admin Admin</option>
-                                                            <option value="Anjali Patle">Anjali Patle</option>
-                                                            <option value="Amit Kumar">Amit Kumar</option>
-                                                            <option value="Aniket Rane">Aniket Rane</option>
-                                                            <option value="Shubham Kadam">Shubham Kadam</option>
-                                                            <option value="Abhijieet Tawate">Abhijieet Tawate</option>
-                                                            <option value="Pravin Bildlan">Pravin Bildlan</option>
-                                                            <option value="Amit Pednekar">Amit Pednekar</option>
-                                                            <option value="Mahendra Chaudhary">Mahendra Chaudhary</option>
-                                                            <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
-                                                            <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
-                                                        </select>
-                                                        {errors.employeeName && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Employee Name is required!</p>)}
+                                                        <label>Company Name</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Company Name"
+                                                            className="form-control"
+                                                            name="company_name"
+                                                            value={form.company_name}
+                                                            onChange={(e) => setForm({ ...form, company_name: e.target.value })}
+                                                        />
                                                     </div>
 
                                                     <div className="mb-3">
-                                                        <label>Promotion Title</label>
-                                                        <input type="text" value={form.PromotionTitle}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, PromotionTitle: value });
-                                                                validateField("PromotionTitle", value);
-                                                            }}
-                                                            className={`form-control ${errors.PromotionTitle ? "is-invalid" : ""}`}
-                                                            placeholder="Promotion Title"
-                                                            onBlur={(e) => validateField("PromotionTitle", e.target.value)}
-
+                                                        <label>Time Period (From)</label>
+                                                        <input
+                                                            type="date"
+                                                            className="form-control"
+                                                            name="from_date"
+                                                            value={form.from_date}
+                                                            onChange={(e) => setForm({ ...form, from_date: e.target.value })}
                                                         />
-                                                        {errors.PromotionTitle && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Promotion Title is required!</p>)}
                                                     </div>
-
-                                                    <div className="mb-3">
-                                                        <label>Promotion Date</label>
-                                                        <input type="date" value={form.PromotionDate}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, PromotionDate: value });
-                                                                validateField("PromotionDate", value);
-                                                            }}
-                                                            className={`form-control ${errors.PromotionDate ? "is-invalid" : ""}`}
-                                                            placeholder="Promotion Date"
-                                                            onBlur={(e) => validateField("PromotionDate", e.target.value)}
-
-                                                        />
-                                                        {errors.PromotionDate && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Promotion Date is required!</p>)}
-                                                    </div>
-
                                                 </div>
 
+                                                {/* Right Column */}
                                                 <div className="col-md-6">
 
                                                     <div className="mb-3">
-                                                        <label>Added By</label>
-                                                        <select id="addedBy" value={form.addedBy}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, addedBy: value });
-                                                                validateField("addedBy", value);
-                                                            }}
-                                                            className={`form-control ${errors.addedBy ? "is-invalid" : ""}`}
-                                                            onBlur={(e) => validateField("addedBy", e.target.value)}
-                                                        >
-                                                            <option value="">Added By</option>
-                                                            <option value="Admin">Admin Admin</option>
-                                                            <option value="Anjali Patle">Anjali Patle</option>
-                                                            <option value="Amit Kumar">Amit Kumar</option>
-                                                            <option value="Aniket Rane">Aniket Rane</option>
-                                                        </select>
-                                                        {errors.addedBy && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This field is required!</p>)}
+                                                        <label>Post</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Post"
+                                                            className="form-control"
+                                                            name="designation"
+                                                            value={form.designation}
+                                                            onChange={(e) => setForm({ ...form, designation: e.target.value })}
+                                                        />
                                                     </div>
 
+                                                    <div className="mb-3">
+                                                        <label>Time Period (To)</label>
+                                                        <input
+                                                            type="date"
+                                                            className="form-control"
+                                                            name="to_date"
+                                                            value={form.to_date}
+                                                            onChange={(e) => setForm({ ...form, to_date: e.target.value })}
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="mb-3">
                                                     <label>Description</label>
-                                                    <CKEditor
-                                                        editor={ClassicEditor}
-                                                        data={form.description || ""}
-                                                        onChange={(event, editor) => {
-                                                            const newData = editor.getData();
-                                                            setForm({ ...form, description: newData });
-                                                        }}
-                                                        onBlur={() => validateField("description", form.description)}
-                                                    />
-                                                    {errors.description && (
-                                                        <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
-                                                            Description is Required
-                                                        </p>
-                                                    )}
+                                                    <textarea type="text"
+                                                        name="desc"
+                                                        value={form.desc}
+                                                        onChange={(e) => setForm({ ...form, desc: e.target.value })}
+                                                        className="form-control" placeholder="Description" />
                                                 </div>
 
                                             </div>
@@ -585,7 +514,9 @@ const WorkExperience = ({ form, setForm, handleSubmit, mode }) => {
                             </div>
                         </div>
                     </>
-                )} */}
+                )}
+
+
 
 
             </div>

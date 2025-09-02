@@ -1,8 +1,12 @@
 import React from "react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import DataTable from 'react-data-table-component';
+import { getEmployeeBankAccount, createEmployeeBankAccount, updateEmployeeBankAccount, deleteEmployeeBankAccount } from "./apis/bankAccountApi";
+import { toast } from "react-toastify"
 
-const BankAccount = ({ form, setForm, handleSubmit ,mode }) => {
+const BankAccount = ({ employeeId, mode }) => {
+    useEffect(() => {
+    }, [employeeId]);
 
     const [showModal, setShowModal] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
@@ -10,162 +14,25 @@ const BankAccount = ({ form, setForm, handleSubmit ,mode }) => {
     const [description, setDescription] = useState('');
     const editorRef = useRef(null);
     const [editorKey, setEditorKey] = useState(0);
+    const [bankAccountList, setBankAccountList] = useState([]);
+    const fileInputRef = useRef(null);
+    const [selectedFile, setSelectedFile] = useState(null);
 
     //from backend
-    const [Promotion, setPromotion] = useState([]);
+    const [BankAccount, setBankAccount] = useState([]);
     const [paginated, setPaginated] = useState([]);
 
     const [editId, setEditId] = useState(null);
 
-    // const [form, setForm] = useState({
-    //     employeeName: '',
-    //     PromotionTitle: '',
-    //     PromotionDate: '',
-    //     addedBy: '',
-    //     description: ''
-    // });
+    const [form, setForm] = useState({
+        account_title: "",
+        account_number: "",
+        account_bank_name: "",
+        aacount_bank_code: "",
+        account_bank_branch: "",
+        account_bank_doc: "",
 
-    const fileInputRef = useRef(null);
-    const [selectedFile, setSelectedFile] = useState(null);
-
-    const handleBrowseClick = () => {
-        fileInputRef.current.click();
-    };
-
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setSelectedFile(file);
-        }
-    };
-
-    // const [errors, setErrors] = useState({});
-
-    // const validateForm = () => {
-    //     let newErrors = {};
-
-    //     Object.keys(form).forEach((field) => {
-    //         if (!form[field] || form[field].toString().trim() === "") {
-    //             newErrors[field] = `${field.replace(/([A-Z])/g, " $1")} is required`;
-    //         }
-    //     });
-
-    //     setErrors(newErrors);
-    //     return Object.keys(newErrors).length === 0;
-    // };
-
-    // useEffect(() => {
-    //     fetchPromotion();
-    // }, []);
-
-    // const fetchPromotion = async () => {
-    //     try {
-    //         const response = await getPromotion();
-    //         setPromotion(response.data);
-    //         paginate(response.data, currentPage);
-    //     } catch (error) {
-    //         console.error('Error fetching Promotion:', error);
-    //     }
-    // };
-
-    // const validateField = (fieldName, value = "") => {
-    //     let error = "";
-
-    //     let displayName = fieldName
-    //         .replace(/([A-Z])/g, " $1")
-    //         .replace(/^./, str => str.toUpperCase());
-
-    //     value = value.toString();
-
-    //     switch (fieldName) {
-    //         case "employeeName":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         case "PromotionTitle":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         case "PromotionDate":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         case "description":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         case "addedBy":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         default:
-    //             break;
-    //     }
-
-    //     setErrors(prev => ({ ...prev, [fieldName]: error }));
-    //     return error;
-    // };
-
-
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault();
-    //     if (validateForm()) {
-
-    //         try {
-    //             const payload = { ...form, description };
-    //             if (editId) {
-    //                 await updatePromotion(editId, form);
-    //                 toast.success("Promotion updated successfully!");
-
-    //             } else {
-    //                 await createPromotion(form);
-    //                 toast.success("Promotion saved successfully!");
-
-    //             }
-    //             fetchPromotion();
-    //             setForm({
-    //                 employeeName: '',
-    //                 PromotionTitle: '',
-    //                 PromotionDate: '',
-    //                 addedBy: '',
-    //                 description: ''
-    //             });
-    //             setDescription("");
-    //             setEditId("");
-    //             setShowEditModal(false);
-    //         } catch (err) {
-    //             console.error("Error saving Promotion:", err);
-    //             toast.error("Promotion failedd to save!");
-
-    //         }
-    //     }
-    // };
-
-
-
-    // const handleEdit = (row) => {
-    //     setForm({
-    //         employeeName: row.employeeName,
-    //         PromotionTitle: row.PromotionTitle,
-    //         PromotionDate: row.PromotionDate,
-    //         addedBy: row.addedBy,
-    //         description: row.description
-    //     });
-    //     setEditId(row._id);
-    //     setShowEditModal(true);
-    //     setSelectedRow(row);
-    // };
-
-    // const handleDelete = async (id) => {
-    //     const confirmDelete = window.confirm("Are you sure you want to delete this Promotion?");
-    //     if (!confirmDelete) return;
-    //     try {
-    //         await deletePromotion(id);
-    //         fetchPromotion();
-    //     } catch (err) {
-    //         console.error("Error deleting Promotion:", err);
-    //     }
-    // };
+    });
 
     const handleView = (row) => {
         setSelectedRow(row);
@@ -173,19 +40,114 @@ const BankAccount = ({ form, setForm, handleSubmit ,mode }) => {
     };
 
 
-    // const emptyForm = {
-    //     employeeName: '',
-    //     PromotionTitle: '',
-    //     PromotionDate: '',
-    //     addedBy: '',
-    //     description: ''
-    // };
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) setForm({ ...form, account_bank_doc: file });
+    };
 
-    // const resetForm = () => {
-    //     setForm(emptyForm);
-    //     setEditId(null);
-    //     setShowEditModal(false);
-    // };
+
+
+
+    // Reset form
+    const resetForm = () => {
+        setForm({
+            account_title: "",
+            account_number: "",
+            account_bank_name: "",
+            aacount_bank_code: "",
+            account_bank_branch: "",
+            account_bank_doc: "",
+
+        });
+        setEditId(null);
+    };
+
+    const handleSubmit = async (e) => {
+        console.log("data is sending.............", form);
+
+        e.preventDefault();
+
+        if (!employeeId) return toast.error("Employee ID missing");
+
+        try {
+            const formData = new FormData();
+            formData.append("employeeId", employeeId);
+            formData.append("account_title", form.account_title);
+            formData.append("account_number", form.account_number);
+            formData.append("account_bank_name", form.account_bank_name);
+            formData.append("aacount_bank_code", form.aacount_bank_code);
+            formData.append("account_bank_branch", form.account_bank_branch);
+
+            if (form.account_bank_doc) {
+                formData.append("document_file", form.account_bank_doc);
+            }
+
+
+
+            if (editId) {
+                await updateEmployeeBankAccount(editId, formData);
+                toast.success("BankAccount detail updated!");
+            } else {
+                await createEmployeeBankAccount(formData);
+                toast.success("BankAccount detail added!");
+            }
+
+            fetchBankAccount();
+            resetForm();
+            setSelectedFile(null);
+            setShowEditModal(false);
+        } catch (err) {
+            console.error("Error saving BankAccount detail:", err);
+            toast.error("Failed to save!");
+        }
+    };
+
+
+    const fetchBankAccount = async () => {
+        if (!employeeId) return;
+        try {
+            const res = await getEmployeeBankAccount(employeeId);
+            console.log("BankAccount list:", res.data);
+            setBankAccountList(res.data);
+        } catch (err) {
+            console.error("Error fetching BankAccount:", err);
+        }
+    };
+
+    useEffect(() => {
+        fetchBankAccount();
+    }, [employeeId]);
+
+
+    const handleEdit = (row) => {
+        setForm({
+            account_title: row.account_title,
+            account_number: row.account_number,
+            account_bank_name: row.account_bank_name,
+            aacount_bank_code: row.aacount_bank_code,
+            account_bank_branch: row.account_bank_branch,
+            account_bank_doc: row.account_bank_doc,
+        });
+
+        setEditId(row._id);
+        setShowEditModal(true);
+        setSelectedRow(row);
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this record?")) return;
+
+        try {
+            await deleteEmployeeBankAccount(id);
+            fetchBankAccount();
+            toast.success("Deleted successfully!");
+        } catch (err) {
+            console.error("Error deleting:", err);
+            toast.error("Failed to delete!");
+        }
+    };
+
+
 
 
 
@@ -202,13 +164,13 @@ const BankAccount = ({ form, setForm, handleSubmit ,mode }) => {
                     </button>
                     <button
                         className="btn btn-outline-secondary btn-sm"
-                    // onClick={() => handleEdit(row)}
+                        onClick={() => handleEdit(row)}
                     >
                         <i className="fas fa-edit"></i>
                     </button>
                     <button
                         className="btn btn-danger btn-sm"
-                    // onClick={() => handleDelete(row._id)}
+                        onClick={() => handleDelete(row._id)}
                     >
                         <i className="fas fa-trash-alt text-white"></i>
                     </button>
@@ -218,11 +180,11 @@ const BankAccount = ({ form, setForm, handleSubmit ,mode }) => {
             allowOverflow: true,
             button: true,
         },
-        { name: 'Account Title', selector: row => row.documentType },
-        { name: 'Account Number', selector: row => row.title },
-        { name: 'Bank Name', selector: row => row.notificationEmail },
-        { name: 'Bank Code', selector: row => row.notificationEmail },
-        { name: 'Bank Branch', selector: row => row.notificationEmail }
+        { name: 'Account Title', selector: row => row.account_title },
+        { name: 'Account Number', selector: row => row.account_number },
+        { name: 'Bank Name', selector: row => row.account_bank_name },
+        { name: 'Bank Code', selector: row => row.aacount_bank_code },
+        { name: 'Bank Branch', selector: row => row.account_bank_branch }
 
 
     ];
@@ -256,9 +218,9 @@ const BankAccount = ({ form, setForm, handleSubmit ,mode }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    const totalEntries = Promotion.length;
+    const totalEntries = bankAccountList.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
-    console.log('Paginated data:', paginated);
+    // console.log('Paginated data:', paginated);
 
     const paginate = (data, page) => {
         const start = (page - 1) * rowsPerPage;
@@ -269,67 +231,101 @@ const BankAccount = ({ form, setForm, handleSubmit ,mode }) => {
 
     const startEntry = (currentPage - 1) * rowsPerPage + 1;
     const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
-
     const [showAddForm, setShowAddForm] = useState(false);
 
     const toggleAddForm = () => {
         setShowAddForm((prev) => !prev);
     };
 
+    useEffect(() => {
+        paginate(bankAccountList, currentPage);
+    }, [bankAccountList, currentPage, rowsPerPage]);
+
     return (
         <div>
             {mode === "edit" && (
 
                 <div className="container-fluid mt-4">
-                    <form>
+                    <form onSubmit={handleSubmit}>
                         <div className="row">
-                            <div className="col-md-6">
-                                <div className="mb-3">
-                                    <label>Account Title</label>
-                                    <input type="text" className="form-control" placeholder="Account Title" />
-                                </div>
-
-                                <div className="mb-3">
-                                    <label>Account Number</label>
-                                    <input type="text" className="form-control" placeholder="Account Number" />                            </div>
+                            {/* Left Column */}
+                            <div className="col-md-6 mb-3">
+                                <label>Account Title</label>
+                                <input
+                                    type="text"
+                                    placeholder="Account Title"
+                                    className="form-control"
+                                    name="account_title"
+                                    value={form.account_title}
+                                    onChange={(e) => setForm({ ...form, account_title: e.target.value })}
+                                />
                             </div>
 
-                            {/* Right Column */}
-                            <div className="col-md-6">
+                            <div className="col-md-6 mb-3">
+                                <label>Account Number</label>
+                                <input
+                                    type="text"
+                                    placeholder="Account Number"
+                                    className="form-control"
+                                    name="account_number"
+                                    value={form.account_number}
+                                    onChange={(e) => setForm({ ...form, account_number: e.target.value })}
+                                />
+                            </div>
+                        </div>
 
-                                <div className="mb-3">
-                                    <label>Bank Name</label>
-                                    <input type="text" className="form-control" placeholder="Bank Name" />
-                                </div>
-
-                                <div className="mb-3">
-                                    <label>Bank Code</label>
-                                    <input type="text" className="form-control" placeholder="Bank Code" />
-                                </div>
+                        <div className="row">
+                            <div className="col-md-6 mb-3">
+                                <label>Bank Name</label>
+                                <input
+                                    type="text"
+                                    placeholder="Bank Name"
+                                    className="form-control"
+                                    name="account_bank_name"
+                                    value={form.account_bank_name}
+                                    onChange={(e) => setForm({ ...form, account_bank_name: e.target.value })}
+                                />
                             </div>
 
-                            <div className="mb-3">
+                            <div className="col-md-6 mb-3">
+                                <label>Bank Code</label>
+                                <input
+                                    type="text"
+                                    placeholder="Bank Code"
+                                    className="form-control"
+                                    name="aacount_bank_code"
+                                    value={form.aacount_bank_code}
+                                    onChange={(e) => setForm({ ...form, aacount_bank_code: e.target.value })}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="row">
+                            <div className="col-md-6 mb-3">
                                 <label>Bank Branch</label>
-                                <input type="text" className="form-control" placeholder="Bank Branch" />
+                                <input
+                                    type="text"
+                                    placeholder="Bank Branch"
+                                    className="form-control"
+                                    name="account_bank_branch"
+                                    value={form.account_bank_branch}
+                                    onChange={(e) => setForm({ ...form, account_bank_branch: e.target.value })}
+                                />
                             </div>
 
-                            <div className="mb-3">
+                            <div className="col-md-6 mb-3">
                                 <label>Document File</label>
                                 <input
+                                    className="form-control"
                                     type="file"
                                     ref={fileInputRef}
-                                    style={{ display: "none" }}
+                                    name="document_file"
                                     onChange={handleFileChange}
-                                    accept="image/*"
                                 />
-                                <div className="text-start">
-                                    <button type="button" className="btn btn-sm add-btn" onClick={handleBrowseClick}>
-                                        Browse
-                                    </button>
-                                </div>
-                            </div>
 
+                            </div>
                         </div>
+
 
                         <div className="text-start mb-4">
                             <button type="submit" className="btn btn-sm add-btn">Save</button>
@@ -435,12 +431,12 @@ const BankAccount = ({ form, setForm, handleSubmit ,mode }) => {
                     </button>
                 </div>
 
-                {/* {showModal && selectedRow && (
+                {showModal && selectedRow && (
                     <div className="modal show fade d-block" tabIndex="-1" role="dialog">
-                        <div className="modal-dialog modal-dialog-centered" role="document">
+                        <div className="modal-dialog modal-dialog-centered" role="BankAccount">
                             <div className="modal-content">
                                 <div className="modal-header">
-                                    <h5 className="modal-title">View Promotion</h5>
+                                    <h5 className="modal-title">View Bank Account Details</h5>
                                     <button
                                         type="button"
                                         className="btn-close"
@@ -448,11 +444,28 @@ const BankAccount = ({ form, setForm, handleSubmit ,mode }) => {
                                     ></button>
                                 </div>
                                 <div className="modal-body">
-                                    <p><strong>Promotion For:</strong> {selectedRow.employeeName}</p>
-                                    <p><strong>Promotion Title:</strong> {selectedRow.PromotionTitle}</p>
-                                    <p><strong>Promotion Date:</strong> {selectedRow.PromotionDate}</p>
+                                    <p><strong>Account Title:</strong> {selectedRow.account_title}</p>
+                                    <p><strong>Account Number:</strong> {selectedRow.account_number}</p>
+                                    <p><strong>Bank Name:</strong> {selectedRow.account_bank_name}</p>
+                                    <p><strong>Bank Code:</strong> {selectedRow.aacount_bank_code}</p>
+                                    <p><strong>Bank Branch:</strong> {selectedRow.account_bank_branch}</p>
+
                                     <p>
-                                        <strong>Description:</strong> {selectedRow.description.replace(/<[^>]+>/g, '')}
+                                        <strong>Document File:</strong>
+                                        {selectedRow.account_bank_doc ? (
+                                            <a
+                                                href={`http://localhost:3000/employee-bankaccount/download/${selectedRow.account_bank_doc.split('/').pop()}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="ms-2"
+                                            >
+                                                Download
+                                            </a>
+                                        ) : (
+                                            "No file uploaded"
+                                        )}
+
+
                                     </p>
                                 </div>
 
@@ -483,111 +496,85 @@ const BankAccount = ({ form, setForm, handleSubmit ,mode }) => {
                                     <div className="modal-body">
                                         <form onSubmit={handleSubmit}>
                                             <div className="row">
-                                                <div className="col-md-6">
-                                                    <div className="mb-3">
-                                                        <label>Promotion For</label>
-                                                        <select id="resignEmployee" value={form.employeeName}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, employeeName: value });
-                                                                validateField("employeeName", value);
-                                                            }}
-                                                            className={`form-control ${errors.employeeName ? "is-invalid" : ""}`}
-                                                            onBlur={(e) => validateField("employeeName", e.target.value)}
-                                                        >
-                                                            <option value="">Select Department</option>
-                                                            <option value="Admin">Admin Admin</option>
-                                                            <option value="Anjali Patle">Anjali Patle</option>
-                                                            <option value="Amit Kumar">Amit Kumar</option>
-                                                            <option value="Aniket Rane">Aniket Rane</option>
-                                                            <option value="Shubham Kadam">Shubham Kadam</option>
-                                                            <option value="Abhijieet Tawate">Abhijieet Tawate</option>
-                                                            <option value="Pravin Bildlan">Pravin Bildlan</option>
-                                                            <option value="Amit Pednekar">Amit Pednekar</option>
-                                                            <option value="Mahendra Chaudhary">Mahendra Chaudhary</option>
-                                                            <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
-                                                            <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
-                                                        </select>
-                                                        {errors.employeeName && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Employee Name is required!</p>)}
-                                                    </div>
-
-                                                    <div className="mb-3">
-                                                        <label>Promotion Title</label>
-                                                        <input type="text" value={form.PromotionTitle}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, PromotionTitle: value });
-                                                                validateField("PromotionTitle", value);
-                                                            }}
-                                                            className={`form-control ${errors.PromotionTitle ? "is-invalid" : ""}`}
-                                                            placeholder="Promotion Title"
-                                                            onBlur={(e) => validateField("PromotionTitle", e.target.value)}
-
-                                                        />
-                                                        {errors.PromotionTitle && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Promotion Title is required!</p>)}
-                                                    </div>
-
-                                                    <div className="mb-3">
-                                                        <label>Promotion Date</label>
-                                                        <input type="date" value={form.PromotionDate}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, PromotionDate: value });
-                                                                validateField("PromotionDate", value);
-                                                            }}
-                                                            className={`form-control ${errors.PromotionDate ? "is-invalid" : ""}`}
-                                                            placeholder="Promotion Date"
-                                                            onBlur={(e) => validateField("PromotionDate", e.target.value)}
-
-                                                        />
-                                                        {errors.PromotionDate && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Promotion Date is required!</p>)}
-                                                    </div>
-
-                                                </div>
-
-                                                <div className="col-md-6">
-
-                                                    <div className="mb-3">
-                                                        <label>Added By</label>
-                                                        <select id="addedBy" value={form.addedBy}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, addedBy: value });
-                                                                validateField("addedBy", value);
-                                                            }}
-                                                            className={`form-control ${errors.addedBy ? "is-invalid" : ""}`}
-                                                            onBlur={(e) => validateField("addedBy", e.target.value)}
-                                                        >
-                                                            <option value="">Added By</option>
-                                                            <option value="Admin">Admin Admin</option>
-                                                            <option value="Anjali Patle">Anjali Patle</option>
-                                                            <option value="Amit Kumar">Amit Kumar</option>
-                                                            <option value="Aniket Rane">Aniket Rane</option>
-                                                        </select>
-                                                        {errors.addedBy && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This field is required!</p>)}
-                                                    </div>
-
-                                                    <label>Description</label>
-                                                    <CKEditor
-                                                        editor={ClassicEditor}
-                                                        data={form.description || ""}
-                                                        onChange={(event, editor) => {
-                                                            const newData = editor.getData();
-                                                            setForm({ ...form, description: newData });
-                                                        }}
-                                                        onBlur={() => validateField("description", form.description)}
+                                                {/* Left Column */}
+                                                <div className="col-md-6 mb-3">
+                                                    <label>Account Title</label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Account Title"
+                                                        className="form-control"
+                                                        name="account_title"
+                                                        value={form.account_title}
+                                                        onChange={(e) => setForm({ ...form, account_title: e.target.value })}
                                                     />
-                                                    {errors.description && (
-                                                        <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
-                                                            Description is Required
-                                                        </p>
-                                                    )}
                                                 </div>
 
+                                                <div className="col-md-6 mb-3">
+                                                    <label>Account Number</label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Account Number"
+                                                        className="form-control"
+                                                        name="account_number"
+                                                        value={form.account_number}
+                                                        onChange={(e) => setForm({ ...form, account_number: e.target.value })}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="row">
+                                                <div className="col-md-6 mb-3">
+                                                    <label>Bank Name</label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Bank Name"
+                                                        className="form-control"
+                                                        name="account_bank_name"
+                                                        value={form.account_bank_name}
+                                                        onChange={(e) => setForm({ ...form, account_bank_name: e.target.value })}
+                                                    />
+                                                </div>
+
+                                                <div className="col-md-6 mb-3">
+                                                    <label>Bank Code</label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Bank Code"
+                                                        className="form-control"
+                                                        name="aacount_bank_code"
+                                                        value={form.aacount_bank_code}
+                                                        onChange={(e) => setForm({ ...form, aacount_bank_code: e.target.value })}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="row">
+                                                <div className="col-md-6 mb-3">
+                                                    <label>Bank Branch</label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Bank Branch"
+                                                        className="form-control"
+                                                        name="account_bank_branch"
+                                                        value={form.account_bank_branch}
+                                                        onChange={(e) => setForm({ ...form, account_bank_branch: e.target.value })}
+                                                    />
+                                                </div>
+
+                                                {/* <div className="col-md-6 mb-3">
+                                <label>Document File</label>
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    accept=".png,.jpg,.jpeg,.gif,.txt,.pdf,.xls,.xlsx,.doc,.docx"
+                                    className="form-control"
+                                    name="document_file"
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        setForm({ ...form, document_file: file });
+                                    }}
+                                />
+                            </div> */}
                                             </div>
                                             <div className="text-end">
                                                 <button type="button" className="btn btn-sm btn-light me-2" onClick={() => { resetForm(); setShowEditModal(false) }}>Close</button>
@@ -600,7 +587,7 @@ const BankAccount = ({ form, setForm, handleSubmit ,mode }) => {
                             </div>
                         </div>
                     </>
-                )} */}
+                )}
 
 
             </div>
