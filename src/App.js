@@ -67,6 +67,10 @@ import WorkExperience from './pages/employees/details.jsx/WorkExperience';
 import Document from './pages/employees/details.jsx/Document';
 import BankAccount from './pages/employees/details.jsx/BankAccount';
 import FamilyDetails from './pages/employees/details.jsx/FamilyDetails';
+import Shift from './pages/employees/details.jsx/Shift';
+import EmpLocation from './pages/employees/details.jsx/EmpLocation';
+import Assets from './pages/employees/details.jsx/Assets';
+import ProfilePicture from './pages/employees/details.jsx/ProfilePicture';
 
 function Layout({ children, collapsed, toggleSidebar }) {
   const location = useLocation();
@@ -164,6 +168,10 @@ function App() {
           <Route path="/empDetails/:employeeId/experience" element={<WorkExperience />} />
           <Route path="/empDetails/:employeeId/document" element={<Document />} />
           <Route path="/empDetails/:employeeId/bankaccount" element={<BankAccount />} />
+          <Route path="/empDetails/:employeeId/shift" element={<Shift />} />
+          <Route path="/empDetails/:employeeId/location" element={<EmpLocation />} />
+          <Route path="/empDetails/:employeeId/assets" element={<Assets />} />
+          <Route path="/empDetails/:employeeId/profilepicture" element={<ProfilePicture />} />
 
 
           <Route path="/awards" element={<Awards />} />

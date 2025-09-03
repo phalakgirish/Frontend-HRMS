@@ -100,8 +100,8 @@ const WorkExperience = ({ mode, employeeId }) => {
         setForm({
             company_name: row.company_name || "",
             designation: row.designation || "",
-            from_date: row.from_date || "",
-            to_date: row.to_date || "",
+            from_date: row.from_date ? new Date(row.from_date).toISOString().split('T')[0] : '',
+            to_date: row.to_date ? new Date(row.to_date).toISOString().split('T')[0] : '',
             desc: row.desc || ""
         });
 
@@ -158,8 +158,14 @@ const WorkExperience = ({ mode, employeeId }) => {
             button: true,
         },
         { name: 'Company Name', selector: row => row.company_name },
-        { name: 'From Date', selector: row => row.from_date },
-        { name: 'To Date', selector: row => row.to_date },
+        {
+            name: 'From Date',
+            cell: row => row.from_date ? new Date(row.from_date).toLocaleDateString() : '-'
+        },
+        {
+            name: 'To Date',
+            cell: row => row.to_date ? new Date(row.to_date).toLocaleDateString() : '-'
+        },
         { name: 'Post', selector: row => row.designation },
         { name: 'Description', selector: row => row.desc }
 
@@ -407,8 +413,19 @@ const WorkExperience = ({ mode, employeeId }) => {
                                 <div className="modal-body">
                                     <p><strong>Company Name:</strong> {selectedRow.company_name}</p>
                                     <p><strong>Post:</strong> {selectedRow.designation}</p>
-                                    <p><strong>Time period(from):</strong> {selectedRow.from_date}</p>
-                                    <p><strong>Time period(to):</strong> {selectedRow.to_date}</p>
+                                    <p>
+                                        <strong>Time period (from):</strong>{" "}
+                                        {selectedRow.from_date
+                                            ? new Date(selectedRow.from_date).toLocaleDateString()
+                                            : "-"}
+                                    </p>
+                                    <p>
+                                        <strong>Time period (to):</strong>{" "}
+                                        {selectedRow.to_date
+                                            ? new Date(selectedRow.to_date).toLocaleDateString()
+                                            : "-"}
+                                    </p>
+
                                     <p>
                                         <strong>Description:</strong> {selectedRow.desc.replace(/<[^>]+>/g, '')}
                                     </p>

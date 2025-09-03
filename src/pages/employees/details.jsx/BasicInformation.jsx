@@ -10,8 +10,14 @@ const BasicInformationForm = ({ form, setForm, handleSubmit }) => {
                     <div className="row">
                         <div className="col-md-12 mb-3">
                             <label>Name</label>
-                            <input type="text" className="form-control" value={form.name}
-                                onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name" />
+                            <input
+                                type="text"
+                                className="form-control"
+                                value={`${form.firstName || ''} ${form.lastName || ''}`.trim()}
+                                readOnly
+                                placeholder="Name"
+                            />
+
                         </div>
 
                         <div className="col-md-4 mb-3">

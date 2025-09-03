@@ -16,6 +16,7 @@ const SupportRequest = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [description, setDescription] = useState('');
     const location = useLocation();
+    const [tickets, setTickets] = useState([]);
 
     //from backend
     const [SupportRequest, setSupportRequest] = useState([]);
@@ -48,19 +49,23 @@ const SupportRequest = () => {
     //     return Object.keys(newErrors).length === 0;
     // };
 
-    useEffect(() => {
-        fetchSupportRequest();
-    }, []);
+
 
     const fetchSupportRequest = async () => {
         try {
             const response = await getSupportRequest();
             setSupportRequest(response.data);
             paginate(response.data, currentPage);
+            setTickets(response.data);
+
         } catch (error) {
             console.error('Error fetching SupportRequest:', error);
         }
     };
+
+    useEffect(() => {
+        fetchSupportRequest();
+    }, []);
 
     const validateField = (fieldName, value = "") => {
         let error = "";
@@ -116,47 +121,39 @@ const SupportRequest = () => {
         return "TKT-" + Math.floor(1000 + Math.random() * 9000);
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+   const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const payload = editId
+      ? { ...form, description }
+      : { ...form, description, ticketCode: generateTicketCode() };
 
-        //   if (!validateForm()) {
-        //     console.log("❌ Validation failed, not saving.");
-        //     return;
-        //   }
+    const response = editId
+      ? await updateSupportRequest(editId, payload)
+      : await createSupportRequest(payload);
 
-        try {
-            const payload = editId
-                ? { ...form, description }
-                : { ...form, description, ticketCode: generateTicketCode() };
+    // Update local list after edit
+    if (editId) {
+      setTickets(prev => prev.map(t => t._id === editId ? response.data : t));
+    } else {
+      setTickets(prev => [response.data, ...prev]);
+    }
 
-            console.log("📤 Sending payload:", payload); // Debug
+    toast.success(editId ? "Updated successfully!" : "Saved successfully!");
+    fetchSupportRequest(); // optional if you want to re-fetch from backend
 
-            if (editId) {
-                await updateSupportRequest(editId, payload);
-                toast.success("Support Request updated successfully!");
-            } else {
-                await createSupportRequest(payload);
-                toast.success("Support Request saved successfully!");
-            }
+    setForm({ subject: "", employee: "", priority: "", remarks: "", date: "" });
+    setDescription("");
+    setEditId("");
+    setShowEditModal(false);
 
-            fetchSupportRequest();
+  } catch (err) {
+    console.error(err);
+    toast.error("Support Request failed to save!");
+  }
+};
 
-            setForm({
-                subject: "",
-                employee: "",
-                priority: "",
-                remarks: "",
-                date: "",
-            });
-            setDescription("");
-            setEditId("");
-            setShowEditModal(false);
 
-        } catch (err) {
-            console.error("❌ Error saving SupportRequest:", err.response || err);
-            toast.error("Support Request failed to save!");
-        }
-    };
 
 
 
@@ -461,7 +458,7 @@ const SupportRequest = () => {
                                     </div>
                                 </div>
 
-                              
+
                             </div>
 
                             <div className="text-start mb-2">
@@ -505,7 +502,7 @@ const SupportRequest = () => {
                         </div>
                     </div>
 
-                     <DataTable
+                    <DataTable
                         columns={columns}
                         data={paginated}
                         fixedHeader

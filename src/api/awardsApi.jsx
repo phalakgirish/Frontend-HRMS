@@ -17,3 +17,15 @@ export const updateAwards = (id,updatedData) =>{
 export const deleteAwards = async (id) => {
   return await axios.delete(`${BASE_URL}/${id}`);
 };
+
+export const updateAward = (id, formData) => {
+  return axios.put(`${BASE_URL}/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
+
+export const createAward = (formData) => {
+  return axios.post(BASE_URL, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};

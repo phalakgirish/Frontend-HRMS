@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DataTable from 'react-data-table-component';
 import './organization.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
@@ -23,6 +23,8 @@ const OrgPolicies = () => {
         addedBy: '',
         description: ''
     });
+
+
     const [editId, setEditId] = useState(null);
 
     const [errors, setErrors] = useState({});
@@ -394,12 +396,14 @@ const OrgPolicies = () => {
                                             <CKEditor
                                                 key={editorKey}
                                                 editor={ClassicEditor}
-                                                data={description || ""}
+                                                data={form.description}
+                                                onReady={(editor) => {
+                                                    editorRef.current = editor;
+                                                }}
                                                 onChange={(event, editor) => {
                                                     const newData = editor.getData();
-                                                    setForm({ ...form, description: newData });
+                                                    setForm(prev => ({ ...prev, description: newData }));
                                                 }}
-                                                onBlur={() => validateField("description", form.description)}
                                             />
                                         </div>
                                         {errors.description && (

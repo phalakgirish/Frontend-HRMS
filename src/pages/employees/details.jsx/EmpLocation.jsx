@@ -1,10 +1,10 @@
 import React from "react";
 import { useState, useRef, useEffect } from "react";
 import DataTable from 'react-data-table-component';
-import { getShift, createShift, updateShift, deleteShift } from "./apis/shiftApi";
+import { getLocation, createLocation, updateLocation, deleteLocation } from "./apis/locationApi";
 import { toast } from "react-toastify";
 
-const Shift = ({ employeeId, mode }) => {
+const EmpLocation = ({ employeeId, mode }) => {
 
 
     useEffect(() => {
@@ -14,12 +14,12 @@ const Shift = ({ employeeId, mode }) => {
     const [selectedRow, setSelectedRow] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showModal, setShowModal] = useState(false);
-    const [shiftList, setShiftList] = useState([]);
+    const [locationList, setLocationList] = useState([]);
 
     const [form, setForm] = useState({
-        shift_from_date: "",
-        shift_to_date: "",
-        shift_id: ""
+        location_from_date: "",
+        location_to_date: "",
+        location_id: ""
     });
     const [editId, setEditId] = useState(null);
 
@@ -33,9 +33,9 @@ const Shift = ({ employeeId, mode }) => {
     // Reset form
     const resetForm = () => {
         setForm({
-            shift_from_date: "",
-            shift_to_date: "",
-            shift_id: ""
+            location_from_date: "",
+            location_to_date: "",
+            location_id: ""
         });
         setEditId(null);
     };
@@ -50,43 +50,43 @@ const Shift = ({ employeeId, mode }) => {
 
         try {
             if (editId) {
-                await updateShift(editId, payload);
-                toast.success("Shift detail updated!");
+                await updateLocation(editId, payload);
+                toast.success("Location detail updated!");
             } else {
-                await createShift(payload);
-                toast.success("Shift detail added!");
+                await createLocation(payload);
+                toast.success("Location detail added!");
             }
 
-            await fetchShift();
+            await fetchLocation();
             resetForm();
             setShowEditModal(false);
         } catch (err) {
-            console.error("Error saving Shift detail:", err);
+            console.error("Error saving Location detail:", err);
             toast.error("Failed to save!");
         }
     };
 
-    const fetchShift = async () => {
+    const fetchLocation = async () => {
         if (!employeeId) return;
         try {
-            const res = await getShift(employeeId);
-            console.log("Shift list:", res.data);
-            setShiftList(res.data);
+            const res = await getLocation(employeeId);
+            console.log("Location list:", res.data);
+            setLocationList(res.data);
         } catch (err) {
-            console.error("Error fetching Shift:", err);
+            console.error("Error fetching Location:", err);
         }
     };
 
     useEffect(() => {
-        fetchShift();
+        fetchLocation();
     }, [employeeId]);
 
 
     const handleEdit = (row) => {
         setForm({
-            shift_from_date: row.shift_from_date ? new Date(row.shift_from_date).toISOString().split("T")[0] : "",
-            shift_to_date: row.shift_to_date ? new Date(row.shift_to_date).toISOString().split("T")[0] : "",
-            shift_id: row.shift_id || ""
+            location_from_date: row.location_from_date ? new Date(row.location_from_date).toISOString().split("T")[0] : "",
+            location_to_date: row.location_to_date ? new Date(row.location_to_date).toISOString().split("T")[0] : "",
+            location_id: row.location_id || ""
         });
 
         setEditId(row._id);
@@ -98,8 +98,8 @@ const Shift = ({ employeeId, mode }) => {
         if (!window.confirm("Are you sure you want to delete this record?")) return;
 
         try {
-            await deleteShift(id);
-            fetchShift();
+            await deleteLocation(id);
+            fetchLocation();
             toast.success("Deleted successfully!");
         } catch (err) {
             console.error("Error deleting:", err);
@@ -140,12 +140,11 @@ const Shift = ({ employeeId, mode }) => {
         {
             name: 'Date',
             cell: row => {
-                const from = new Date(row.shift_from_date).toLocaleDateString();
-                const to = new Date(row.shift_to_date).toLocaleDateString();
+                const from = new Date(row.location_from_date).toLocaleDateString();
+                const to = new Date(row.location_to_date).toLocaleDateString();
                 return `${from}  to  ${to}`;
             }
-        },
-        { name: 'Office Shift', selector: row => row.shift_id }
+        }, { name: 'Location', selector: row => row.location_id }
     ];
 
 
@@ -177,7 +176,7 @@ const Shift = ({ employeeId, mode }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    const totalEntries = shiftList.length;
+    const totalEntries = locationList.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
     // console.log('Paginated data:', paginated);
 
@@ -187,8 +186,10 @@ const Shift = ({ employeeId, mode }) => {
         setPaginated(data.slice(start, end));
         setCurrentPage(page);
     };
+
     const startEntry = (currentPage - 1) * rowsPerPage + 1;
     const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
+
     const [showAddForm, setShowAddForm] = useState(false);
 
     const toggleAddForm = () => {
@@ -196,8 +197,8 @@ const Shift = ({ employeeId, mode }) => {
     };
 
     useEffect(() => {
-        paginate(shiftList, currentPage);
-    }, [shiftList, currentPage, rowsPerPage]);
+        paginate(locationList, currentPage);
+    }, [locationList, currentPage, rowsPerPage]);
 
     return (
         <div>
@@ -211,9 +212,9 @@ const Shift = ({ employeeId, mode }) => {
                                 <input
                                     type="date"
                                     className="form-control"
-                                    name="shift_from_date"
-                                    value={form.shift_from_date}
-                                    onChange={(e) => setForm({ ...form, shift_from_date: e.target.value })}
+                                    name="location_from_date"
+                                    value={form.location_from_date}
+                                    onChange={(e) => setForm({ ...form, location_from_date: e.target.value })}
                                 />
                             </div>
 
@@ -222,26 +223,23 @@ const Shift = ({ employeeId, mode }) => {
                                 <input
                                     type="date"
                                     className="form-control"
-                                    name="shift_to_date"
-                                    value={form.shift_to_date}
-                                    onChange={(e) => setForm({ ...form, shift_to_date: e.target.value })}
+                                    name="location_to_date"
+                                    value={form.location_to_date}
+                                    onChange={(e) => setForm({ ...form, location_to_date: e.target.value })}
                                 />
                             </div>
 
                             <div className="col-md-4 mb-3">
-                                <label>Shift</label>
+                                <label>Office Location</label>
                                 <select
-                                    name="shift_id"
+                                    name="location_id"
                                     className="form-select"
-                                    value={form.shift_id}
-                                    onChange={(e) => setForm({ ...form, shift_id: e.target.value })}
+                                    value={form.location_id}
+                                    onChange={(e) => setForm({ ...form, location_id: e.target.value })}
                                 >
                                     <option value="">Select One</option>
-                                    <option value="Morning Shift">Morning Shift</option>
-                                    <option value="Afternoon Shift">Afternoon Shift</option>
-                                    <option value="Night Shift">Night Shift</option>
-                                    <option value="Stock Market/MF related">Stock Market/MF related</option>
-                                    <option value="Other Empployees">Other Empployees</option>
+                                    <option value="Head Office - Mumbai">Head Office - Mumbai</option>
+                                    <option value="Bangalore">Bangalore</option>
                                 </select>
                             </div>
 
@@ -258,7 +256,7 @@ const Shift = ({ employeeId, mode }) => {
 
             <div className="card no-radius">
                 <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
-                    <span>List All Shift Details</span>
+                    <span>List All Location Details</span>
                     {/* <button className="btn btn-sm add-btn" onClick={toggleAddForm}>{showAddForm ? '- Hide' : '+ Add New'}</button> */}
                 </div>
 
@@ -358,7 +356,7 @@ const Shift = ({ employeeId, mode }) => {
                         <div className="modal-dialog modal-dialog-centered" role="document">
                             <div className="modal-content">
                                 <div className="modal-header">
-                                    <h5 className="modal-title">View Shift</h5>
+                                    <h5 className="modal-title">View Promotion</h5>
                                     <button
                                         type="button"
                                         className="btn-close"
@@ -368,13 +366,13 @@ const Shift = ({ employeeId, mode }) => {
                                 <div className="modal-body">
                                     <p>
                                         <strong>From Date:</strong>{" "}
-                                        {selectedRow?.shift_from_date
-                                            ? new Date(selectedRow.shift_from_date).toLocaleDateString()
+                                        {selectedRow?.location_from_date
+                                            ? new Date(selectedRow.location_from_date).toLocaleDateString()
                                             : "N/A"}
                                     </p>
-                                    <p><strong>To Date:</strong> {selectedRow.shift_to_date ? new Date(selectedRow.shift_to_date).toLocaleDateString()
+                                    <p><strong>To Date:</strong> {selectedRow.location_to_date ? new Date(selectedRow.location_to_date).toLocaleDateString()
                                         : "N/A"}</p>
-                                    <p><strong>Shift:</strong> {selectedRow.shift_id}</p>
+                                    <p><strong>location:</strong> {selectedRow.location_id}</p>
 
                                 </div>
 
@@ -410,9 +408,9 @@ const Shift = ({ employeeId, mode }) => {
                                                     <input
                                                         type="date"
                                                         className="form-control"
-                                                        name="shift_from_date"
-                                                        value={form.shift_from_date}
-                                                        onChange={(e) => setForm({ ...form, shift_from_date: e.target.value })}
+                                                        name="location_from_date"
+                                                        value={form.location_from_date}
+                                                        onChange={(e) => setForm({ ...form, location_from_date: e.target.value })}
                                                     />
                                                 </div>
 
@@ -421,26 +419,23 @@ const Shift = ({ employeeId, mode }) => {
                                                     <input
                                                         type="date"
                                                         className="form-control"
-                                                        name="shift_to_date"
-                                                        value={form.shift_to_date}
-                                                        onChange={(e) => setForm({ ...form, shift_to_date: e.target.value })}
+                                                        name="location_to_date"
+                                                        value={form.location_to_date}
+                                                        onChange={(e) => setForm({ ...form, location_to_date: e.target.value })}
                                                     />
                                                 </div>
 
                                                 <div className="col-md-4 mb-3">
-                                                    <label>Shift</label>
+                                                    <label>Office Location</label>
                                                     <select
-                                                        name="shift_id"
+                                                        name="location_id"
                                                         className="form-select"
-                                                        value={form.shift_id}
-                                                        onChange={(e) => setForm({ ...form, shift_id: e.target.value })}
+                                                        value={form.location_id}
+                                                        onChange={(e) => setForm({ ...form, location_id: e.target.value })}
                                                     >
                                                         <option value="">Select One</option>
-                                                        <option value="Morning Shift">Morning Shift</option>
-                                                        <option value="Afternoon Shift">Afternoon Shift</option>
-                                                        <option value="Night Shift">Night Shift</option>
-                                                        <option value="Stock Market/MF related">Stock Market/MF related</option>
-                                                        <option value="Other Empployees">Other Empployees</option>
+                                                        <option value="Head Office - Mumbai">Head Office - Mumbai</option>
+                                                        <option value="Bangalore">Bangalore</option>
                                                     </select>
                                                 </div>
 
@@ -466,4 +461,4 @@ const Shift = ({ employeeId, mode }) => {
 
     );
 };
-export default Shift;
+export default EmpLocation;
