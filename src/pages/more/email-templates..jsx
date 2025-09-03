@@ -494,75 +494,75 @@ const EmailTemplates = () => {
                                     <div className="modal-body">
                                         <form onSubmit={handleSubmit}>
                                             <div className="row">
-                                {/* Left Column */}
-                                <div className="col-md-6 mb-3">
-                                    <div className="mb-3">
-                                        <label>Template Name</label>
-                                        <input type="text"
-                                            value={form.templateName}
-                                            onChange={(e) => {
-                                                const { value } = e.target;
-                                                setForm({ ...form, templateName: value });
-                                                validateField("templateName", value);
-                                            }}
-                                            className={`form-control ${errors.templateName ? "is-invalid" : ""}`}
-                                            placeholder="Template Name"
-                                            onBlur={(e) => validateField("templateName", e.target.value)}
+                                                {/* Left Column */}
+                                                <div className="col-md-6 mb-3">
+                                                    <div className="mb-3">
+                                                        <label>Template Name</label>
+                                                        <input type="text"
+                                                            value={form.templateName}
+                                                            onChange={(e) => {
+                                                                const { value } = e.target;
+                                                                setForm({ ...form, templateName: value });
+                                                                validateField("templateName", value);
+                                                            }}
+                                                            className={`form-control ${errors.templateName ? "is-invalid" : ""}`}
+                                                            placeholder="Template Name"
+                                                            onBlur={(e) => validateField("templateName", e.target.value)}
 
-                                        />
-                                        {errors.templateName && (
-                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.templateName}</p>
-                                        )}
-                                    </div>
+                                                        />
+                                                        {errors.templateName && (
+                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.templateName}</p>
+                                                        )}
+                                                    </div>
 
-                                    <div className="col-md-12 mb-3">
-                                        <label>Subject</label>
-                                        <select id="awardType"
-                                            value={form.subject}
-                                            onChange={(e) => {
-                                                const { value } = e.target;
-                                                setForm({ ...form, subject: value });
-                                                validateField("subject", value);
-                                            }}
-                                            className={`form-control ${errors.subject ? "is-invalid" : ""}`}
-                                            onBlur={(e) => validateField("subject", e.target.value)}
-                                        >
-                                            <option value="">Subject</option>
-                                            <option value="Active">Active</option>
-                                            <option value="Inactive">Inactive</option>
-                                        </select>
-                                        {errors.subject && (
-                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.subject}</p>
-                                        )}
-                                    </div>
+                                                    <div className="col-md-12 mb-3">
+                                                        <label>Subject</label>
+                                                        <select id="awardType"
+                                                            value={form.subject}
+                                                            onChange={(e) => {
+                                                                const { value } = e.target;
+                                                                setForm({ ...form, subject: value });
+                                                                validateField("subject", value);
+                                                            }}
+                                                            className={`form-control ${errors.subject ? "is-invalid" : ""}`}
+                                                            onBlur={(e) => validateField("subject", e.target.value)}
+                                                        >
+                                                            <option value="">Subject</option>
+                                                            <option value="Active">Active</option>
+                                                            <option value="Inactive">Inactive</option>
+                                                        </select>
+                                                        {errors.subject && (
+                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.subject}</p>
+                                                        )}
+                                                    </div>
 
-                                </div>
+                                                </div>
 
-                                {/* Right Column */}
-                                <div className="col-md-6 mb-3">
+                                                {/* Right Column */}
+                                                <div className="col-md-6 mb-3">
 
-                                    <label>Status</label>
-                                    <CKEditor
-                                        key={editorKey}
-                                        editor={ClassicEditor}
-                                        data={form.status}
-                                        onReady={(editor) => {
-                                            editorRef.current = editor;
-                                        }}
-                                        onChange={(event, editor) => {
-                                            const newData = editor.getData();
-                                            setForm(prev => ({ ...prev, status: newData }));
-                                        }}
-                                    />
-                                    {errors.status && (
-                                        <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
-                                            {errors.status}
-                                        </p>
-                                    )}
-                                </div>
+                                                    <label>Status</label>
+                                                    <CKEditor
+                                                        key={editorKey}
+                                                        editor={ClassicEditor}
+                                                        data={form.status}
+                                                        onReady={(editor) => {
+                                                            editorRef.current = editor;
+                                                        }}
+                                                        onChange={(event, editor) => {
+                                                            const newData = editor.getData();
+                                                            setForm(prev => ({ ...prev, status: newData }));
+                                                        }}
+                                                    />
+                                                    {errors.status && (
+                                                        <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
+                                                            {errors.status}
+                                                        </p>
+                                                    )}
+                                                </div>
 
 
-                            </div>
+                                            </div>
 
                                             <div className="text-end">
                                                 <button type="button" className="btn btn-sm btn-light me-2" onClick={() => { resetForm(); setShowEditModal(false) }}>Close</button>

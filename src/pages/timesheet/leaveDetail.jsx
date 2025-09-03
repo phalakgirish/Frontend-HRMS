@@ -24,24 +24,24 @@ const LeaveDetail = () => {
     const navigate = useNavigate();
 
 
-   const handleSubmit = async (e) => {
-  e.preventDefault();
+//    const handleSubmit = async (e) => {
+//   e.preventDefault();
 
-  try {
-    if (editId) {
-      await updateLeave(editId, form);
-      toast.success("Leave updated successfully!");
-    } else {
-      await createLeave(form);
-      toast.success("Leave saved successfully!");
-    }
+//   try {
+//     if (editId) {
+//       await updateLeave(editId, form);
+//       toast.success("Leave updated successfully!");
+//     } else {
+//       await createLeave(form);
+//       toast.success("Leave saved successfully!");
+//     }
 
-    navigate("/leave");
-  } catch (err) {
-    console.error("Error saving Leave:", err);
-    toast.error("Leave failed to save!");
-  }
-};
+//     navigate("/leave");
+//   } catch (err) {
+//     console.error("Error saving Leave:", err);
+//     toast.error("Leave failed to save!");
+//   }
+// };
 
 
     // useEffect(() => {
@@ -53,6 +53,37 @@ const LeaveDetail = () => {
     //     fetchLeave();
     // }, []);
 
+const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!employee?._id && editId === null) {
+        toast.error("Employee ID is missing. Cannot save leave.");
+        return;
+    }
+
+    const payload = {
+        status: form.status,
+        remarks: form.remarks
+    };
+
+    try {
+        if (editId || employee?._id) {
+            const idToUpdate = editId || employee._id;
+            await updateLeave(idToUpdate, payload);
+            toast.success("Leave updated successfully!");
+        } else {
+            await createLeave(payload);
+            toast.success("Leave saved successfully!");
+        }
+
+         setTimeout(() => {
+            navigate("/leave");
+        }, 500);
+    } catch (err) {
+        console.error("Error saving Leave:", err);
+        toast.error("Leave failed to save!");
+    }
+};
 
     const [remarks, setRemarks] = useState('');
     const leaveStats = [

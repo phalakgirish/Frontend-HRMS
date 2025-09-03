@@ -394,56 +394,73 @@ const Location = () => {
         setShowEditModal(false);
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (validateForm()) {
-            try {
-                if (editId) {
-                    await updateLocation(editId, form);
-                    toast.success("Location updated successfully!");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
 
-                    setEditId(null);
-                } else {
-                    await createLocation(form);
-                    toast.success("Location saved successfully!");
-                }
-                fetchLocation();
-                setForm({
-                    company: '',
-                    locationName: '',
-                    email: '',
-                    phone: '',
-                    faxNumber: '',
-                    locationHead: '',
-                    locationHrManager: '',
-                    address: '',
-                    city: '',
-                    state: '',
-                    zipCode: '',
-                    country: '',
-                    bankBranch: '',
-                    bankName: '',
-                    bankCode: '',
-                    bankAccountNo: '',
-                    medical: '',
-                    pfEmployer: '',
-                    basiSalary: '',
-                    hra: '',
-                    lta: '',
-                    allowance: '',
-                    esc: '',
-                    gratuity: '',
-                    addedBy: '',
-                });
+    try {
+        // Prepare payload: keep strings as-is, convert only numeric fields
+        const payload = {
+            ...form,
+            zipCode: form.zipCode ? Number(form.zipCode) : undefined,
+            basiSalary: form.basiSalary ? Number(form.basiSalary) : undefined,
+            hra: form.hra ? Number(form.hra) : undefined,
+            lta: form.lta ? Number(form.lta) : undefined,
+            allowance: form.allowance ? Number(form.allowance) : undefined,
+            esc: form.esc ? Number(form.esc) : undefined,
+            gratuity: form.gratuity ? Number(form.gratuity) : undefined,
+            medical: form.medical ? Number(form.medical) : undefined,
+            pfEmployer: form.pfEmployer ? Number(form.pfEmployer) : undefined,
+        };
 
-                setEditId("");
-                setShowEditModal(false);
-            } catch (err) {
-                console.error("Error saving Location:", err);
-                toast.error("Failed to save location!");
-            }
+        if (editId) {
+            console.log("Updating ID:", editId, payload);
+            await updateLocation(editId, payload);
+            toast.success("Location updated successfully!");
+            setEditId(null);
+        } else {
+            await createLocation(payload);
+            toast.success("Location saved successfully!");
         }
-    };
+
+        fetchLocation();
+
+        // Reset form
+        setForm({
+            company: '',
+            locationName: '',
+            email: '',
+            phone: '',
+            faxNumber: '',
+            locationHead: '',
+            locationHrManager: '',
+            address: '',
+            city: '',
+            state: '',
+            zipCode: '',
+            country: '',
+            bankBranch: '',
+            bankName: '',
+            bankCode: '',
+            bankAccountNo: '',
+            medical: '',
+            pfEmployer: '',
+            basiSalary: '',
+            hra: '',
+            lta: '',
+            allowance: '',
+            esc: '',
+            gratuity: '',
+            addedBy: '',
+        });
+
+        setShowEditModal(false);
+    } catch (err) {
+        console.error("Error saving Location:", err.response || err);
+        toast.error("Failed to save location!");
+    }
+};
+
 
     const handleView = (row) => {
         setSelectedRow(row);
@@ -454,32 +471,32 @@ const Location = () => {
     const handleEdit = (row) => {
         setEditId(row._id);
         setForm({
-        company: row.company || "",
-        locationName: row.locationName || "",
-        email: row.email || "",
-        phone: row.phone || "",
-        faxNumber: row.faxNumber || "",
-        locationHead: row.locationHead || "",
-        locationHrManager: row.locationHrManager || "",
-        address: row.address || "",  
-        city: row.city || "",
-        state: row.state || "",
-        zipCode: row.zipCode || "",
-        country: row.country || "",
-        bankBranch: row.bankBranch || "",
-        bankName: row.bankName || "",
-        bankCode: row.bankCode || "",
-        bankAccountNo: row.bankAccountNo || "",
-        medical: row.medical || "",
-        pfEmployer: row.pfEmployer || "",
-        basiSalary: row.basiSalary || "",
-        hra: row.hra || "",
-        lta: row.lta || "",
-        allowance: row.allowance || "",
-        esc: row.esc || "",
-        gratuity: row.gratuity || "",
-        addedBy: row.addedBy || "",
-    });
+            company: row.company || "",
+            locationName: row.locationName || "",
+            email: row.email || "",
+            phone: row.phone || "",
+            faxNumber: row.faxNumber || "",
+            locationHead: row.locationHead || "",
+            locationHrManager: row.locationHrManager || "",
+            address: row.address || "",
+            city: row.city || "",
+            state: row.state || "",
+            zipCode: row.zipCode || "",
+            country: row.country || "",
+            bankBranch: row.bankBranch || "",
+            bankName: row.bankName || "",
+            bankCode: row.bankCode || "",
+            bankAccountNo: row.bankAccountNo || "",
+            medical: row.medical || "",
+            pfEmployer: row.pfEmployer || "",
+            basiSalary: row.basiSalary || "",
+            hra: row.hra || "",
+            lta: row.lta || "",
+            allowance: row.allowance || "",
+            esc: row.esc || "",
+            gratuity: row.gratuity || "",
+            addedBy: row.addedBy || "",
+        });
         setShowEditModal(true);
         setSelectedRow(row);
     };
@@ -586,7 +603,7 @@ const Location = () => {
 
     const totalEntries = Location.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
-    console.log('Paginated data:', paginated);
+    // console.log('Paginated data:', paginated);
 
     const paginate = (data, page) => {
         const start = (page - 1) * rowsPerPage;
@@ -1964,7 +1981,7 @@ const Location = () => {
 
                                             <div className="text-end">
                                                 <button type="button" className="btn btn-sm btn-light me-2" onClick={() => { resetForm(); setShowEditModal(false) }}>Close</button>
-                                                <button type="submit" onClick={(e) => handleSubmit(e)} className="btn btn-sm add-btn">Update</button>
+                                                <button type="submit" className="btn btn-sm add-btn">Update</button>
                                             </div>
                                         </form>
 

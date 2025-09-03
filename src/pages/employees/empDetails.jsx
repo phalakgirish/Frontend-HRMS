@@ -11,11 +11,12 @@ import WorkExperience from './details.jsx/WorkExperience';
 import BankAccount from './details.jsx/BankAccount';
 import Leave from './details.jsx/Leave';
 import Shift from './details.jsx/Shift';
-import Location from './details.jsx/Location';
+// import Location from './details.jsx/Location';
 import ChangePassword from './details.jsx/ChangePassword';
 import Assets from './details.jsx/Assets';
 import CTC from './details.jsx/CTC';
 import Form16 from './details.jsx/Form16';
+import EmpLocation from './details.jsx/EmpLocation';
 
 const EmpDetails = () => {
     const location = useLocation();
@@ -115,7 +116,7 @@ const EmpDetails = () => {
                 return <BasicInformationForm form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
 
             case 'Profile Picture':
-                return <ProfilePicture form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
+                return <ProfilePicture employeeId={form._id} form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
 
             case 'Family Details':
                 return <FamilyDetails employeeId={form._id} form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
@@ -136,17 +137,17 @@ const EmpDetails = () => {
                 return <Leave form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />
 
             case 'Shift':
-                return <Shift form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />
+                return <Shift employeeId={form._id} form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />
 
-            case 'Location':
-                return <Location form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />
+            case 'EmpLocation':
+                return <EmpLocation employeeId={form._id} form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />
 
 
             case 'Change Password':
                 return <ChangePassword form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />
 
             case 'Assets':
-                return <Assets form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />
+                return <Assets employeeId={form._id} form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />
 
             case 'CTC':
                 return <CTC form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />
@@ -174,7 +175,7 @@ const EmpDetails = () => {
                             <ul className="list-group list-group-flush">
                                 {[
                                     'Basic Information', 'Profile Picture', 'Family Details', 'Document',
-                                    'Qualification', 'Work Experience', 'Bank Account', 'Leave', 'Shift', 'Location',
+                                    'Qualification', 'Work Experience', 'Bank Account', 'Leave', 'Shift', 'EmpLocation',
                                     'Change Password', 'Assets', 'CTC', 'Form 16'
                                 ].map((dept, index) => {
                                     const icons = {
@@ -187,7 +188,7 @@ const EmpDetails = () => {
                                         'Bank Account': 'fas fa-university',
                                         'Leave': 'fas fa-calendar-alt',
                                         'Shift': 'fas fa-clock',
-                                        'Location': 'fas fa-map-marker-alt',
+                                        'EmpLocation': 'fas fa-map-marker-alt',
                                         'Change Password': 'fas fa-key',
                                         'Assets': 'fas fa-laptop',
                                         'CTC': 'fas fa-rupee-sign',

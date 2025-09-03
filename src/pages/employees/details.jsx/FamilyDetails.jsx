@@ -175,7 +175,12 @@ const FamilyDetails = ({ mode,employeeId }) => {
         { name: 'Relation', selector: row => row.family_relation || '-' },
         { name: 'Email', selector: row => row.family_email_work || '-' },
         { name: 'Mobile', selector: row => row.family_mobile || '-' },
-        { name: 'Date of Birth', selector: row => row.family_dob || '-' }
+        // { name: 'Date of Birth', selector: row => row.family_dob || '-' },
+       {
+    name: 'Date of Birth',
+    cell: row => new Date(row.family_dob).toLocaleDateString()
+}
+
 
     ];
 

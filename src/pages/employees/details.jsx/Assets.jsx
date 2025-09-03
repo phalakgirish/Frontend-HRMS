@@ -1,158 +1,34 @@
 import React from "react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import DataTable from 'react-data-table-component';
+import { getAssets, createAssets, updateAssets, deleteAssets } from "./apis/assetsApi";
+import { toast } from "react-toastify";
 
-const Assets = ({ form, setForm, handleSubmit,mode }) => {
+
+const Assets = ({ employeeId, mode }) => {
 
 
-    const [showModal, setShowModal] = useState(false);
+    useEffect(() => {
+    }, [employeeId]);
+
+    const [paginated, setPaginated] = useState([]);
     const [selectedRow, setSelectedRow] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
-    const [description, setDescription] = useState('');
-    const editorRef = useRef(null);
-    const [editorKey, setEditorKey] = useState(0);
+    const [showModal, setShowModal] = useState(false);
+    const [assetsList, setAssetsList] = useState([]);
 
-    //from backend
-    const [Promotion, setPromotion] = useState([]);
-    const [paginated, setPaginated] = useState([]);
-
+    const [form, setForm] = useState({
+        assets_type_id: '',
+        assets_brand: "",
+        assets_model_no: "",
+        assets_serial_no: "",
+        assets_issued_date: '',
+        assets_cost: '',
+        assets_quality: '',
+        assets_insurance: '',
+        assets_remark: ''
+    });
     const [editId, setEditId] = useState(null);
-
-    // const [form, setForm] = useState({
-    //     employeeName: '',
-    //     PromotionTitle: '',
-    //     PromotionDate: '',
-    //     addedBy: '',
-    //     description: ''
-    // });
-
-    // const [errors, setErrors] = useState({});
-
-    // const validateForm = () => {
-    //     let newErrors = {};
-
-    //     Object.keys(form).forEach((field) => {
-    //         if (!form[field] || form[field].toString().trim() === "") {
-    //             newErrors[field] = `${field.replace(/([A-Z])/g, " $1")} is required`;
-    //         }
-    //     });
-
-    //     setErrors(newErrors);
-    //     return Object.keys(newErrors).length === 0;
-    // };
-
-    // useEffect(() => {
-    //     fetchPromotion();
-    // }, []);
-
-    // const fetchPromotion = async () => {
-    //     try {
-    //         const response = await getPromotion();
-    //         setPromotion(response.data);
-    //         paginate(response.data, currentPage);
-    //     } catch (error) {
-    //         console.error('Error fetching Promotion:', error);
-    //     }
-    // };
-
-    // const validateField = (fieldName, value = "") => {
-    //     let error = "";
-
-    //     let displayName = fieldName
-    //         .replace(/([A-Z])/g, " $1")
-    //         .replace(/^./, str => str.toUpperCase());
-
-    //     value = value.toString();
-
-    //     switch (fieldName) {
-    //         case "employeeName":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         case "PromotionTitle":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         case "PromotionDate":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         case "description":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         case "addedBy":
-    //             if (!value.trim()) error = `${displayName} is required`;
-    //             break;
-
-    //         default:
-    //             break;
-    //     }
-
-    //     setErrors(prev => ({ ...prev, [fieldName]: error }));
-    //     return error;
-    // };
-
-
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault();
-    //     if (validateForm()) {
-
-    //         try {
-    //             const payload = { ...form, description };
-    //             if (editId) {
-    //                 await updatePromotion(editId, form);
-    //                 toast.success("Promotion updated successfully!");
-
-    //             } else {
-    //                 await createPromotion(form);
-    //                 toast.success("Promotion saved successfully!");
-
-    //             }
-    //             fetchPromotion();
-    //             setForm({
-    //                 employeeName: '',
-    //                 PromotionTitle: '',
-    //                 PromotionDate: '',
-    //                 addedBy: '',
-    //                 description: ''
-    //             });
-    //             setDescription("");
-    //             setEditId("");
-    //             setShowEditModal(false);
-    //         } catch (err) {
-    //             console.error("Error saving Promotion:", err);
-    //             toast.error("Promotion failedd to save!");
-
-    //         }
-    //     }
-    // };
-
-
-
-    // const handleEdit = (row) => {
-    //     setForm({
-    //         employeeName: row.employeeName,
-    //         PromotionTitle: row.PromotionTitle,
-    //         PromotionDate: row.PromotionDate,
-    //         addedBy: row.addedBy,
-    //         description: row.description
-    //     });
-    //     setEditId(row._id);
-    //     setShowEditModal(true);
-    //     setSelectedRow(row);
-    // };
-
-    // const handleDelete = async (id) => {
-    //     const confirmDelete = window.confirm("Are you sure you want to delete this Promotion?");
-    //     if (!confirmDelete) return;
-    //     try {
-    //         await deletePromotion(id);
-    //         fetchPromotion();
-    //     } catch (err) {
-    //         console.error("Error deleting Promotion:", err);
-    //     }
-    // };
 
     const handleView = (row) => {
         setSelectedRow(row);
@@ -160,19 +36,96 @@ const Assets = ({ form, setForm, handleSubmit,mode }) => {
     };
 
 
-    // const emptyForm = {
-    //     employeeName: '',
-    //     PromotionTitle: '',
-    //     PromotionDate: '',
-    //     addedBy: '',
-    //     description: ''
-    // };
 
-    // const resetForm = () => {
-    //     setForm(emptyForm);
-    //     setEditId(null);
-    //     setShowEditModal(false);
-    // };
+    // Reset form
+    const resetForm = () => {
+        setForm({
+            assets_type_id: '',
+            assets_brand: "",
+            assets_model_no: "",
+            assets_serial_no: "",
+            assets_issued_date: '',
+            assets_cost: '',
+            assets_quality: '',
+            assets_insurance: '',
+            assets_remark: ''
+        });
+        setEditId(null);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!employeeId) return toast.error("Employee ID missing");
+
+        const payload = { ...form, employeeId: employeeId };
+        console.log("this is sent data:", payload);
+
+        try {
+            if (editId) {
+                await updateAssets(editId, payload);
+                toast.success("Assets detail updated!");
+            } else {
+                await createAssets(payload);
+                toast.success("Assets detail added!");
+            }
+
+            await fetchAssets();
+            resetForm();
+            setShowEditModal(false);
+        } catch (err) {
+            console.error("Error saving Assets detail:", err);
+            toast.error("Failed to save!");
+        }
+    };
+
+    const fetchAssets = async () => {
+        if (!employeeId) return;
+        try {
+            const res = await getAssets(employeeId);
+            console.log("Assets list:", res.data);
+            setAssetsList(res.data);
+        } catch (err) {
+            console.error("Error fetching Assets:", err);
+        }
+    };
+
+    useEffect(() => {
+        fetchAssets();
+    }, [employeeId]);
+
+
+    const handleEdit = (row) => {
+        setForm({
+            assets_type_id: row.assets_type_id,
+            assets_brand: row.assets_brand,
+            assets_model_no: row.assets_model_no,
+            assets_serial_no: row.assets_serial_no,
+            assets_issued_date: row.assets_issued_date ? new Date(row.assets_issued_date).toISOString().split("T")[0] : "",
+            assets_cost: row.assets_cost,
+            assets_quality: row.assets_quality,
+            assets_insurance: row.assets_insurance,
+            assets_remark: row.assets_remark
+        });
+
+        setEditId(row._id);
+        setShowEditModal(true);
+        setSelectedRow(row);
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this record?")) return;
+
+        try {
+            await deleteAssets(id);
+            fetchAssets();
+            toast.success("Deleted successfully!");
+        } catch (err) {
+            console.error("Error deleting:", err);
+            toast.error("Failed to delete!");
+        }
+    };
+
 
 
 
@@ -189,13 +142,13 @@ const Assets = ({ form, setForm, handleSubmit,mode }) => {
                     </button>
                     <button
                         className="btn btn-outline-secondary btn-sm"
-                    // onClick={() => handleEdit(row)}
+                        onClick={() => handleEdit(row)}
                     >
                         <i className="fas fa-edit"></i>
                     </button>
                     <button
                         className="btn btn-danger btn-sm"
-                    // onClick={() => handleDelete(row._id)}
+                        onClick={() => handleDelete(row._id)}
                     >
                         <i className="fas fa-trash-alt text-white"></i>
                     </button>
@@ -205,13 +158,13 @@ const Assets = ({ form, setForm, handleSubmit,mode }) => {
             allowOverflow: true,
             button: true,
         },
-        { name: 'Assets Type', selector: row => row.documentType },
-        { name: 'Brand', selector: row => row.title },
-        { name: 'Model No', selector: row => row.notificationEmail },
-        { name: 'Serial No', selector: row => row.notificationEmail },
-        { name: 'Cost', selector: row => row.notificationEmail },
-        { name: 'Quantity', selector: row => row.notificationEmail },
-        { name: 'Insurance', selector: row => row.notificationEmail }
+        { name: 'Assets Type', selector: row => row.assets_type_id },
+        { name: 'Brand', selector: row => row.assets_brand },
+        { name: 'Model No', selector: row => row.assets_model_no },
+        { name: 'Serial No', selector: row => row.assets_serial_no },
+        { name: 'Cost', selector: row => row.assets_cost },
+        { name: 'Quantity', selector: row => row.assets_quality },
+        { name: 'Insurance', selector: row => row.assets_insurance }
 
     ];
 
@@ -244,9 +197,9 @@ const Assets = ({ form, setForm, handleSubmit,mode }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    const totalEntries = Promotion.length;
+    const totalEntries = assetsList.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
-    console.log('Paginated data:', paginated);
+    // console.log('Paginated data:', paginated);
 
     const paginate = (data, page) => {
         const start = (page - 1) * rowsPerPage;
@@ -264,76 +217,130 @@ const Assets = ({ form, setForm, handleSubmit,mode }) => {
         setShowAddForm((prev) => !prev);
     };
 
+    useEffect(() => {
+        paginate(assetsList, currentPage);
+    }, [assetsList, currentPage, rowsPerPage]);
+
+
     return (
         <div>
             {mode === "edit" && (
 
-            <div className="container-fluid mt-4">
-                <form>
-                    <div className="row">
-                        <div className="col-md-6">
-                            <div className="mb-3">
-                                <label>Assets Type</label>
-                                <select className="form-select">
-                                    <option value="">Select One</option>
-                                    <option value="Mobile">Mobile</option>
-                                    <option value="Laptop">Laptop</option>
-                                </select>
+                <div className="container-fluid mt-4">
+                    <form onSubmit={handleSubmit}>
+                        <div className="row">
+                            <div className="col-md-6">
+                                <div className="mb-3">
+                                    <label>Assets Type</label>
+                                    <select
+                                        name="assets_type_id"
+                                        className="form-select"
+                                        value={form.assets_type_id}
+                                        onChange={(e) => setForm({ ...form, assets_type_id: e.target.value })}
+                                    >
+                                        <option value="">Select One</option>
+                                        <option value="Mobile">Mobile</option>
+                                        <option value="Laptop">Laptop</option>
+                                    </select>
+                                </div>
+
+                                <div className="mb-3">
+                                    <label>Model Number</label>
+                                    <input
+                                        type="text" placeholder='Model Number'
+                                        className="form-control"
+                                        name="assets_model_no"
+                                        value={form.assets_model_no}
+                                        onChange={(e) => setForm({ ...form, assets_model_no: e.target.value })}
+                                    />
+                                </div>
+
+                                <div className="mb-3">
+                                    <label>Issue Date</label>
+                                    <input
+                                        type="date"
+                                        className="form-control"
+                                        name="assets_issued_date"
+                                        value={form.assets_issued_date}
+                                        onChange={(e) => setForm({ ...form, assets_issued_date: e.target.value })}
+                                    />
+                                </div>
+
+                                <div className="mb-3">
+                                    <label>Quantity</label>
+                                    <input
+                                        type="text" placeholder='Quantity'
+                                        className="form-control"
+                                        name="assets_quality"
+                                        value={form.assets_quality}
+                                        onChange={(e) => setForm({ ...form, assets_quality: e.target.value })}
+                                    />
+                                </div>
                             </div>
 
-                            <div className="mb-3">
-                                <label>Model Number</label>
-                                <input type="text" className="form-control" placeholder="Model Number" />
+
+                            {/* Right Column */}
+                            <div className="col-md-6">
+
+                                <div className="mb-3">
+                                    <label>Brand</label>
+                                    <input
+                                        type="text" placeholder='Brand'
+                                        className="form-control"
+                                        name="assets_brand"
+                                        value={form.assets_brand}
+                                        onChange={(e) => setForm({ ...form, assets_brand: e.target.value })}
+                                    />
+                                </div>
+
+                                <div className="mb-3">
+                                    <label>Serial No</label>
+                                    <input
+                                        type="text" placeholder='Serial No'
+                                        className="form-control"
+                                        name="assets_serial_no"
+                                        value={form.assets_serial_no}
+                                        onChange={(e) => setForm({ ...form, assets_serial_no: e.target.value })}
+                                    />
+                                </div>
+
+                                <div className="mb-3">
+                                    <label>Cost</label>
+                                    <input
+                                        type="text" placeholder='Cost'
+                                        className="form-control"
+                                        name="assets_cost"
+                                        value={form.assets_cost}
+                                        onChange={(e) => setForm({ ...form, assets_cost: e.target.value })}
+                                    />
+                                </div>
+
+                                <div className="mb-3">
+                                    <label>Insurance</label>
+                                    <input
+                                        type="text" placeholder='Insurance'
+                                        className="form-control"
+                                        name="assets_insurance"
+                                        value={form.assets_insurance}
+                                        onChange={(e) => setForm({ ...form, assets_insurance: e.target.value })}
+                                    />
+                                </div>
                             </div>
 
-                             <div className="mb-3">
-                                <label>Issue Date</label>
-                                <input type="date" className="form-control" />
-                            </div>
-
-                             <div className="mb-3">
-                                <label>Quantity</label>
-                                <input type="text" className="form-control" placeholder="Quantity" />
-                            </div>
-                        </div>
-
-
-                        {/* Right Column */}
-                        <div className="col-md-6">
-
-                            <div className="mb-3">
-                                <label>Brand</label>
-                                <input type="text" className="form-control" placeholder="Brand" />
-                            </div>
-
-                            <div className="mb-3">
-                                <label>Serial No</label>
-                                <input type="text" className="form-control" placeholder="Serial No" />
-                            </div>
-
-                               <div className="mb-3">
-                            <label>Cost</label>
-                            <input type="text" className="form-control" placeholder="Cost" />
                         </div>
 
                         <div className="mb-3">
-                            <label>Insurance</label>
-                            <input type="text" className="form-control" placeholder="Insurance" />
-                        </div>
-                        </div>
-
-                    </div>
-
-                    <div className="mb-3">
                             <label>Remark</label>
-                            <textarea type="text" className="form-control" placeholder="Remark" />
+                            <textarea type="text" name="assets_remark"
+                                value={form.assets_remark}
+                                onChange={(e) => setForm({ ...form, assets_remark: e.target.value })} className="form-control" placeholder="Remark" />
                         </div>
 
-                    <div className="text-start mb-4">
-                        <button type="submit" className="btn btn-sm add-btn">Save</button>
-                    </div>
-                </form>
-            </div>
+                        <div className="text-start mb-4">
+                            <button type="submit" className="btn btn-sm add-btn">Save</button>
+                        </div>
+                    </form>
+                </div>
             )}
 
             <div className="card no-radius">
@@ -433,7 +440,7 @@ const Assets = ({ form, setForm, handleSubmit,mode }) => {
                     </button>
                 </div>
 
-                {/* {showModal && selectedRow && (
+                {showModal && selectedRow && (
                     <div className="modal show fade d-block" tabIndex="-1" role="dialog">
                         <div className="modal-dialog modal-dialog-centered" role="document">
                             <div className="modal-content">
@@ -446,12 +453,16 @@ const Assets = ({ form, setForm, handleSubmit,mode }) => {
                                     ></button>
                                 </div>
                                 <div className="modal-body">
-                                    <p><strong>Promotion For:</strong> {selectedRow.employeeName}</p>
-                                    <p><strong>Promotion Title:</strong> {selectedRow.PromotionTitle}</p>
-                                    <p><strong>Promotion Date:</strong> {selectedRow.PromotionDate}</p>
-                                    <p>
-                                        <strong>Description:</strong> {selectedRow.description.replace(/<[^>]+>/g, '')}
-                                    </p>
+                                    <p><strong>Assets Type:</strong> {selectedRow.assets_type_id}</p>
+                                    <p><strong>Brand:</strong> {selectedRow.assets_brand}</p>
+                                    <p><strong>Model Number:</strong> {selectedRow.assets_model_no}</p>
+                                    <p><strong>Serial Number:</strong> {selectedRow.assets_serial_no}</p>
+                                    <p><strong>Issue Date:</strong> {selectedRow.assets_issued_date ? new Date(selectedRow.assets_issued_date).toLocaleDateString()
+                                        : "N/A"}</p>
+                                    <p><strong>Cost:</strong> {selectedRow.assets_cost}</p>
+                                    <p><strong>Quantity:</strong> {selectedRow.assets_quality}</p>
+                                    <p><strong>Insurance:</strong> {selectedRow.assets_insurance}</p>
+                                    <p><strong>Remark:</strong> {selectedRow.assets_remark}</p>
                                 </div>
 
                                 <div className="modal-footer">
@@ -483,109 +494,109 @@ const Assets = ({ form, setForm, handleSubmit,mode }) => {
                                             <div className="row">
                                                 <div className="col-md-6">
                                                     <div className="mb-3">
-                                                        <label>Promotion For</label>
-                                                        <select id="resignEmployee" value={form.employeeName}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, employeeName: value });
-                                                                validateField("employeeName", value);
-                                                            }}
-                                                            className={`form-control ${errors.employeeName ? "is-invalid" : ""}`}
-                                                            onBlur={(e) => validateField("employeeName", e.target.value)}
+                                                        <label>Assets Type</label>
+                                                        <select
+                                                            name="assets_type_id"
+                                                            className="form-select"
+                                                            value={form.assets_type_id}
+                                                            onChange={(e) => setForm({ ...form, assets_type_id: e.target.value })}
                                                         >
-                                                            <option value="">Select Department</option>
-                                                            <option value="Admin">Admin Admin</option>
-                                                            <option value="Anjali Patle">Anjali Patle</option>
-                                                            <option value="Amit Kumar">Amit Kumar</option>
-                                                            <option value="Aniket Rane">Aniket Rane</option>
-                                                            <option value="Shubham Kadam">Shubham Kadam</option>
-                                                            <option value="Abhijieet Tawate">Abhijieet Tawate</option>
-                                                            <option value="Pravin Bildlan">Pravin Bildlan</option>
-                                                            <option value="Amit Pednekar">Amit Pednekar</option>
-                                                            <option value="Mahendra Chaudhary">Mahendra Chaudhary</option>
-                                                            <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
-                                                            <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
+                                                            <option value="">Select One</option>
+                                                            <option value="Mobile">Mobile</option>
+                                                            <option value="Laptop">Laptop</option>
                                                         </select>
-                                                        {errors.employeeName && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Employee Name is required!</p>)}
                                                     </div>
 
                                                     <div className="mb-3">
-                                                        <label>Promotion Title</label>
-                                                        <input type="text" value={form.PromotionTitle}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, PromotionTitle: value });
-                                                                validateField("PromotionTitle", value);
-                                                            }}
-                                                            className={`form-control ${errors.PromotionTitle ? "is-invalid" : ""}`}
-                                                            placeholder="Promotion Title"
-                                                            onBlur={(e) => validateField("PromotionTitle", e.target.value)}
-
+                                                        <label>Model Number</label>
+                                                        <input
+                                                            type="text" placeholder='Model Number'
+                                                            className="form-control"
+                                                            name="assets_model_no"
+                                                            value={form.assets_model_no}
+                                                            onChange={(e) => setForm({ ...form, assets_model_no: e.target.value })}
                                                         />
-                                                        {errors.PromotionTitle && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Promotion Title is required!</p>)}
                                                     </div>
 
                                                     <div className="mb-3">
-                                                        <label>Promotion Date</label>
-                                                        <input type="date" value={form.PromotionDate}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, PromotionDate: value });
-                                                                validateField("PromotionDate", value);
-                                                            }}
-                                                            className={`form-control ${errors.PromotionDate ? "is-invalid" : ""}`}
-                                                            placeholder="Promotion Date"
-                                                            onBlur={(e) => validateField("PromotionDate", e.target.value)}
-
+                                                        <label>Issue Date</label>
+                                                        <input
+                                                            type="date"
+                                                            className="form-control"
+                                                            name="assets_issued_date"
+                                                            value={form.assets_issued_date}
+                                                            onChange={(e) => setForm({ ...form, assets_issued_date: e.target.value })}
                                                         />
-                                                        {errors.PromotionDate && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Promotion Date is required!</p>)}
                                                     </div>
 
+                                                    <div className="mb-3">
+                                                        <label>Quantity</label>
+                                                        <input
+                                                            type="text" placeholder='Quantity'
+                                                            className="form-control"
+                                                            name="assets_quality"
+                                                            value={form.assets_quality}
+                                                            onChange={(e) => setForm({ ...form, assets_quality: e.target.value })}
+                                                        />
+                                                    </div>
                                                 </div>
 
+
+                                                {/* Right Column */}
                                                 <div className="col-md-6">
 
                                                     <div className="mb-3">
-                                                        <label>Added By</label>
-                                                        <select id="addedBy" value={form.addedBy}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, addedBy: value });
-                                                                validateField("addedBy", value);
-                                                            }}
-                                                            className={`form-control ${errors.addedBy ? "is-invalid" : ""}`}
-                                                            onBlur={(e) => validateField("addedBy", e.target.value)}
-                                                        >
-                                                            <option value="">Added By</option>
-                                                            <option value="Admin">Admin Admin</option>
-                                                            <option value="Anjali Patle">Anjali Patle</option>
-                                                            <option value="Amit Kumar">Amit Kumar</option>
-                                                            <option value="Aniket Rane">Aniket Rane</option>
-                                                        </select>
-                                                        {errors.addedBy && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This field is required!</p>)}
+                                                        <label>Brand</label>
+                                                        <input
+                                                            type="text" placeholder='Brand'
+                                                            className="form-control"
+                                                            name="assets_brand"
+                                                            value={form.assets_brand}
+                                                            onChange={(e) => setForm({ ...form, assets_brand: e.target.value })}
+                                                        />
                                                     </div>
 
-                                                    <label>Description</label>
-                                                    <CKEditor
-                                                        editor={ClassicEditor}
-                                                        data={form.description || ""}
-                                                        onChange={(event, editor) => {
-                                                            const newData = editor.getData();
-                                                            setForm({ ...form, description: newData });
-                                                        }}
-                                                        onBlur={() => validateField("description", form.description)}
-                                                    />
-                                                    {errors.description && (
-                                                        <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
-                                                            Description is Required
-                                                        </p>
-                                                    )}
+                                                    <div className="mb-3">
+                                                        <label>Serial No</label>
+                                                        <input
+                                                            type="text" placeholder='Serial No'
+                                                            className="form-control"
+                                                            name="assets_serial_no"
+                                                            value={form.assets_serial_no}
+                                                            onChange={(e) => setForm({ ...form, assets_serial_no: e.target.value })}
+                                                        />
+                                                    </div>
+
+                                                    <div className="mb-3">
+                                                        <label>Cost</label>
+                                                        <input
+                                                            type="text" placeholder='Cost'
+                                                            className="form-control"
+                                                            name="assets_cost"
+                                                            value={form.assets_cost}
+                                                            onChange={(e) => setForm({ ...form, assets_cost: e.target.value })}
+                                                        />
+                                                    </div>
+
+                                                    <div className="mb-3">
+                                                        <label>Insurance</label>
+                                                        <input
+                                                            type="text" placeholder='Insurance'
+                                                            className="form-control"
+                                                            name="assets_insurance"
+                                                            value={form.assets_insurance}
+                                                            onChange={(e) => setForm({ ...form, assets_insurance: e.target.value })}
+                                                        />
+                                                    </div>
                                                 </div>
 
+                                            </div>
+
+                                            <div className="mb-3">
+                                                <label>Remark</label>
+                                                <textarea type="text" name="assets_remark"
+                                                    value={form.assets_remark}
+                                                    onChange={(e) => setForm({ ...form, assets_remark: e.target.value })} className="form-control" placeholder="Remark" />
                                             </div>
                                             <div className="text-end">
                                                 <button type="button" className="btn btn-sm btn-light me-2" onClick={() => { resetForm(); setShowEditModal(false) }}>Close</button>
@@ -598,7 +609,7 @@ const Assets = ({ form, setForm, handleSubmit,mode }) => {
                             </div>
                         </div>
                     </>
-                )} */}
+                )}
 
 
             </div>

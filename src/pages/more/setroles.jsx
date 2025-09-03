@@ -82,37 +82,35 @@ const SetRoles = () => {
 
 
     const handleSubmit = async (e) => {
-        console.log("log",form);
-        
         e.preventDefault();
-        if (validateForm()) {
-            try {
-                if (editId) {
-                    console.log("Submitting form:", form);
 
-                    await updateSetRoles(editId, form);
-                    toast.success("Set Roles updated successfully!");
+        console.log("Editing ID:", editId);
+        console.log("Submitting form:", form);
 
-                } else {
-                    await createSetRoles(form);
-                    toast.success("Set Roles saved successfully!");
+        if (!validateForm()) return;
 
-                }
-                fetchSetRoles();
-                setForm({
-                    roleName: '',
-                    menuPermission: '',
-                    // addedDate: ''
-                });
-                setEditId("");
-                setShowEditModal(false);
-            } catch (err) {
-                console.error("Error saving SetRoles:", err);
-                toast.error("Set Roles failed to save!");
-
+        try {
+            if (editId) {
+                const updated = await updateSetRoles(editId, form);
+                console.log("Update response:", updated);
+                toast.success("Set Roles updated successfully!");
+            } else {
+                const created = await createSetRoles(form);
+                console.log("Create response:", created);
+                toast.success("Set Roles saved successfully!");
             }
+
+            await fetchSetRoles();
+
+            setForm({ roleName: '', menuPermission: '' });
+            setEditId("");
+            setShowEditModal(false);
+        } catch (err) {
+            console.error("Error saving SetRoles:", err);
+            toast.error("Set Roles failed to save!");
         }
     };
+
 
     const emptyForm = {
         SetRoles: ''
@@ -131,7 +129,8 @@ const SetRoles = () => {
 
     const handleEdit = (row) => {
         setForm({
-            SetRoles: row.SetRoles
+            roleName: row.roleName,
+            menuPermission: row.menuPermission
         });
         setEditId(row._id);
         setShowEditModal(true);
@@ -630,12 +629,12 @@ const SetRoles = () => {
                     </button>
                 </div>
 
-                {showModal && selectedRow && (
+                {/* {showModal && selectedRow && (
                     <div className="modal show fade d-block" tabIndex="-1" role="dialog">
                         <div className="modal-dialog modal-dialog-centered" role="document">
                             <div className="modal-content">
                                 <div className="modal-header">
-                                    <h5 className="modal-title">Trainers List</h5>
+                                    <h5 className="modal-title">Set Roles Details</h5>
                                     <button
                                         type="button"
                                         className="btn-close"
@@ -644,7 +643,7 @@ const SetRoles = () => {
                                 </div>
                                 <div className="modal-body">
                                     <p><strong>Name:</strong> {selectedRow.fullname}</p>
-                                    <p><strong>Coontact Number:</strong> {selectedRow.contactNo}</p>
+                                    <p><strong>Contact Number:</strong> {selectedRow.contactNo}</p>
                                     <p><strong>Email:</strong> {selectedRow.email}</p>
                                     <p><strong>Designation:</strong> {selectedRow.designantion}</p>
                                     <p><strong>Address:</strong> {selectedRow.address}</p>
@@ -660,7 +659,7 @@ const SetRoles = () => {
                             </div>
                         </div>
                     </div>
-                )}
+                )} */}
 
                 {showEditModal && selectedRow && (
                     <>
@@ -670,77 +669,192 @@ const SetRoles = () => {
                             <div className="modal-dialog modal-dialog-centered edit-modal">
                                 <div className="modal-content">
                                     <div className="modal-header">
-                                        <h5 className="modal-title">Edit Trainers List</h5>
+                                        <h5 className="modal-title">Edit Set Roles List</h5>
                                         <button type="button" className="btn-close" onClick={() => setShowEditModal(false)}></button>
                                     </div>
                                     <div className="modal-body">
-                                        <form>
+                                        <form onSubmit={handleSubmit}>
                                             <div className="row">
-                                                {/* Left Column */}
-                                                <div className="col-md-6">
-                                                    <div className='row'>
-                                                        <div className="col-md-6 mb-3">
-                                                            <label>First Name</label>
-                                                            <input type="text" className="form-control" placeholder="First Name" />
+                                                <div className="row">
+                                                    {/* Left Column */}
+                                                    <div className="col-md-5">
+                                                        <div className="mb-3">
+                                                            <label>Role Name</label>
+                                                            <input type="text" value={form.roleName}
+                                                                onChange={(e) => {
+                                                                    const { value } = e.target;
+                                                                    setForm({ ...form, roleName: value });
+                                                                    validateField("roleName", value);
+                                                                }}
+                                                                className={`form-control ${errors.roleName ? "is-invalid" : ""}`}
+                                                                placeholder="Role Name"
+                                                                onBlur={(e) => validateField("roleName", e.target.value)}
 
+                                                            />
+                                                            {errors.roleName && (
+                                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Role Name is required!</p>)}
                                                         </div>
 
-                                                        <div className="col-md-6 mb-3">
-                                                            <label>Last Name</label>
-                                                            <input type="text" className="form-control" placeholder="Last Name" />
-                                                        </div>
-                                                    </div>
-
-                                                    <div className='row'>
-                                                        <div className="col-md-6 mb-3">
-                                                            <label>Contact Number</label>
-                                                            <input type="text" className="form-control" defaultValue={selectedRow.contactNo} placeholder="Contact Number" />
-                                                        </div>
-
-                                                        <div className="col-md-6 mb-3">
-                                                            <label>Email</label>
-                                                            <input type="text" className="form-control" defaultValue={selectedRow.email} placeholder="Email" />
-                                                        </div>
-                                                    </div>
-
-                                                    <div className='row'>
-                                                        <div className="col-md-12 mb-3">
-                                                            <label>Designation</label>
-                                                            <select id="department" className="form-control">
-                                                                <option value="">Designation</option>
-                                                                <option value="asst">Asst. Dealer</option>
+                                                        <div className="mb-3">
+                                                            <label>Select Access</label>
+                                                            <select
+                                                                value={form.menuPermission}
+                                                                onChange={(e) => {
+                                                                    const { value } = e.target;
+                                                                    setForm({ ...form, menuPermission: value });
+                                                                    validateField("menuPermission", value);
+                                                                }}
+                                                                className={`form-control ${errors.menuPermission ? "is-invalid" : ""}`}
+                                                                onBlur={(e) => validateField("menuPermission", e.target.value)}
+                                                            >
+                                                                <option value="">Select Access</option>
+                                                                <option value="All Menu Access">All Menu Access</option>
+                                                                <option value="Custom Menu Access">Custom Menu Access</option>
                                                             </select>
+                                                            {errors.menuPermission && (
+                                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.menuPermission}</p>
+                                                            )}
                                                         </div>
                                                     </div>
 
-                                                </div>
+                                                    {/* Right Column */}
+                                                    <div className="col-md-7">
+                                                        <div className="row">
+                                                            {/* First Half */}
+                                                            <h6>Resources</h6>
+                                                            <div className="col-6">
+                                                                <ul className="list-unstyled">
+                                                                    {Object.keys(permissionsData)
+                                                                        .slice(0, Math.ceil(Object.keys(permissionsData).length / 2))
+                                                                        .map((res, index) => (
+                                                                            <React.Fragment key={index}>
+                                                                                <li className="d-flex align-items-start mb-1">
+                                                                                    <span
+                                                                                        style={{ cursor: "pointer", width: "20px", display: "inline-block" }}
+                                                                                        onClick={() => toggleResource(res)}
+                                                                                    >
+                                                                                        {expandedResources[res] ? "−" : "+"}
+                                                                                    </span>
+                                                                                    <span>{res}</span>
+                                                                                </li>
 
-                                                {/* Right Column */}
-                                                <div className="col-md-6">
+                                                                                {expandedResources[res] && (
+                                                                                    <>
+                                                                                        {(permissionsData[res].length > 0 && permissionsData[res][0] !== "")
+                                                                                            ? permissionsData[res].map((subfield, subIndex) => (
+                                                                                                <React.Fragment key={subIndex}>
+                                                                                                    <li className="d-flex align-items-start mb-1 ps-4">
+                                                                                                        <span
+                                                                                                            style={{ width: "20px", display: "inline-block", cursor: "pointer" }}
+                                                                                                            onClick={() => toggleSubfield(res, subfield)}
+                                                                                                        >
+                                                                                                            {expandedSubfields[`${res}-${subfield}`] ? "−" : "+"}
+                                                                                                        </span>
+                                                                                                        <span>{subfield}</span>
+                                                                                                    </li>
 
-                                                    <div className="col-md-12 mb-3">
-                                                        <label>Expertise</label>
-                                                        <CKEditor
-                                                            editor={ClassicEditor}
-                                                            data={description}
-                                                            onChange={(event, editor) => {
-                                                                const newData = editor.getData();
-                                                                setDescription(newData);
-                                                            }}
-                                                        />
+                                                                                                    {expandedSubfields[`${res}-${subfield}`] &&
+                                                                                                        subPermissions.map((perm, i) => (
+                                                                                                            <li
+                                                                                                                key={i}
+                                                                                                                className="d-flex align-items-center mb-1 ps-5"
+                                                                                                                style={{ gap: "5px" }}
+                                                                                                            >
+                                                                                                                <input type="checkbox" className="me-2" />
+                                                                                                                <span>{perm}</span>
+                                                                                                            </li>
+                                                                                                        ))}
+                                                                                                </React.Fragment>
+                                                                                            ))
+                                                                                            : // Empty arrays → show subPermissions directly
+                                                                                            subPermissions.map((perm, i) => (
+                                                                                                <li
+                                                                                                    key={i}
+                                                                                                    className="d-flex align-items-center mb-1 ps-4"
+                                                                                                    style={{ gap: "5px" }}
+                                                                                                >
+                                                                                                    <input type="checkbox" className="me-2" />
+                                                                                                    <span>{perm}</span>
+                                                                                                </li>
+                                                                                            ))}
+                                                                                    </>
+                                                                                )}
+                                                                            </React.Fragment>
+                                                                        ))}
+                                                                </ul>
+                                                            </div>
+
+                                                            {/* Second Half */}
+                                                            <div className="col-6">
+                                                                <ul className="list-unstyled">
+                                                                    {Object.keys(permissionsData)
+                                                                        .slice(Math.ceil(Object.keys(permissionsData).length / 2))
+                                                                        .map((res, index) => (
+                                                                            <React.Fragment key={index}>
+                                                                                <li className="d-flex align-items-start mb-1">
+                                                                                    <span
+                                                                                        style={{ cursor: "pointer", width: "20px", display: "inline-block" }}
+                                                                                        onClick={() => toggleResource(res)}
+                                                                                    >
+                                                                                        {expandedResources[res] ? "−" : "+"}
+                                                                                    </span>
+                                                                                    <span>{res}</span>
+                                                                                </li>
+
+                                                                                {expandedResources[res] && (
+                                                                                    <>
+                                                                                        {(permissionsData[res].length > 0 && permissionsData[res][0] !== "")
+                                                                                            ? permissionsData[res].map((subfield, subIndex) => (
+                                                                                                <React.Fragment key={subIndex}>
+                                                                                                    <li className="d-flex align-items-start mb-1 ps-4">
+                                                                                                        <span
+                                                                                                            style={{ width: "20px", display: "inline-block", cursor: "pointer" }}
+                                                                                                            onClick={() => toggleSubfield(res, subfield)}
+                                                                                                        >
+                                                                                                            {expandedSubfields[`${res}-${subfield}`] ? "−" : "+"}
+                                                                                                        </span>
+                                                                                                        <span>{subfield}</span>
+                                                                                                    </li>
+
+                                                                                                    {expandedSubfields[`${res}-${subfield}`] &&
+                                                                                                        subPermissions.map((perm, i) => (
+                                                                                                            <li
+                                                                                                                key={i}
+                                                                                                                className="d-flex align-items-center mb-1 ps-5"
+                                                                                                                style={{ gap: "5px" }}
+                                                                                                            >
+                                                                                                                <input type="checkbox" className="me-2" />
+                                                                                                                <span>{perm}</span>
+                                                                                                            </li>
+                                                                                                        ))}
+                                                                                                </React.Fragment>
+                                                                                            ))
+                                                                                            : // Empty arrays → show subPermissions directly
+                                                                                            subPermissions.map((perm, i) => (
+                                                                                                <li
+                                                                                                    key={i}
+                                                                                                    className="d-flex align-items-center mb-1 ps-4"
+                                                                                                    style={{ gap: "5px" }}
+                                                                                                >
+                                                                                                    <input type="checkbox" className="me-2" />
+                                                                                                    <span>{perm}</span>
+                                                                                                </li>
+                                                                                            ))}
+                                                                                    </>
+                                                                                )}
+                                                                            </React.Fragment>
+                                                                        ))}
+                                                                </ul>
+                                                            </div>
+                                                        </div>
                                                     </div>
 
-                                                </div>
-
-                                                <div className="col-md-12 mb-3">
-                                                    <label htmlFor="address">Address</label>
-                                                    <textarea className="form-control" id="address" rows="3"></textarea>
                                                 </div>
                                             </div>
 
                                             <div className="text-end">
-                                                <button type="button" className="btn btn-sm btn-light me-2" onClick={() => setShowEditModal(false)}>Close</button>
-                                                <button type="submit" className="btn btn-sm add-btn">Update</button>
+                                                <button type="button" className="btn btn-sm btn-light me-2" onClick={() => { resetForm(); setShowEditModal(false) }}>Close</button>
+                                                <button type="submit" onClick={(e) => handleSubmit(e)} className="btn btn-sm add-btn">Update</button>
                                             </div>
 
                                         </form>

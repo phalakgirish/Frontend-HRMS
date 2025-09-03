@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DataTable from 'react-data-table-component';
 // import './organization.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
@@ -18,6 +18,8 @@ const Projects = () => {
   const [description, setDescription] = useState();
   const [progress, setProgress] = useState(0);
   const [remarks, setRemarks] = useState();
+  const editorRef = useRef(null);
+  const [editorKey, setEditorKey] = useState(0);
 
   const getBarColor = () => {
     if (progress >= 75) return "bg-success"; // green
@@ -44,8 +46,6 @@ const Projects = () => {
   const [data, setData] = useState([]); // initialize as empty array
 
   const [editId, setEditId] = useState(null);
- const editorRef = useRef(null);
-    const [editorKey, setEditorKey] = useState(0);
 
   const [form, setForm] = useState({
     projectSummary: '',
@@ -648,14 +648,16 @@ const Projects = () => {
                     <label>Remarks</label>
 
                     <CKEditor
-                    key={editorKey}
+                      key={editorKey}
                       editor={ClassicEditor}
-                      data={remarks || ""}
+                      data={form.remarks}
+                      onReady={(editor) => {
+                        editorRef.current = editor;
+                      }}
                       onChange={(event, editor) => {
                         const newData = editor.getData();
-                        setForm({ ...form, remarks: newData });
+                        setForm(prev => ({ ...prev, remarks: newData }));
                       }}
-                      onBlur={() => validateField("remarks", form.remarks)}
                     />
                     {errors.remarks && (
                       <p className="text-danger mb-0" style={{ fontSize: '13px' }}>

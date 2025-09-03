@@ -3,7 +3,7 @@ import DataTable from 'react-data-table-component';
 import './employees.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import { getAwards, createAwards, updateAwards, deleteAwards } from '../../api/awardsApi';
+import { getAwards, createAwards, updateAwards, deleteAwards, createAward, updateAward } from '../../api/awardsApi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -15,25 +15,22 @@ const Awards = () => {
     const [selectedRow, setSelectedRow] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [description, setDescription] = useState('');
-    const [preview, setPreview] = useState(null);
     const editorRef = useRef(null);
     const [editorKey, setEditorKey] = useState(0);
+    const [preview, setPreview] = useState(null);
+    const [file, setFile] = useState(null);
 
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const allowedTypes = ['image/gif', 'image/png', 'image/jpg', 'image/jpeg'];
-            if (!allowedTypes.includes(file.type)) {
-                alert('Please upload a valid image (gif, png, jpg, jpeg)');
-                return;
-            }
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreview(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
+   const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setForm(prev => ({ ...prev, awardPhoto: file }));
+    
+    // Preview
+    const reader = new FileReader();
+    reader.onloadend = () => setPreview(reader.result);
+    if (file) reader.readAsDataURL(file);
+};
+
+
 
     //from backend
     const [awards, setAwards] = useState([]);
@@ -143,47 +140,78 @@ const Awards = () => {
 
 
 
-    const handleSubmit = async (e) => {
+    // const handleSubmit = async (e) => {
 
-        e.preventDefault();
-        if (validateForm()) {
+    //     e.preventDefault();
+    //     if (validateForm()) {
 
-            try {
-                if (editId) {
-                    await updateAwards(editId, form);
-                    toast.success("Awards updated successfully!");
+    //         try {
+    //             if (editId) {
+    //                 await updateAwards(editId, form);
+    //                 toast.success("Awards updated successfully!");
 
-                } else {
-                    await createAwards(form);
-                    toast.success("Awards saved successfully!");
+    //             } else {
+    //                 await createAwards(form);
+    //                 toast.success("Awards saved successfully!");
 
-                }
-                setForm(selectedRow);
+    //             }
+    //             setForm(selectedRow);
 
-                setForm({
-                    employeeId: '',
-                    employeeName: '',
-                    awardName: '',
-                    gift: '',
-                    cashPrice: '',
-                    monthYear: '',
-                    awardPhoto: null,
-                    description: '',
-                    awardInfo: '',
-                    date: ''
-                });
-                setEditId("");
-                setSelectedRow(null);
-                setShowEditModal(false);
+    //             setForm({
+    //                 employeeId: '',
+    //                 employeeName: '',
+    //                 awardName: '',
+    //                 gift: '',
+    //                 cashPrice: '',
+    //                 monthYear: '',
+    //                 awardPhoto: null,
+    //                 description: '',
+    //                 awardInfo: '',
+    //                 date: ''
+    //             });
+    //             setEditId("");
+    //             setSelectedRow(null);
+    //             setShowEditModal(false);
 
-                fetchAwards();
-            } catch (err) {
-                console.error("Error saving Awards:", err);
-                toast.error("Awards failed to save!");
+    //             fetchAwards();
+    //         } catch (err) {
+    //             console.error("Error saving Awards:", err);
+    //             toast.error("Awards failed to save!");
 
+    //         }
+    //     }
+    // };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    try {
+        const payload = new FormData();
+        for (let key in form) {
+            if (form[key] !== null && form[key] !== undefined) {
+                payload.append(key, form[key]);
             }
         }
-    };
+
+        if (editId) {
+            await updateAward(editId, payload);
+            toast.success("Awards updated successfully!");
+        } else {
+            await createAward(payload);
+            toast.success("Awards saved successfully!");
+        }
+
+        resetForm();
+        fetchAwards();
+
+    } catch (err) {
+        console.error("Error saving Awards:", err.response || err);
+        toast.error("Awards failed to save!");
+    }
+};
+
+
 
     useEffect(() => {
         if (selectedRow) {
@@ -356,7 +384,7 @@ const Awards = () => {
 
     const totalEntries = awards.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
-    console.log('Paginated data:', paginated);
+    // console.log('Paginated data:', paginated);
 
     const paginate = (data, page) => {
         const start = (page - 1) * rowsPerPage;
@@ -736,25 +764,19 @@ const Awards = () => {
                                     <p><strong>Gift:</strong> {selectedRow.gift}</p>
                                     <p><strong>Cash Price:</strong> {selectedRow.cashPrice}</p>
 
-                                    <p><strong>Award Photo:</strong></p>
-                                    {selectedRow.awardPhoto ? (
-                                        <div>
-                                            <img
-                                                src={selectedRow.awardPhoto}
-                                                alt="Award"
-                                                style={{ maxWidth: "100%", height: "auto", marginBottom: "10px" }}
-                                            />
-                                            <a
-                                                href={selectedRow.awardPhoto}
-                                                download
-                                                className="btn btn-sm btn-primary"
-                                            >
-                                                Download Photo
-                                            </a>
-                                        </div>
-                                    ) : (
-                                        <p>No photo uploaded</p>
-                                    )}
+                                 <p><strong>Award Photo:</strong></p>
+{selectedRow.awardPhoto ? (
+  <img
+  src={`http://localhost:3000${selectedRow.awardPhoto}`}
+  alt="Award"
+  style={{ maxWidth: '100%', height: 'auto', borderRadius: '5px' }}
+/>
+
+) : (
+    <p>No photo uploaded</p>
+)}
+
+
                                     {/* <p><strong>Award Information:</strong> {selectedRow.awardInfo}</p> */}
                                     {/* <p><strong>Description:</strong> {selectedRow.description}</p> */}
 

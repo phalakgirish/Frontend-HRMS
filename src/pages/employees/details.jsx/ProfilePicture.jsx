@@ -1,55 +1,96 @@
-import React from "react";
-import { useState,useRef } from "react";
-const ProfilePicture = ({ form, setForm }) => {
-    const fileInputRef = useRef(null);
-    const [selectedFile, setSelectedFile] = useState(null);
+import React, { useState, useEffect } from "react";
+import { uploadProfile, getProfile, deleteProfile } from "./apis/profileApi";
+import { toast } from "react-toastify";
 
-    const handleBrowseClick = () => {
-        fileInputRef.current.click(); 
-    };
+const ProfilePicture = ({ employeeId }) => {
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [profileUrl, setProfileUrl] = useState(null);
+
+    useEffect(() => {
+        if (employeeId) {
+            getProfile(employeeId)
+                .then((res) => {
+                    if (res.data && res.data.profileUrl) {
+                        setProfileUrl(res.data.profileUrl);
+                    }
+                })
+                .catch((err) => console.error("Error fetching profile:", err));
+        }
+    }, [employeeId]);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
-        if (file) {
-            setSelectedFile(file);
+        setSelectedFile(file);
+    };
+
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!selectedFile) {
+            toast.warn("⚠️ Please select a file");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("image", selectedFile);
+        formData.append("employeeId", employeeId);
+
+        try {
+            const res = await uploadProfile(formData);
+            setProfileUrl(res.data.imageUrl);
+            setSelectedFile(null);
+
+            toast.success("Profile picture uploaded successfully!");
+        } catch (err) {
+            console.error("Upload failed:", err);
+            toast.error("Upload failed. Please try again.");
         }
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (!selectedFile) return alert("Please select a file");
-        const formData = new FormData();
-        formData.append("image", selectedFile);
-        console.log("File ready to upload:", selectedFile);
+    const handleDelete = async () => {
+        try {
+            await deleteProfile(employeeId);
+            setProfileUrl(null);
+            toast.success("Profile deleted successfully!");
+        } catch (err) {
+            console.error("Delete failed:", err);
+            toast.error("Failed to delete profile!");
+        }
     };
+
+
+
     return (
-        <div>
-            <div className="container-fluid mt-4">
-                <form>
-                    <div className="row">
-                        <div className="col-md-12 mb-3">
-                            <input
-                                type="file"
-                                ref={fileInputRef}
-                                style={{ display: "none" }}
-                                onChange={handleFileChange}
-                                accept="image/*"
-                            />
-                            <div className="text-start">
-                                <button type="button" className="btn btn-sm add-btn" onClick={handleBrowseClick}>
-                                    Browse
-                                </button>
-                            </div>
-                            <label style={{ fontSize: "10px" }}>Upload files only: gif,png,jpg,jpeg</label>
-                            <div className="text-start">
-                                <button type="submit" className="btn btn-sm add-btn">Save</button>
-                            </div>
+        <div className="container mt-4">
+            <h5>Profile Picture</h5>
 
+            {profileUrl && (
+                <div className="mb-3">
+                    <img
+                        src={profileUrl}
+                        alt="Profile"
+                        style={{ width: "120px", height: "120px" }}
+                    />
+                </div>
+            )}
 
-                        </div>
-                    </div>
-                </form>
-            </div>
+            <form onSubmit={handleSubmit}>
+                <input
+                    type="file"
+                    accept="image/*"
+                    className="form-control mb-2"
+                    onChange={handleFileChange}
+                />
+                <button type="submit" className="btn btn-sm add-btn">
+                    Upload
+                </button>
+                {profileUrl && (
+                    <button className="btn btn-sm btn-danger ms-2" onClick={handleDelete}>
+                        Delete
+                    </button>
+                )}
+
+            </form>
         </div>
     );
 };

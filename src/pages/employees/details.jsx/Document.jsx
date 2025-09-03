@@ -161,7 +161,7 @@ const Document = ({ mode, employeeId }) => {
         setForm({
             document_type_id: row.document_type_id,
             document_title: row.document_title,
-            document_doe: row.document_doe || '',
+            document_doe: row.document_doe ? new Date(row.document_doe).toISOString().split('T')[0] : '',
             document_notification_email: row.document_notification_email,
             document_desc: row.document_desc,
             document_file: row.document_file,
@@ -378,8 +378,8 @@ const Document = ({ mode, employeeId }) => {
                                         className="form-control"
                                         name="document_file"
                                         onChange={(e) => {
-                                            const file = e.target.files[0]; 
-                                            setForm({ ...form, document_file: file }); 
+                                            const file = e.target.files[0];
+                                            setForm({ ...form, document_file: file });
                                         }}
                                     />
 
