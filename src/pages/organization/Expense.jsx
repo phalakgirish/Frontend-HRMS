@@ -13,7 +13,8 @@ const Expense = () => {
     const [selectedRow, setSelectedRow] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [description, setDescription] = useState('');
-    
+    const fileInputRef = useRef(null);
+
     const editorRef = useRef(null);
     const [editorKey, setEditorKey] = useState(0);
     //from backend
@@ -29,7 +30,8 @@ const Expense = () => {
         purchasedDate: '',
         amount: '',
         status: '',
-        description: ''
+        description: '',
+        billCopy: ''
     });
 
     const [errors, setErrors] = useState({});
@@ -120,7 +122,7 @@ const Expense = () => {
 
                 }
                 fetchExpense();
-                setForm({ expense: '', employee: '', purchasedDate: '', amount: '', status: '', description: '' });
+                setForm({ expense: '', employee: '', purchasedDate: '', amount: '', status: '', description: '', billCopy: '' });
                 setEditId("");
                 setDescription('');
                 setShowEditModal(false);
@@ -139,7 +141,8 @@ const Expense = () => {
         purchasedDate: '',
         amount: '',
         status: '',
-        description: ''
+        description: '',
+        billCopy: ''
     };
 
     const resetForm = () => {
@@ -155,7 +158,8 @@ const Expense = () => {
             purchasedDate: row.purchasedDate,
             amount: row.amount,
             status: row.status,
-            description: row.description
+            description: row.description,
+            billCopy: row.billCopy
         });
         setEditId(row._id);
         setShowEditModal(true);
@@ -279,7 +283,7 @@ const Expense = () => {
 
     const totalEntries = expense.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
-    console.log('Paginated data:', paginated);
+    // console.log('Paginated data:', paginated);
 
     const paginate = (data, page) => {
         const start = (page - 1) * rowsPerPage;
@@ -440,7 +444,17 @@ const Expense = () => {
 
                                     <div className="col-md-12 mb-3">
                                         <label>Bill copy</label>
-                                        <input type="file" className="form-control" placeholder="Title" />
+                                        <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            accept=".png,.jpg,.jpeg,.gif,.txt,.pdf,.xls,.xlsx,.doc,.docx"
+                                            className="form-control"
+                                            name="billCopy"
+                                            onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                setForm({ ...form, billCopy: file });
+                                            }}
+                                        />
                                         <label style={{ fontSize: '12px' }}>Upload files only: gif,png,jpg,jpeg,doc,docx,xls,xlsx,pdf,txt</label>
                                     </div>
 
@@ -596,8 +610,34 @@ const Expense = () => {
                                     <p><strong>Purchased By:</strong> {selectedRow.employee}</p>
                                     <p><strong>Status:</strong> {selectedRow.status}</p>
 
-                                    <p><strong>Bill copy:</strong> </p>
+                                    {/* <p><strong>Bill copy:</strong></p>
+                                    {selectedRow?.billCopy ? (
+                                        <a href={`http://localhost:3000${selectedRow.billCopy}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            download>
+                                            Download
+                                        </a>
+                                    ) : (
+                                        <span>No file uploaded</span>
+                                    )} */}
 
+                                    <p>
+                                        <strong>Bill Copy:</strong>
+                                        {selectedRow.billCopy ? (
+                                            <a
+                                                href={`http://localhost:3000/expense/download/${selectedRow.billCopy.split('/').pop()}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                Download
+                                            </a>
+
+                                        ) : (
+                                            "No file uploaded"
+                                        )}
+
+                                    </p>
 
                                     <p> <strong>Remarks:</strong> {(selectedRow?.description || '').replace(/<[^>]+>/g, '')} </p>
 
@@ -752,7 +792,17 @@ const Expense = () => {
 
                                                     <div className="col-md-12 mb-3">
                                                         <label>Bill copy</label>
-                                                        <input type="file" className="form-control" placeholder="Title" />
+                                                        <input
+                                                            type="file"
+                                                            ref={fileInputRef}
+                                                            accept=".png,.jpg,.jpeg,.gif,.txt,.pdf,.xls,.xlsx,.doc,.docx"
+                                                            className="form-control"
+                                                            name="billCopy"
+                                                            onChange={(e) => {
+                                                                const file = e.target.files[0];
+                                                                setForm({ ...form, billCopy: file });
+                                                            }}
+                                                        />
                                                         <label style={{ fontSize: '12px' }}>Upload files only: gif,png,jpg,jpeg,doc,docx,xls,xlsx,pdf,txt</label>
                                                     </div>
 
