@@ -659,7 +659,7 @@ const Location = () => {
 
                                             >
                                                 <option value="">Company</option>
-                                                <option value="Admin">UBI Services Ltd.</option>
+                                                <option value="UBI Services Ltd.">UBI Services Ltd.</option>
                                             </select>
                                             {errors.company && (
                                                 <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.company}</p>
@@ -1411,7 +1411,7 @@ const Location = () => {
 
                                                             >
                                                                 <option value="">Company</option>
-                                                                <option value="Admin">UBI Services Ltd.</option>
+                                                                <option value="UBI Services Ltd.">UBI Services Ltd.</option>
                                                             </select>
                                                             {errors.company && (
                                                                 <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.company}</p>

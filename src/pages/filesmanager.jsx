@@ -164,10 +164,10 @@ const FilesManager = () => {
 
 
 
-    const handleEdit = (row) => {
-        setSelectedRow(row);
-        console.log('Edit:', row);
-    };
+    // const handleEdit = (row) => {
+    //     setSelectedRow(row);
+    //     console.log('Edit:', row);
+    // };
 
     const handleDelete = (row) => {
         if (window.confirm('Are you sure to delete this file?')) {
@@ -221,12 +221,12 @@ const FilesManager = () => {
                         <i className="fas fa-download text-white"></i>
                     </button>
 
-                    <button
+                    {/* <button
                         className="btn btn-outline-secondary btn-sm"
                         onClick={() => handleEdit(row)}
                     >
                         <i className="fas fa-edit"></i>
-                    </button>
+                    </button> */}
                     <button
                         className="btn btn-danger btn-sm"
                         onClick={() => handleDelete(row)}

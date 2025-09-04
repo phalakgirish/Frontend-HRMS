@@ -20,15 +20,15 @@ const Awards = () => {
     const [preview, setPreview] = useState(null);
     const [file, setFile] = useState(null);
 
-   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setForm(prev => ({ ...prev, awardPhoto: file }));
-    
-    // Preview
-    const reader = new FileReader();
-    reader.onloadend = () => setPreview(reader.result);
-    if (file) reader.readAsDataURL(file);
-};
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setForm(prev => ({ ...prev, awardPhoto: file }));
+
+        // Preview
+        const reader = new FileReader();
+        reader.onloadend = () => setPreview(reader.result);
+        if (file) reader.readAsDataURL(file);
+    };
 
 
 
@@ -182,34 +182,34 @@ const Awards = () => {
     //     }
     // };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!validateForm()) return;
 
-    try {
-        const payload = new FormData();
-        for (let key in form) {
-            if (form[key] !== null && form[key] !== undefined) {
-                payload.append(key, form[key]);
+        try {
+            const payload = new FormData();
+            for (let key in form) {
+                if (form[key] !== null && form[key] !== undefined) {
+                    payload.append(key, form[key]);
+                }
             }
+
+            if (editId) {
+                await updateAward(editId, payload);
+                toast.success("Awards updated successfully!");
+            } else {
+                await createAward(payload);
+                toast.success("Awards saved successfully!");
+            }
+
+            resetForm();
+            fetchAwards();
+
+        } catch (err) {
+            console.error("Error saving Awards:", err.response || err);
+            toast.error("Awards failed to save!");
         }
-
-        if (editId) {
-            await updateAward(editId, payload);
-            toast.success("Awards updated successfully!");
-        } else {
-            await createAward(payload);
-            toast.success("Awards saved successfully!");
-        }
-
-        resetForm();
-        fetchAwards();
-
-    } catch (err) {
-        console.error("Error saving Awards:", err.response || err);
-        toast.error("Awards failed to save!");
-    }
-};
+    };
 
 
 
@@ -257,6 +257,7 @@ const Awards = () => {
             awardInfo: row.awardInfo,
             date: row.date
         });
+        setPreview(null);
         setEditId(row._id);
         setShowEditModal(true);
         setSelectedRow(row);
@@ -764,23 +765,23 @@ const Awards = () => {
                                     <p><strong>Gift:</strong> {selectedRow.gift}</p>
                                     <p><strong>Cash Price:</strong> {selectedRow.cashPrice}</p>
 
-                                 <p><strong>Award Photo:</strong></p>
-{selectedRow.awardPhoto ? (
-  <img
-  src={`http://localhost:3000${selectedRow.awardPhoto}`}
-  alt="Award"
-  style={{ maxWidth: '100%', height: 'auto', borderRadius: '5px' }}
-/>
+                                    <p><strong>Award Photo:</strong></p>
+                                    {selectedRow.awardPhoto ? (
+                                        <img
+                                            src={`http://localhost:3000${selectedRow.awardPhoto}`}
+                                            alt="Award"
+                                            style={{ maxWidth: '200px', height: '150px', borderRadius: '5px' }}
+                                        />
 
-) : (
-    <p>No photo uploaded</p>
-)}
+                                    ) : (
+                                        <p>No photo uploaded</p>
+                                    )}
 
 
                                     {/* <p><strong>Award Information:</strong> {selectedRow.awardInfo}</p> */}
                                     {/* <p><strong>Description:</strong> {selectedRow.description}</p> */}
 
-                                    <p>
+                                    <p className='mt-2'>
                                         <strong>Award Information:</strong> {(selectedRow?.awardInfo || '').replace(/<[^>]+>/g, '')}
                                     </p>
 

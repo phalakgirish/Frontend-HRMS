@@ -1,25 +1,134 @@
 import React, { useState, useEffect } from 'react';
-import DataTable from 'react-data-table-component';
-import { useLocation, useParams } from 'react-router-dom';
-
+import axios from "axios";
+import { useParams } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SettingPage = () => {
-    const location = useLocation();
-    const { state } = useLocation();
-    const { id } = useParams();
+    // const { settingId } = useParams();
     const [selectedDepartment, setSelectedDepartment] = useState('General');
-
-
-    const [showModal, setShowModal] = useState(false);
-    const [selectedRow, setSelectedRow] = useState(null);
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [description, setDescription] = useState('');
-
+    const [enableJobs, setEnableJobs] = useState(false);
     const [showAddForm, setShowAddForm] = useState(false);
 
     const toggleAddForm = () => {
         setShowAddForm((prev) => !prev);
     };
+
+    const [form, setForm] = useState({
+        company_name: "",
+        company_address: "",
+        company_contact_person: "",
+        company_contanct_no: "",
+        company_email: "",
+        company_city: "",
+        company_state: "",
+        company_country: "",
+        company_pincode: "",
+        application_name: "",
+        default_currency: "",
+        dafault_date_format: "",
+        default_currency_appfix: "",
+        default_currency_pos: "",
+        footer_text: "",
+        is_year_footer: false,
+        enableCodeigniterFooter: false,
+        emp_manage_contact: false,
+        emp_manage_bank: false,
+        emp_manage_qualification: false,
+        emp_manage_work_exp: false,
+        emp_manage_doc: false,
+        emp_manage_profile_pic: false,
+        emp_manage_profile_info: false,
+        emp_manage_social_info: false,
+        enable_clock_in_btn: false,
+        enable_clock_in_out: false,
+        payslip_pass_format: "",
+        enable_payslip_password: false,
+        payslip_logo: "",
+        enable_employee_job: false,
+        job_app_format: ['doc', 'docx', 'jpeg', 'jpg', 'pdf', 'txt', 'excel'],
+        job_list_logo: "",
+        enable_email_notifi: false,
+        file_size: 0,
+        file_format: [],
+    });
+
+
+
+    const [payslipLogo, setPayslipLogo] = useState(null);
+    const [jobListLogo, setJobListLogo] = useState(null);
+    // const [formats, setFormats] = useState([]);
+    // const [formats1, setFormats1] = useState([]);
+    const [settingId, setSettingId] = useState(null);
+
+
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleAddFormat = (e) => {
+        if (e.key === "Enter" && input.trim() && !form.job_app_format.includes(input.trim())) {
+            setForm({ ...form, job_app_format: [...form.job_app_format, input.trim()] });
+            setInput("");
+        }
+    };
+
+    const handleRemoveFormat = (format) => {
+        setForm({ ...form, job_app_format: form.job_app_format.filter(f => f !== format) });
+    };
+
+    const [savedId, setSavedId] = useState(null);
+
+    useEffect(() => {
+        axios.get("http://localhost:3000/settings")
+            .then(res => {
+                if (res.data.length > 0) {
+                    const lastSetting = res.data[res.data.length - 1];
+                    setForm(lastSetting);
+                    setSavedId(lastSetting._id);
+                }
+            })
+            .catch(err => console.error(err));
+    }, []);
+
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData();
+        Object.entries(form).forEach(([key, value]) => {
+            if (Array.isArray(value)) formData.append(key, JSON.stringify(value));
+            else formData.append(key, value);
+        });
+
+        if (payslipLogo) formData.append("payslip_logo", payslipLogo);
+        if (jobListLogo) formData.append("job_list_logo", jobListLogo);
+
+        try {
+            let res;
+            if (savedId) {
+
+                res = await axios.put(`http://localhost:3000/settings/${savedId}`, formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                });
+                toast.success("Saved successfully!");
+
+            } else {
+
+                res = await axios.post("http://localhost:3000/settings", formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                });
+                setSavedId(res.data._id);
+            }
+            // toast.success("Saved successfully!");
+        } catch (err) {
+            console.error(err);
+            toast.error("Error saving settings");
+        }
+    };
+
 
     const [formats, setFormats] = useState([
         'doc', 'docx', 'jpeg', 'jpg', 'pdf', 'txt', 'excel'
@@ -28,25 +137,20 @@ const SettingPage = () => {
     const [formats1, setFormats1] = useState([
         'gif', 'png', 'pdf', 'txt', 'mp3', 'mp4', 'flv', 'doc', 'docs', 'xls', 'jpg', 'jpeg'
     ]);
+
     const [input, setInput] = useState('');
 
-    const handleAddFormat = () => {
-        const trimmed = input.trim().toLowerCase();
-        if (trimmed && !formats.includes(trimmed)) {
-            setFormats([...formats, trimmed]);
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter" && input.trim()) {
+            setFormats([...formats, input.trim()]); // ✅ must be array
+            setInput("");
         }
-        setInput('');
     };
+
+
 
     const handleRemove = (format) => {
-        setFormats(formats.filter(f => f !== format));
-    };
-
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            handleAddFormat();
-        }
+        setFormats(formats.filter((f) => f !== format));
     };
 
 
@@ -55,100 +159,181 @@ const SettingPage = () => {
             case 'General':
                 return (
                     <div>
-                        <div className="row">
-                            {/* Left Column */}
-                            <div className="col-md-6">
-                                <div className="mb-3">
-                                    <label>Company Name</label>
-                                    <input type="text" className="form-control" placeholder="A TO Z EXIM" />
-                                </div>
-
-                                <div className="mb-3">
-                                    <label>Contact Person</label>
-                                    <input type="text" className="form-control" placeholder="7972891147" />
-                                </div>
-
-                                <div className="mb-3">
-                                    <label>Email</label>
-                                    <input type="text" className="form-control" placeholder="hr@bharatfreight.com" />
-                                </div>
-
-                                <div className="mb-3">
-                                    <label>Phone</label>
-                                    <input type="text" className="form-control" placeholder="7972891147" />
-                                </div>
-
-                            </div>
-
-                            {/* Right Column */}
-                            <div className="col-md-6">
-
-                                <div className="mb-3">
-                                    <label>Address</label>
-                                    <input type="text" className="form-control mb-3" placeholder="5th Floor, Hubtown Solaris, 505, NS Phadke Marg, opp. Telli Galli, Vijay Nagar, Andheri East, Mumbai, Maharashtra 400069" />
-                                    <input type="text" className="form-control" placeholder="5th Floor, Hubtown Solaris, 505, NS Phadke Marg, opp. Telli Galli, Vijay Nagar, Andheri East, Mumbai, Maharashtra 400069" />
-                                </div>
-                                <div className="row mb-3">
-                                    <div className="col-md-4">
-                                        <input type="text" className="form-control" placeholder="Test" />
+                        <form onSubmit={handleSubmit}>
+                            <div className="row">
+                                {/* Left Column */}
+                                <div className="col-md-6">
+                                    <div className="mb-3">
+                                        <label>Company Name</label>
+                                        <input
+                                            type="text"
+                                            name="company_name"
+                                            placeholder="A TO Z EXIM"
+                                            value={form.company_name}
+                                            onChange={handleChange}
+                                            className="form-control"
+                                        />
                                     </div>
-                                    <div className="col-md-4">
-                                        <input type="text" className="form-control" placeholder="Federal" />
+
+                                    <div className="mb-3">
+                                        <label>Contact Person</label>
+                                        <input
+                                            type="text"
+                                            name="company_contact_person"
+                                            placeholder="John Doe"
+                                            value={form.company_contact_person}
+                                            onChange={handleChange}
+                                            className="form-control"
+                                        />
                                     </div>
-                                    <div className="col-md-4">
-                                        <input type="text" className="form-control" placeholder="44000" />
+
+                                    <div className="mb-3">
+                                        <label>Email</label>
+                                        <input
+                                            type="email"
+                                            name="company_email"
+                                            placeholder="hr@bharatfreight.com"
+                                            value={form.company_email}
+                                            onChange={handleChange}
+                                            className="form-control"
+                                        />
+                                    </div>
+
+                                    <div className="mb-3">
+                                        <label>Phone</label>
+                                        <input
+                                            type="text"
+                                            name="company_contanct_no"
+                                            placeholder="7972891147"
+                                            value={form.company_contanct_no}
+                                            onChange={handleChange}
+                                            className="form-control"
+                                        />
                                     </div>
                                 </div>
 
+                                {/* Right Column */}
+                                <div className="col-md-6">
 
-                                <div className="mb-3">
-                                    <label>Country</label>
-                                    <select className="form-select">
-                                        <option value="">Select a country</option>
-                                        <option value="India">🇮🇳 India</option>
-                                        <option value="United States">🇺🇸 United States</option>
-                                        <option value="United Kingdom">🇬🇧 United Kingdom</option>
-                                        <option value="Canada">🇨🇦 Canada</option>
-                                        <option value="Australia">🇦🇺 Australia</option>
-                                        <option value="Germany">🇩🇪 Germany</option>
-                                        <option value="France">🇫🇷 France</option>
-                                        <option value="Italy">🇮🇹 Italy</option>
-                                        <option value="Spain">🇪🇸 Spain</option>
-                                        <option value="Brazil">🇧🇷 Brazil</option>
-                                        <option value="China">🇨🇳 China</option>
-                                        <option value="Japan">🇯🇵 Japan</option>
-                                        <option value="South Korea">🇰🇷 South Korea</option>
-                                        <option value="Russia">🇷🇺 Russia</option>
-                                        <option value="Mexico">🇲🇽 Mexico</option>
-                                        <option value="South Africa">🇿🇦 South Africa</option>
-                                        <option value="United Arab Emirates">🇦🇪 UAE</option>
-                                        <option value="Singapore">🇸🇬 Singapore</option>
-                                        <option value="Netherlands">🇳🇱 Netherlands</option>
-                                    </select>
+                                    <div className="mb-3">
+                                        <label>Address</label>
+                                        <input
+                                            type="text"
+                                            name="company_address"
+                                            className="form-control mb-3"
+                                            placeholder="Address Line 1"
+                                            value={form.company_address}
+                                            onChange={handleChange}
+                                        />
+                                        <input
+                                            type="text"
+                                            name="company_address2"
+                                            className="form-control"
+                                            placeholder="Address Line 2"
+                                            value={form.company_address2 || ""}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+
+                                    <div className="row mb-3">
+                                        <div className="col-md-4">
+                                            <input
+                                                type="text"
+                                                name="company_city"
+                                                className="form-control"
+                                                placeholder="City"
+                                                value={form.company_city}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+                                        <div className="col-md-4">
+                                            <input
+                                                type="text"
+                                                name="company_state"
+                                                className="form-control"
+                                                placeholder="State"
+                                                value={form.company_state}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+                                        <div className="col-md-4">
+                                            <input
+                                                type="text"
+                                                name="company_pincode"
+                                                className="form-control"
+                                                placeholder="Pincode"
+                                                value={form.company_pincode}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-3">
+                                        <label>Country</label>
+                                        <select
+                                            className="form-select"
+                                            name="company_country"
+                                            value={form.company_country}
+                                            onChange={handleChange}
+                                        >
+                                            <option value="">Select a country</option>
+                                            <option value="India">🇮🇳 India</option>
+                                            <option value="United States">🇺🇸 United States</option>
+                                            <option value="United Kingdom">🇬🇧 United Kingdom</option>
+                                            <option value="Canada">🇨🇦 Canada</option>
+                                            <option value="Australia">🇦🇺 Australia</option>
+                                            <option value="Germany">🇩🇪 Germany</option>
+                                            <option value="France">🇫🇷 France</option>
+                                            <option value="Italy">🇮🇹 Italy</option>
+                                            <option value="Spain">🇪🇸 Spain</option>
+                                            <option value="Brazil">🇧🇷 Brazil</option>
+                                            <option value="China">🇨🇳 China</option>
+                                            <option value="Japan">🇯🇵 Japan</option>
+                                            <option value="South Korea">🇰🇷 South Korea</option>
+                                            <option value="Russia">🇷🇺 Russia</option>
+                                            <option value="Mexico">🇲🇽 Mexico</option>
+                                            <option value="South Africa">🇿🇦 South Africa</option>
+                                            <option value="United Arab Emirates">🇦🇪 UAE</option>
+                                            <option value="Singapore">🇸🇬 Singapore</option>
+                                            <option value="Netherlands">🇳🇱 Netherlands</option>
+                                        </select>
+                                    </div>
+
                                 </div>
-
+                                <div className="text-end mb-2">
+                                    <button type="submit" className="btn btn-sm add-btn">Save</button>
+                                </div>
                             </div>
-                            <div className="text-end mb-2">
-                                <button type="submit" className="btn btn-sm add-btn">Save</button>
-                            </div>
-                        </div>
+                        </form>
                     </div>
                 );
 
             case 'System':
                 return (
-                    <div>
+                    <form onSubmit={handleSubmit}>
                         <div className="row">
                             {/* Left Column */}
                             <div className="col-md-6">
                                 <div className="mb-3">
                                     <label>Application Name</label>
-                                    <input type="text" className="form-control" placeholder="A TO Z EXIM" />
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        name="application_name"
+                                        value={form.application_name || ""}
+                                        onChange={handleChange}
+                                        placeholder="A TO Z EXIM"
+                                    />
                                 </div>
 
                                 <div className="mb-3">
                                     <label>Default Currency</label>
-                                    <select className="form-control">
+                                    <select
+                                        className="form-control"
+                                        name="default_currency"
+                                        value={form.default_currency || ""}
+                                        onChange={handleChange}
+                                    >
                                         <option value="INR">INR - Indian Rupee (₹)</option>
                                         <option value="USD">USD - US Dollar ($)</option>
                                         <option value="EUR">EUR - Euro (€)</option>
@@ -162,10 +347,14 @@ const SettingPage = () => {
                                     </select>
                                 </div>
 
-
                                 <div className="mb-3">
-                                    <label>Default Currency (Symbol/Code) </label>
-                                    <select className="form-control">
+                                    <label>Default Currency (Symbol/Code)</label>
+                                    <select
+                                        className="form-control"
+                                        name="default_currency_appfix"
+                                        value={form.default_currency_appfix || ""}
+                                        onChange={handleChange}
+                                    >
                                         <option value="cc">Currency Code</option>
                                         <option value="cs">Currency Symbol</option>
                                     </select>
@@ -173,269 +362,371 @@ const SettingPage = () => {
 
                                 <div className="mb-3">
                                     <label>Currency Position</label>
-                                    <select className="form-control">
-                                        <option value="cc">Prefix</option>
-                                        <option value="cs">Suffix</option>
+                                    <select
+                                        className="form-control"
+                                        name="default_currency_pos"
+                                        value={form.default_currency_pos || ""}
+                                        onChange={handleChange}
+                                    >
+                                        <option value="prefix">Prefix</option>
+                                        <option value="suffix">Suffix</option>
                                     </select>
                                 </div>
 
                                 <div className="mb-3">
-                                    <label className="form-label d-block mb-2">Enable CodeIgniter page rendered on footer</label>
-
+                                    <label className="form-label d-block mb-2">
+                                        Enable CodeIgniter page rendered on footer
+                                    </label>
                                     <label className="switch">
-                                        <input type="checkbox" />
+                                        <input
+                                            type="checkbox"
+                                            name="enableCodeigniterFooter"
+                                            checked={form.enableCodeigniterFooter || false}
+                                            onChange={(e) =>
+                                                setForm({ ...form, enableCodeigniterFooter: e.target.checked })
+                                            }
+                                        />
                                         <span className="slider round"></span>
                                     </label>
                                 </div>
-
                             </div>
 
                             {/* Right Column */}
                             <div className="col-md-6">
-
                                 <div className="mb-3">
                                     <label className="form-label">Date Format</label>
-                                    <div className="form-check">
-                                        <input
-                                            className="form-check-input"
-                                            type="radio"
-                                            name="dateFormat"
-                                            id="format1"
-                                            value="dd-mm-yyyy"
-                                            style={{ width: '1em', height: '1em', borderRadius: '50%', marginTop: '6px' }}
-                                        />
-                                        <label className="form-check-label ms-2" htmlFor="format1">
-                                            29-07-2025 (dd-mm-YYYY)
-                                        </label>
-                                    </div>
 
-                                    <div className="form-check">
-                                        <input
-                                            className="form-check-input"
-                                            type="radio"
-                                            name="dateFormat"
-                                            id="format2"
-                                            value="mm-dd-yyyy"
-                                            style={{ width: '1em', height: '1em', borderRadius: '50%', marginTop: '6px' }}
-                                        />
-                                        <label className="form-check-label ms-2" htmlFor="format2">
-                                            07-29-2025 (mm-dd-YYYY)
-                                        </label>
-                                    </div>
-
-                                    <div className="form-check">
-                                        <input
-                                            className="form-check-input"
-                                            type="radio"
-                                            name="dateFormat"
-                                            id="format3"
-                                            value="dd-MMM-yyyy"
-                                            style={{ width: '1em', height: '1em', borderRadius: '50%', marginTop: '6px' }}
-                                        />
-                                        <label className="form-check-label ms-2" htmlFor="format3">
-                                            29-Jul-2025 (dd-MMM-YYYY)
-                                        </label>
-                                    </div>
-
-                                    <div className="form-check">
-                                        <input
-                                            className="form-check-input"
-                                            type="radio"
-                                            name="dateFormat"
-                                            id="format4"
-                                            value="MMM-dd-yyyy"
-                                            style={{ width: '1em', height: '1em', borderRadius: '50%', marginTop: '6px' }}
-                                        />
-                                        <label className="form-check-label ms-2" htmlFor="format4">
-                                            Jul-29-2025 (MMM-dd-YYYY)
-                                        </label>
-                                    </div>
+                                    {[
+                                        { id: "format1", val: "dd-mm-yyyy", label: "29-07-2025 (dd-mm-YYYY)" },
+                                        { id: "format2", val: "mm-dd-yyyy", label: "07-29-2025 (mm-dd-YYYY)" },
+                                        { id: "format3", val: "dd-MMM-yyyy", label: "29-Jul-2025 (dd-MMM-YYYY)" },
+                                        { id: "format4", val: "MMM-dd-yyyy", label: "Jul-29-2025 (MMM-dd-YYYY)" },
+                                    ].map((opt) => (
+                                        <div className="form-check" key={opt.id}>
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="dafault_date_format"
+                                                id={opt.id}
+                                                value={opt.val}
+                                                checked={form.dafault_date_format === opt.val}
+                                                onChange={handleChange}
+                                                style={{
+                                                    width: "1em",
+                                                    height: "1em",
+                                                    borderRadius: "50%",
+                                                    marginTop: "6px",
+                                                }}
+                                            />
+                                            <label className="form-check-label ms-2" htmlFor={opt.id}>
+                                                {opt.label}
+                                            </label>
+                                        </div>
+                                    ))}
                                 </div>
 
                                 <div className="mb-3">
                                     <label>Footer Text</label>
-                                    <input type="text" className="form-control" placeholder="A TO Z EXIM" />
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        name="footer_text"
+                                        value={form.footer_text || ""}
+                                        onChange={handleChange}
+                                        placeholder="A TO Z EXIM"
+                                    />
                                 </div>
 
                                 <div className="mb-3">
-                                    <label className="form-label d-block mb-2">Enable current year on footer</label>
-
+                                    <label className="form-label d-block mb-2">
+                                        Enable current year on footer
+                                    </label>
                                     <label className="switch">
-                                        <input type="checkbox" />
+                                        <input
+                                            type="checkbox"
+                                            name="is_year_footer"
+                                            checked={form.is_year_footer || false}
+                                            onChange={(e) =>
+                                                setForm({ ...form, is_year_footer: e.target.checked })
+                                            }
+                                        />
                                         <span className="slider round"></span>
                                     </label>
                                 </div>
-
                             </div>
+
                             <div className="text-end mb-2">
-                                <button type="submit" className="btn btn-sm add-btn">Save</button>
+                                <button type="submit" className="btn btn-sm add-btn">
+                                    Save
+                                </button>
                             </div>
-
                         </div>
-                    </div>
+                    </form>
                 );
 
             case 'Role':
                 return (
-                    <div>
+                    <form onSubmit={handleSubmit}>
                         <div className="row">
                             {/* Left Column */}
                             <div className="col-md-6">
-
                                 <div className="mb-3">
-                                    <label className="form-label d-block mb-2">Employee can manage own contact information</label>
+                                    <label className="form-label d-block mb-2">
+                                        Employee can manage own contact information
+                                    </label>
                                     <label className="switch">
-                                        <input type="checkbox" />
+                                        <input
+                                            type="checkbox"
+                                            name="emp_manage_contact"
+                                            checked={form.emp_manage_contact || false}
+                                            onChange={(e) =>
+                                                setForm({ ...form, emp_manage_contact: e.target.checked })
+                                            }
+                                        />
                                         <span className="slider round"></span>
                                     </label>
                                 </div>
 
                                 <div className="mb-3">
-                                    <label className="form-label d-block mb-2">Employee can manage own bank account</label>
+                                    <label className="form-label d-block mb-2">
+                                        Employee can manage own bank account
+                                    </label>
                                     <label className="switch">
-                                        <input type="checkbox" />
+                                        <input
+                                            type="checkbox"
+                                            name="emp_manage_bank"
+                                            checked={form.emp_manage_bank || false}
+                                            onChange={(e) =>
+                                                setForm({ ...form, emp_manage_bank: e.target.checked })
+                                            }
+                                        />
                                         <span className="slider round"></span>
                                     </label>
                                 </div>
 
                                 <div className="mb-3">
-                                    <label className="form-label d-block mb-2">Employee can manage own qualification</label>
+                                    <label className="form-label d-block mb-2">
+                                        Employee can manage own qualification
+                                    </label>
                                     <label className="switch">
-                                        <input type="checkbox" />
+                                        <input
+                                            type="checkbox"
+                                            name="emp_manage_qualification"
+                                            checked={form.emp_manage_qualification || false}
+                                            onChange={(e) =>
+                                                setForm({ ...form, emp_manage_qualification: e.target.checked })
+                                            }
+                                        />
                                         <span className="slider round"></span>
                                     </label>
                                 </div>
 
                                 <div className="mb-3">
-                                    <label className="form-label d-block mb-2">Employee can manage own work experience</label>
+                                    <label className="form-label d-block mb-2">
+                                        Employee can manage own work experience
+                                    </label>
                                     <label className="switch">
-                                        <input type="checkbox" />
+                                        <input
+                                            type="checkbox"
+                                            name="emp_manage_work_exp"
+                                            checked={form.emp_manage_work_exp || false}
+                                            onChange={(e) =>
+                                                setForm({ ...form, emp_manage_work_exp: e.target.checked })
+                                            }
+                                        />
                                         <span className="slider round"></span>
                                     </label>
                                 </div>
-
                             </div>
 
                             {/* Right Column */}
                             <div className="col-md-6">
-
                                 <div className="mb-3">
-                                    <label className="form-label d-block mb-2">Employee can manage own documents</label>
+                                    <label className="form-label d-block mb-2">
+                                        Employee can manage own documents
+                                    </label>
                                     <label className="switch">
-                                        <input type="checkbox" />
+                                        <input
+                                            type="checkbox"
+                                            name="emp_manage_doc"
+                                            checked={form.emp_manage_doc || false}
+                                            onChange={(e) =>
+                                                setForm({ ...form, emp_manage_doc: e.target.checked })
+                                            }
+                                        />
                                         <span className="slider round"></span>
                                     </label>
                                 </div>
 
                                 <div className="mb-3">
-                                    <label className="form-label d-block mb-2">Employee can manage own profile picture</label>
+                                    <label className="form-label d-block mb-2">
+                                        Employee can manage own profile picture
+                                    </label>
                                     <label className="switch">
-                                        <input type="checkbox" />
+                                        <input
+                                            type="checkbox"
+                                            name="emp_manage_profile_pic"
+                                            checked={form.emp_manage_profile_pic || false}
+                                            onChange={(e) =>
+                                                setForm({ ...form, emp_manage_profile_pic: e.target.checked })
+                                            }
+                                        />
                                         <span className="slider round"></span>
                                     </label>
                                 </div>
 
                                 <div className="mb-3">
-                                    <label className="form-label d-block mb-2">Employee can manage own profile information</label>
+                                    <label className="form-label d-block mb-2">
+                                        Employee can manage own profile information
+                                    </label>
                                     <label className="switch">
-                                        <input type="checkbox" />
+                                        <input
+                                            type="checkbox"
+                                            name="emp_manage_profile_info"
+                                            checked={form.emp_manage_profile_info || false}
+                                            onChange={(e) =>
+                                                setForm({ ...form, emp_manage_profile_info: e.target.checked })
+                                            }
+                                        />
                                         <span className="slider round"></span>
                                     </label>
                                 </div>
 
                                 <div className="mb-3">
-                                    <label className="form-label d-block mb-2">Employee can manage own social information</label>
+                                    <label className="form-label d-block mb-2">
+                                        Employee can manage own social information
+                                    </label>
                                     <label className="switch">
-                                        <input type="checkbox" />
+                                        <input
+                                            type="checkbox"
+                                            name="emp_manage_social_info"
+                                            checked={form.emp_manage_social_info || false}
+                                            onChange={(e) =>
+                                                setForm({ ...form, emp_manage_social_info: e.target.checked })
+                                            }
+                                        />
                                         <span className="slider round"></span>
                                     </label>
                                 </div>
-
                             </div>
 
                             <div className="text-end mb-2">
-                                <button type="submit" className="btn btn-sm add-btn">Save</button>
+                                <button type="submit" className="btn btn-sm add-btn">
+                                    Save
+                                </button>
                             </div>
-
                         </div>
-                    </div>
+                    </form>
                 );
+
 
             case 'Attendance':
                 return (
-                    <div>
+                    <form onSubmit={handleSubmit}>
                         <div className="row">
                             {/* Left Column */}
                             <div className="col-md-6">
-
                                 <div className="mb-3">
-                                    <label className="form-label d-block mb-2">Enable clock-in button on header <span style={{ fontSize: '10px' }}> (It will show everywhere on the system, but in employee panel only.)</span></label>
+                                    <label className="form-label d-block mb-2">
+                                        Enable clock-in button on header{" "}
+                                        <span style={{ fontSize: "10px" }}>
+                                            (It will show everywhere on the system, but in employee panel only.)
+                                        </span>
+                                    </label>
                                     <label className="switch">
-                                        <input type="checkbox" />
+                                        <input
+                                            type="checkbox"
+                                            name="enable_clock_in_btn"
+                                            checked={form.enable_clock_in_btn || false}
+                                            onChange={(e) =>
+                                                setForm({ ...form, enable_clock_in_btn: e.target.checked })
+                                            }
+                                        />
                                         <span className="slider round"></span>
                                     </label>
                                 </div>
-
                             </div>
 
                             {/* Right Column */}
                             <div className="col-md-6">
-
                                 <div className="mb-3">
-                                    <label className="form-label d-block mb-2">Enable clock in & clock out</label>
+                                    <label className="form-label d-block mb-2">
+                                        Enable clock in & clock out
+                                    </label>
                                     <label className="switch">
-                                        <input type="checkbox" />
+                                        <input
+                                            type="checkbox"
+                                            name="enable_clock_in_out"
+                                            checked={form.enable_clock_in_out || false}
+                                            onChange={(e) =>
+                                                setForm({ ...form, enable_clock_in_out: e.target.checked })
+                                            }
+                                        />
                                         <span className="slider round"></span>
                                     </label>
                                 </div>
                             </div>
 
                             <div className="text-end mb-2">
-                                <button type="submit" className="btn btn-sm add-btn">Save</button>
+                                <button type="submit" className="btn btn-sm add-btn">
+                                    Save
+                                </button>
                             </div>
-
                         </div>
-                    </div>
+                    </form>
                 );
+
 
             case 'Payroll':
                 return (
-                    <>
-                        <div className='col-md-12'>
+                    <form onSubmit={handleSubmit}>
+                        <div className="col-md-12">
                             <div className="row">
                                 {/* Left Column */}
                                 <div className="col-md-6">
-
                                     <div className="mb-3">
                                         <label>Payslip password format</label>
-                                        <select className="form-control">
-                                            <option value="1">Employee Date of Birth (29072025)</option>
-                                            <option value="2">Employee Contact Number (123456789)</option>
+                                        <select
+                                            className="form-control"
+                                            name="payslip_pass_format"
+                                            value={form.payslip_pass_format || ""}
+                                            onChange={handleChange}
+                                        >
+                                            <option value="dob">Employee Date of Birth (29072025)</option>
+                                            <option value="contact">Employee Contact Number (123456789)</option>
                                         </select>
                                     </div>
-
                                 </div>
 
                                 {/* Right Column */}
                                 <div className="col-md-6">
-
                                     <div className="mb-3">
-                                        <label className="form-label d-block mb-2">Enable Password generate for payslip</label>
+                                        <label className="form-label d-block mb-2">
+                                            Enable Password generate for payslip
+                                        </label>
                                         <label className="switch">
-                                            <input type="checkbox" />
+                                            <input
+                                                type="checkbox"
+                                                name="enable_payslip_password"
+                                                checked={form.enable_payslip_password || false}
+                                                onChange={(e) =>
+                                                    setForm({ ...form, enable_payslip_password: e.target.checked })
+                                                }
+                                            />
                                             <span className="slider round"></span>
                                         </label>
                                     </div>
                                 </div>
 
                                 <div className="text-end mb-2">
-                                    <button type="submit" className="btn btn-sm add-btn">Save</button>
+                                    <button type="submit" className="btn btn-sm add-btn">
+                                        Save
+                                    </button>
                                 </div>
-
                             </div>
                         </div>
 
-                        <div className='col-md-12'>
+                        <div className="col-md-12">
                             <div className="row mt-3">
                                 <div className="card no-radius">
                                     <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
@@ -443,321 +734,123 @@ const SettingPage = () => {
                                     </div>
                                 </div>
 
-
                                 <div className="mb-4">
                                     <label className="form-label mt-2">Logo</label>
 
-
                                     <div className="text-start">
-                                        <button type="button" className="btn btn-sm add-btn">Browse</button>
+                                        <input
+                                            type="file"
+                                            name="payslip_logo"
+                                            className="form-control"
+                                            accept=".gif,.png,.jpg,.jpeg"
+                                            onChange={(e) => {
+                                                if (e.target.files[0]) {
+                                                    setForm({ ...form, payslip_logo: e.target.files[0] });
+                                                }
+                                            }}
+                                        />
+
+                                        {/* Preview */}
+                                        {form.payslip_logo && (
+                                            <div className="mt-2">
+                                                <img
+                                                    src={
+                                                        typeof form.payslip_logo === "string"
+                                                            ? `http://localhost:3000/uploads/${form.payslip_logo}` // existing file from backend
+                                                            : URL.createObjectURL(form.payslip_logo) // newly selected file
+                                                    }
+                                                    alt="Payslip Logo"
+                                                    style={{ maxWidth: "150px", maxHeight: "150px" }}
+                                                />
+                                                <div className="mt-1">
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-danger btn-sm"
+                                                        onClick={() => setForm({ ...form, payslip_logo: null })}
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
-                                    <div className="mt-2 text-muted" style={{ fontSize: '12px', lineHeight: '1.5' }}>
-                                        <p className="mb-1">- Upload file types only: <strong>gif, png, jpg, jpeg</strong></p>
-                                        <p className="mb-1">- Recommended Size: <strong>160 x 40</strong></p>
-                                        <p className="mb-0">- <strong>White background</strong> with <strong>black text</strong> for best clarity</p>
+                                    <div
+                                        className="mt-2 text-muted"
+                                        style={{ fontSize: "12px", lineHeight: "1.5" }}
+                                    >
+                                        <p className="mb-1">
+                                            - Upload file types only: <strong>gif, png, jpg, jpeg</strong>
+                                        </p>
+                                        <p className="mb-1">
+                                            - Recommended Size: <strong>160 x 40</strong>
+                                        </p>
+                                        <p className="mb-0">
+                                            - <strong>White background</strong> with <strong>black text</strong> for best clarity
+                                        </p>
                                     </div>
-
 
                                     <div className="text-end">
-                                        <button type="submit" className="btn btn-sm add-btn">Save</button>
+                                        <button type="submit" className="btn btn-sm add-btn">
+                                            Save
+                                        </button>
                                     </div>
                                 </div>
-
-
                             </div>
                         </div>
-                    </>
+                    </form>
                 );
+
 
             case 'Recruitment':
                 return (
                     <>
-                        <div className="row">
-                            <div className="col-md-12">
+                        <form onSubmit={handleSubmit}>
+                            <div className="row">
+                                <div className="col-md-12">
 
-                                <div className="mb-3">
-                                    <label className="form-label d-block mb-2">Enable Jobs for employees</label>
-                                    <label className="switch">
-                                        <input type="checkbox" />
-                                        <span className="slider round"></span>
-                                    </label>
-                                </div>
+                                    {/* Enable Jobs */}
+                                    <div className="mb-3">
+                                        <label className="form-label d-block mb-2">Enable Jobs for employees</label>
+                                        <label className="switch">
+                                            <input
+                                                type="checkbox"
+                                                name="enable_employee_job"
+                                                checked={form.enable_employee_job || false}
+                                                onChange={(e) =>
+                                                    setForm({ ...form, enable_employee_job: e.target.checked })
+                                                }
+                                            />
+                                            <span className="slider round"></span>
+                                        </label>
+                                    </div>
 
-                                <div className="mb-3">
+
+                                    {/* File Formats */}
+                                    {/* <div className="mb-3">
                                     <label className="form-label d-block mb-2">Job Application file format</label>
-
                                     <div
                                         className="form-control d-flex flex-wrap align-items-center"
-                                        style={{
-                                            minHeight: '42px',
-                                            gap: '6px',
-                                            padding: '4px 6px',
-                                            borderRadius: '4px',
-                                        }}
+                                        style={{ minHeight: '42px', gap: '6px', padding: '4px 6px' }}
                                     >
-                                        {formats.map((format, index) => (
-                                            <span
-                                                key={index}
-                                                style={{
-                                                    background: '#00c4cc',
-                                                    color: '#fff',
-                                                    padding: '4px 10px',
-                                                    borderRadius: '4px',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    fontSize: '14px',
-                                                }}
-                                            >
-                                                {format}
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleRemove(format)}
-                                                    style={{
-                                                        marginLeft: '6px',
-                                                        background: 'transparent',
-                                                        border: 'none',
-                                                        color: '#fff',
-                                                        fontSize: '16px',
-                                                        lineHeight: '1',
-                                                        cursor: 'pointer',
-                                                    }}
-                                                >
-                                                    ×
-                                                </button>
-                                            </span>
-                                        ))}
-
-                                        <input
-                                            type="text"
-                                            style={{
-                                                border: 'none',
-                                                outline: 'none',
-                                                flex: 1,
-                                                minWidth: '100px',
-                                                fontSize: '14px'
-                                            }}
-                                            value={input}
-                                            onChange={(e) => setInput(e.target.value)}
-                                            onKeyDown={handleKeyDown}
-                                        />
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <div className="text-end mb-2">
-                                <button type="submit" className="btn btn-sm add-btn">Save</button>
-                            </div>
-
-                        </div>
-
-                        <div className='col-md-12'>
-                            <div className="row mt-3">
-                                <div className="card no-radius">
-                                    <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
-                                        <span>Job Listing Logo</span>
-                                    </div>
-                                </div>
-
-
-                                <div className="mb-4">
-                                    <label className="form-label mt-2">Logo</label>
-
-
-                                    <div className="text-start">
-                                        <button type="button" className="btn btn-sm add-btn">Browse</button>
-                                    </div>
-
-                                    <div className="mt-2 text-muted" style={{ fontSize: '12px', lineHeight: '1.5' }}>
-                                        <p className="mb-1">- Upload file types only: <strong>gif, png, jpg, jpeg</strong></p>
-                                        <p className="mb-1">- Recommended Size: <strong>160 x 40</strong></p>
-                                        <p className="mb-0">- <strong>White background</strong> with <strong>black text</strong> for best clarity</p>
-                                    </div>
-
-
-                                    <div className="text-end">
-                                        <button type="submit" className="btn btn-sm add-btn">Save</button>
-                                    </div>
-                                </div>
-
-
-                            </div>
-                        </div>
-                    </>
-                );
-
-            case 'Email Noifications':
-                return (
-                    <div>
-                        <div className="mb-3">
-                            <label className="form-label d-block mb-2">Enable email notificationsp</label>
-                            <label className="switch">
-                                <input type="checkbox" />
-                                <span className="slider round"></span>
-                            </label>
-                        </div>
-
-                        <div className="text-end mb-2">
-                            <button type="submit" className="btn btn-sm add-btn">Save</button>
-                        </div>
-
-                    </div>
-                );
-
-            case 'Animation Effects':
-                return (
-                    <div>
-                        <div className="row">
-                            {/* Left Column */}
-                            <div className="col-md-6">
-                                <div className="mb-3">
-                                    <label>Animation Effects</label>
-                                    <select className="form-control">
-                                        <option value="1">rollin</option>
-                                        <option value="2">swing</option>
-                                        <option value="3">tada</option>
-                                        <option value="4">pulse</option>
-                                        <option value="5">flipInX</option>
-                                        <option value="6">flipInY</option>
-                                    </select>
-                                    <label style={{ color: 'grey' }}>
-                                        <span style={{ color: 'grey', marginRight: '6px' }}>↑</span>
-                                        Set animation effect for top menu.
-                                    </label>
-                                </div>
-                            </div>
-
-                            {/* Right Column */}
-                            <div className="col-md-6">
-                                <div className="mb-3">
-                                    <label>Animation Effects</label>
-                                    <select className="form-control">
-                                        <option value="1">rollin</option>
-                                        <option value="2">swing</option>
-                                        <option value="3">tada</option>
-                                        <option value="4">pulse</option>
-                                        <option value="5">flipInX</option>
-                                        <option value="6">flipInY</option>
-                                    </select>
-                                    <label style={{ color: 'grey' }}>
-                                        <span style={{ color: 'grey', marginRight: '6px' }}>↑</span>
-                                        Set animation effect for modal dialogs.
-                                    </label>
-                                </div>
-                            </div>
-                            <div className="text-end mb-2">
-                                <button type="submit" className="btn btn-sm add-btn">Save</button>
-                            </div>
-
-                        </div>
-                    </div>
-                );
-
-            case 'Notification Position':
-                return (
-                    <div>
-                        <div className="row">
-                            {/* Left Column */}
-                            {/* <div className="col-md-12"> */}
-                            <div className="col-md-4 mb-3">
-                                <label>Position</label>
-                                <select className="form-control">
-                                    <option value="tr">Top Right</option>
-                                    <option value="br">Bottom Right</option>
-                                    <option value="bl">Bottom Left</option>
-                                    <option value="tl">Top Left</option>
-                                    <option value="tc">Top Center</option>
-                                </select>
-                                <label style={{ color: 'grey', fontSize: '10px' }}>
-                                    Set position for notifications.
-                                </label>
-                            </div>
-
-                            <div className="col-md-4 mb-3">
-                                <label className="form-label d-block mb-2">Enable Close Button</label>
-                                <label className="switch">
-                                    <input type="checkbox" />
-                                    <span className="slider round"></span>
-                                </label>
-                            </div>
-
-                            <div className="col-md-4 mb-3">
-                                <label className="form-label d-block mb-2">Progress Bar</label>
-                                <label className="switch">
-                                    <input type="checkbox" />
-                                    <span className="slider round"></span>
-                                </label>
-                            </div>
-
-                            {/* </div> */}
-                        </div>
-
-                        <div className="text-end mb-2">
-                            <button type="submit" className="btn btn-sm add-btn">Save</button>
-                        </div>
-                    </div>
-                );
-
-            case 'Files Manager':
-                return (
-                    <div>
-                        <div className="col-md-12">
-
-                            <div className='row'>
-                                <div className='col-md-3'>
-                                    <div className="mb-3">
-                                        <label className="form-label">Max. File Size</label>
-                                        <div className="input-group">
-                                            <input
-                                                type="number"
-                                                className="form-control"
-                                                placeholder="10"
-                                                min="0"
-                                                style={{ height: '38px' }}
-                                            />
-                                            <span
-                                                className="input-group-text"
-                                                style={{ height: '38px', backgroundColor: '#f1f1f1' }}
-                                            >
-                                                MB
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <div className='col-md-9'>
-
-                                    <div className="mb-3">
-                                        <label className="form-label d-block mb-2">Allowed extensions</label>
-
-                                        <div
-                                            className="form-control d-flex flex-wrap align-items-center"
-                                            style={{
-                                                minHeight: '42px',
-                                                gap: '6px',
-                                                padding: '4px 6px',
-                                                borderRadius: '4px',
-                                            }}
-                                        >
-                                            {formats1.map((format, index) => (
+                                        {Array.isArray(form.job_app_format) &&
+                                            form.job_app_format.map((format, index) => (
                                                 <span
                                                     key={index}
                                                     style={{
                                                         background: '#00c4cc',
                                                         color: '#fff',
-                                                        padding: '2px 6px',
+                                                        padding: '4px 10px',
                                                         borderRadius: '4px',
                                                         display: 'flex',
                                                         alignItems: 'center',
-                                                        fontSize: '10px',
+                                                        fontSize: '14px',
                                                     }}
                                                 >
                                                     {format}
                                                     <button
                                                         type="button"
-                                                        onClick={() => handleRemove(format)}
+                                                        onClick={() => handleRemoveFormat(format)}
                                                         style={{
                                                             marginLeft: '6px',
                                                             background: 'transparent',
@@ -773,14 +866,355 @@ const SettingPage = () => {
                                                 </span>
                                             ))}
 
+                                        <input
+                                            type="text"
+                                            value={input}
+                                            onChange={(e) => setInput(e.target.value)}
+                                            onKeyDown={handleAddFormat}
+                                            placeholder="Add format and press Enter"
+                                            style={{ border: 'none', outline: 'none', flex: 1, minWidth: '100px' }}
+                                        />
+                                    </div>
+                                </div> */}
+
+                                   <div className="mb-3">
+                                        <label className="form-label d-block mb-2">Job Application file format</label>
+                                        <div className="form-control d-flex flex-wrap align-items-center"
+                                            style={{ minHeight: '42px', gap: '6px', padding: '4px 6px', borderRadius: '4px' }}>
+                                            {form.job_app_format.map((format, index) => (
+                                                <span key={index} style={{ background: '#00c4cc', color: '#fff', padding: '4px 10px', borderRadius: '4px', display: 'flex', alignItems: 'center', fontSize: '14px' }}>
+                                                    {format}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveFormat(format)}
+                                                        style={{ marginLeft: '6px', background: 'transparent', border: 'none', color: '#fff', fontSize: '16px', lineHeight: '1', cursor: 'pointer' }}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </span>
+                                            ))}
+
+                                            <input
+                                                type="text"
+                                                value={input}
+                                                onChange={(e) => setInput(e.target.value)}
+                                                onKeyDown={handleAddFormat}
+                                                style={{ border: 'none', outline: 'none', flex: 1, minWidth: '100px', fontSize: '14px' }}
+                                            />
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+
+                                {/* Save Button */}
+                                <div className="text-end mb-2">
+                                    <button type="submit" className="btn btn-sm add-btn">Save</button>
+                                </div>
+                            </div>
+
+                            {/* Logo Upload Section */}
+                            <div className="col-md-12">
+                                <div className="row mt-3">
+                                    <div className="card no-radius">
+                                        <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
+                                            <span>Job Listing Logo</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-4">
+                                        <label className="form-label mt-2">Logo</label>
+                                        <div className="text-start">
+                                            <button type="button" className="btn btn-sm add-btn">Browse</button>
+                                        </div>
+
+                                        <div className="mt-2 text-muted" style={{ fontSize: '12px', lineHeight: '1.5' }}>
+                                            <p className="mb-1">- Upload file types only: <strong>gif, png, jpg, jpeg</strong></p>
+                                            <p className="mb-1">- Recommended Size: <strong>160 x 40</strong></p>
+                                            <p className="mb-0">- <strong>White background</strong> with <strong>black text</strong> for best clarity</p>
+                                        </div>
+
+                                        <div className="text-end">
+                                            <button type="submit" className="btn btn-sm add-btn">Save</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </>
+                );
+
+
+            // case 'Email Notifications':
+            //     return (
+            //         <div>
+            //             <form onSubmit={handleSubmit}>
+
+            //                <div className="mb-3">
+            //                         <label className="form-label d-block mb-2">
+            //                             Enable email notifications
+            //                         </label>
+            //                         <label className="switch">
+            //                             <input
+            //                                 type="checkbox"
+            //                                 name="enable_email_notifi"
+            //                                 checked={form.enable_email_notifi || false}
+            //                                 onChange={(e) =>
+            //                                     setForm({ ...form, enable_email_notifi: e.target.checked })
+            //                                 }
+            //                             />
+            //                             <span className="slider round"></span>
+            //                         </label>
+            //                     </div>
+
+            //                 <div className="text-end mb-2">
+            //                     <button type="submit" className="btn btn-sm add-btn">Save</button>
+            //                 </div>
+            //             </form>
+            //         </div>
+            //     );
+            
+               case 'Email Noifications':
+                return (
+                    <div>
+                        <form onSubmit={handleSubmit}>
+                        <div className="mb-3">
+                            <label className="form-label d-block mb-2">Enable email notificationsp</label>
+                            <label className="switch">
+                                <input
+                                    type="checkbox"
+                                    name="enable_email_notifi"
+                                    checked={form.enable_email_notifi || false}
+                                    onChange={(e) =>
+                                        setForm({ ...form, enable_email_notifi: e.target.checked })
+                                    }
+                                />
+                                <span className="slider round"></span>
+                            </label>
+                        </div>
+
+                        <div className="text-end mb-2">
+                            <button type="submit" className="btn btn-sm add-btn">Save</button>
+                        </div>
+</form>
+                    </div>
+                );
+
+            case 'Animation Effects':
+                return (
+                    <form onSubmit={handleSubmit}>
+                        <div className="row">
+                            {/* Left Column */}
+                            <div className="col-md-6">
+                                <div className="mb-3">
+                                    <label>Animation Effects</label>
+                                    <select
+                                        className="form-control"
+                                        name="menuAnimationEffect"
+                                        value={form.menuAnimationEffect}
+                                        onChange={handleChange}
+                                    >
+                                        <option value="rollin">rollin</option>
+                                        <option value="swing">swing</option>
+                                        <option value="tada">tada</option>
+                                        <option value="pulse">pulse</option>
+                                        <option value="flipInX">flipInX</option>
+                                        <option value="flipInY">flipInY</option>
+                                    </select>
+                                    <label style={{ color: "grey" }}>
+                                        <span style={{ color: "grey", marginRight: "6px" }}>↑</span>
+                                        Set animation effect for top menu.
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* Right Column */}
+                            <div className="col-md-6">
+                                <div className="mb-3">
+                                    <label>Animation Effects</label>
+                                    <select
+                                        className="form-control"
+                                        name="modalAnimationEffect"
+                                        value={form.modalAnimationEffect}
+                                        onChange={handleChange}
+                                    >
+                                        <option value="rollin">rollin</option>
+                                        <option value="swing">swing</option>
+                                        <option value="tada">tada</option>
+                                        <option value="pulse">pulse</option>
+                                        <option value="flipInX">flipInX</option>
+                                        <option value="flipInY">flipInY</option>
+                                    </select>
+                                    <label style={{ color: "grey" }}>
+                                        <span style={{ color: "grey", marginRight: "6px" }}>↑</span>
+                                        Set animation effect for modal dialogs.
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Save Button */}
+                        <div className="text-end mb-2">
+                            <button type="submit" className="btn btn-sm add-btn">
+                                Save
+                            </button>
+                        </div>
+                    </form>
+                );
+
+
+            case "Notification Position":
+                return (
+                    <form onSubmit={handleSubmit}>
+                        <div className="row">
+                            {/* Position Select */}
+                            <div className="col-md-4 mb-3">
+                                <label>Position</label>
+                                <select
+                                    className="form-control"
+                                    name="notificationPosition"
+                                    value={form.notificationPosition || "tr"}
+                                    onChange={handleChange}
+                                >
+                                    <option value="tr">Top Right</option>
+                                    <option value="br">Bottom Right</option>
+                                    <option value="bl">Bottom Left</option>
+                                    <option value="tl">Top Left</option>
+                                    <option value="tc">Top Center</option>
+                                </select>
+                                <label style={{ color: "grey", fontSize: "10px" }}>
+                                    Set position for notifications.
+                                </label>
+                            </div>
+
+                            {/* Enable Close Button */}
+                            <div className="col-md-4 mb-3">
+                                <label className="form-label d-block mb-2">
+                                    Enable Close Button
+                                </label>
+                                <label className="switch">
+                                    <input
+                                        type="checkbox"
+                                        name="enableCloseButton"
+                                        checked={form.enableCloseButton || false}
+                                        onChange={handleChange}
+                                    />
+                                    <span className="slider round"></span>
+                                </label>
+                            </div>
+
+                            {/* Progress Bar */}
+                            <div className="col-md-4 mb-3">
+                                <label className="form-label d-block mb-2">Progress Bar</label>
+                                <label className="switch">
+                                    <input
+                                        type="checkbox"
+                                        name="progressBar"
+                                        checked={form.progressBar || false}
+                                        onChange={handleChange}
+                                    />
+                                    <span className="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* Save Button */}
+                        <div className="text-end mb-2">
+                            <button type="submit" className="btn btn-sm add-btn">
+                                Save
+                            </button>
+                        </div>
+                    </form>
+                );
+
+
+            case "Files Manager":
+                return (
+                    <form onSubmit={handleSubmit}>
+                        <div className="col-md-12">
+                            <div className="row">
+                                {/* Max File Size */}
+                                <div className="col-md-3">
+                                    <div className="mb-3">
+                                        <label className="form-label">Max. File Size</label>
+                                        <div className="input-group">
+                                            <input
+                                                type="number"
+                                                name="maxFileSize"
+                                                className="form-control"
+                                                placeholder="10"
+                                                min="0"
+                                                style={{ height: "38px" }}
+                                                value={form.maxFileSize || ""}
+                                                onChange={handleChange}
+                                            />
+                                            <span
+                                                className="input-group-text"
+                                                style={{ height: "38px", backgroundColor: "#f1f1f1" }}
+                                            >
+                                                MB
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Allowed Extensions */}
+                                <div className="col-md-9">
+                                    <div className="mb-3">
+                                        <label className="form-label d-block mb-2">
+                                            Allowed extensions
+                                        </label>
+                                        <div
+                                            className="form-control d-flex flex-wrap align-items-center"
+                                            style={{
+                                                minHeight: "42px",
+                                                gap: "6px",
+                                                padding: "4px 6px",
+                                                borderRadius: "4px",
+                                            }}
+                                        >
+                                            {Array.isArray(formats1) ? formats1.map((format, index) => (
+                                                <span
+                                                    key={index}
+                                                    style={{
+                                                        background: "#00c4cc",
+                                                        color: "#fff",
+                                                        padding: "2px 6px",
+                                                        borderRadius: "4px",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        fontSize: "10px",
+                                                    }}
+                                                >
+                                                    {format}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemove(format)}
+                                                        style={{
+                                                            marginLeft: "6px",
+                                                            background: "transparent",
+                                                            border: "none",
+                                                            color: "#fff",
+                                                            fontSize: "16px",
+                                                            lineHeight: "1",
+                                                            cursor: "pointer",
+                                                        }}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </span>
+                                            )) : null}
+
+
                                             <input
                                                 type="text"
                                                 style={{
-                                                    border: 'none',
-                                                    outline: 'none',
+                                                    border: "none",
+                                                    outline: "none",
                                                     flex: 1,
-                                                    minWidth: '100px',
-                                                    fontSize: '14px'
+                                                    minWidth: "100px",
+                                                    fontSize: "14px",
                                                 }}
                                                 value={input}
                                                 onChange={(e) => setInput(e.target.value)}
@@ -791,20 +1225,32 @@ const SettingPage = () => {
                                 </div>
                             </div>
 
+                            {/* Checkbox */}
                             <div className="mb-3">
-                                <label className="form-label d-block mb-2">Employee can view/download all department files</label>
+                                <label className="form-label d-block mb-2">
+                                    Employee can view/download all department files
+                                </label>
                                 <label className="switch">
-                                    <input type="checkbox" />
+                                    <input
+                                        type="checkbox"
+                                        name="allowDepartmentFiles"
+                                        checked={form.allowDepartmentFiles || false}
+                                        onChange={handleChange}
+                                    />
                                     <span className="slider round"></span>
                                 </label>
                             </div>
                         </div>
 
+                        {/* Save Button */}
                         <div className="text-end mb-2">
-                            <button type="submit" className="btn btn-sm add-btn">Save</button>
+                            <button type="submit" className="btn btn-sm add-btn">
+                                Save
+                            </button>
                         </div>
-                    </div>
+                    </form>
                 );
+
 
             default:
             // return <p>{selectedDepartment} Section Coming Soon...</p>;
