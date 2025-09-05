@@ -1,47 +1,112 @@
 import React, { useState } from 'react';
-import DataTable from 'react-data-table-component';
 import './timesheet.css';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-
-
 
 const ImportAttendance = () => {
+  const [file, setFile] = useState(null);
+  const [report, setReport] = useState([]);
 
-    return (
-        <div className="custom-container">
-            <h5>Import Attendance</h5>
-            <p style={{ fontSize: '15px', color: 'rgb(98, 98, 98)' }}>
-                <span style={{ color: 'red' }}>Home</span> / Import Attendance
-            </p>
+  // Handle file selection
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+    setReport([]);
+  };
 
+  // Handle CSV import
+  const handleImport = async () => {
+    if (!file) {
+      alert('Please select a CSV file first.');
+      return;
+    }
 
-            <div className="card no-radius">
-                <div className="card-header text-dark">Import CSV File Only</div>
-                <div className="card-body d-flex align-items-start">
-                    <div style={{ color: 'grey', fontSize: '14px' }}>
-                        <p>The first line in downloaded csv file should remain as it is. Please do not change the order of columns in csv file.</p>
-                        <p> The correct column order is (Employee ID, Attendance Date, Clock In Time and Date, Clock Out Time and Date) and you must follow the csv file, otherwise you will get an error while importing the csv file.</p>
-                    </div>
-                </div>
+    const formData = new FormData();
+    formData.append('file', file);
 
-                <div className='text-start'>
-                    <button className='btn btn-sm down-btn mb-2 ms-2'>
-                        <i className="fas fa-download me-1"></i> Download Sample File
-                    </button>
-                </div>
+    try {
+      const res = await fetch('http://localhost:3000/attendance/import', {
+        method: 'POST',
+        body: formData,
+      });
 
-                <div className='cont'>
-                    <p>Upload File</p>
-                    <button type="submit" className="btn btn-sm add-btn">Browse</button>
-                    <p style={{ fontSize: '10px' }}>Please select csv or excel file (allowed file size 500 KB)</p>
-                    <button type="submit" className="btn btn-sm add-btn">Import</button>
-                </div>
+      const data = await res.json();
 
-            </div>
+      if (res.ok) {
+        setReport(data);
+      } else {
+        alert(data.message || 'Import failed.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error while importing attendance.');
+    }
+  };
 
+  return (
+    <div className="custom-container">
+      <h5>Import Attendance</h5>
+      <p style={{ fontSize: '15px', color: 'rgb(98, 98, 98)' }}>
+        <span style={{ color: 'red' }}>Home</span> / Import Attendance
+      </p>
+
+      <div className="card no-radius">
+        <div className="card-header text-dark">Import CSV File Only</div>
+        <div className="card-body d-flex align-items-start">
+          <div style={{ color: 'grey', fontSize: '14px' }}>
+            <p>The first line in downloaded CSV file should remain as it is. Do not change the column order.</p>
+            <p>Correct order: Employee ID, Attendance Date, Clock In Time, Clock Out Time.</p>
+          </div>
         </div>
-    );
+
+        <div className="text-start ms-4">
+          <a href="/sample-csv-attendance.csv" download className="btn btn-sm down-btn mb-2">
+            <i className="fas fa-download me-1"></i> Download Sample File
+          </a>
+        </div>
+
+        <div className="cont">
+          <p>Upload File</p>
+          <input
+            type="file"
+            accept=".csv, application/vnd.ms-excel"
+            onChange={handleFileChange}
+            className="btn btn-sm add-btn mb-2"
+          />
+          <p style={{ fontSize: '10px' }}>Allowed file size 500 KB</p>
+          <button type="button" className="btn btn-sm add-btn" onClick={handleImport}>
+            Import
+          </button>
+        </div>
+
+        {/* Display import report */}
+        {report.length > 0 && (
+          <div style={{ marginTop: '20px' }}>
+            <h6>Import Report</h6>
+            <table className="table table-sm table-bordered">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Employee ID</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Message</th>
+                </tr>
+              </thead>
+              <tbody>
+                {report.map((row, index) => (
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>{row.employee_id}</td>
+                    <td>{row.attendance_date}</td>
+                    <td>{row.attendance_status || 'Present'}</td>
+                    <td>{row.msg}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default ImportAttendance;

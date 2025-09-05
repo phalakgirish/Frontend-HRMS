@@ -3,7 +3,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import './more.css';
 const SettingPage = () => {
     // const { settingId } = useParams();
     const [selectedDepartment, setSelectedDepartment] = useState('General');
@@ -46,40 +46,33 @@ const SettingPage = () => {
         enable_payslip_password: false,
         payslip_logo: "",
         enable_employee_job: false,
-        job_app_format: ['doc', 'docx', 'jpeg', 'jpg', 'pdf', 'txt', 'excel'],
+        job_app_format: ['doc', 'docx', 'jpeg', 'jpg', 'pdf', 'txt', 'excel', 'gif', 'png',
+            'mp3', 'mp4', 'flv', 'xls'],
         job_list_logo: "",
         enable_email_notifi: false,
+        animation_top_menu: "",
+        animation_modal_dialogs: "",
+        notification_position: "",
+        enable_close_btn: false,
+        progress_bar: false,
         file_size: 0,
-        file_format: [],
+        // file_format: ['gif', 'png', 'pdf', 'txt', 'mp3', 'mp4', 'flv', 'doc', 'docx', 'xls', 'jpg', 'jpeg'],
+        emp_download_dept_file: false
     });
-
-
 
     const [payslipLogo, setPayslipLogo] = useState(null);
     const [jobListLogo, setJobListLogo] = useState(null);
-    // const [formats, setFormats] = useState([]);
-    // const [formats1, setFormats1] = useState([]);
     const [settingId, setSettingId] = useState(null);
-
-
+    const [savedId, setSavedId] = useState(null);
+    const [input, setInput] = useState('');
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
+        const { name, type, checked, value } = e.target;
+        setForm((prev) => ({
+            ...prev,
+            [name]: type === "checkbox" ? checked : value,
+        }));
     };
-
-    const handleAddFormat = (e) => {
-        if (e.key === "Enter" && input.trim() && !form.job_app_format.includes(input.trim())) {
-            setForm({ ...form, job_app_format: [...form.job_app_format, input.trim()] });
-            setInput("");
-        }
-    };
-
-    const handleRemoveFormat = (format) => {
-        setForm({ ...form, job_app_format: form.job_app_format.filter(f => f !== format) });
-    };
-
-    const [savedId, setSavedId] = useState(null);
 
     useEffect(() => {
         axios.get("http://localhost:3000/settings")
@@ -129,29 +122,26 @@ const SettingPage = () => {
         }
     };
 
-
-    const [formats, setFormats] = useState([
-        'doc', 'docx', 'jpeg', 'jpg', 'pdf', 'txt', 'excel'
-    ]);
-
-    const [formats1, setFormats1] = useState([
-        'gif', 'png', 'pdf', 'txt', 'mp3', 'mp4', 'flv', 'doc', 'docs', 'xls', 'jpg', 'jpeg'
-    ]);
-
-    const [input, setInput] = useState('');
-
-    const handleKeyDown = (e) => {
-        if (e.key === "Enter" && input.trim()) {
-            setFormats([...formats, input.trim()]); // ✅ must be array
+    const handleAddFormat = (e) => {
+        if (e.key === "Enter" && input.trim() && !form.job_app_format.includes(input.trim())) {
+            setForm((prev) => ({
+                ...prev,
+                job_app_format: [...prev.job_app_format, input.trim()]
+            }));
             setInput("");
         }
     };
 
-
-
-    const handleRemove = (format) => {
-        setFormats(formats.filter((f) => f !== format));
+    const handleRemoveFormat = (format) => {
+        setForm((prev) => ({
+            ...prev,
+            job_app_format: prev.job_app_format.filter((f) => f !== format)
+        }));
     };
+
+    useEffect(() => {
+        //   getSettings().then(res => setForm(res.data));
+    }, []);
 
 
     const renderContent = () => {
@@ -750,14 +740,13 @@ const SettingPage = () => {
                                             }}
                                         />
 
-                                        {/* Preview */}
                                         {form.payslip_logo && (
                                             <div className="mt-2">
                                                 <img
                                                     src={
                                                         typeof form.payslip_logo === "string"
-                                                            ? `http://localhost:3000/uploads/${form.payslip_logo}` // existing file from backend
-                                                            : URL.createObjectURL(form.payslip_logo) // newly selected file
+                                                            ? `http://localhost:3000/uploads/${form.payslip_logo}`
+                                                            : URL.createObjectURL(form.payslip_logo)
                                                     }
                                                     alt="Payslip Logo"
                                                     style={{ maxWidth: "150px", maxHeight: "150px" }}
@@ -826,15 +815,20 @@ const SettingPage = () => {
                                     </div>
 
 
-                                    {/* File Formats */}
-                                    {/* <div className="mb-3">
-                                    <label className="form-label d-block mb-2">Job Application file format</label>
-                                    <div
-                                        className="form-control d-flex flex-wrap align-items-center"
-                                        style={{ minHeight: '42px', gap: '6px', padding: '4px 6px' }}
-                                    >
-                                        {Array.isArray(form.job_app_format) &&
-                                            form.job_app_format.map((format, index) => (
+                                    <div className="mb-3">
+                                        <label className="form-label d-block mb-2">Job Application file format</label>
+                                        <div
+                                            className="form-control d-flex align-items-center fileFormat"
+                                            style={{
+                                                minHeight: '42px',
+                                                gap: '6px',
+                                                padding: '4px 6px',
+                                                borderRadius: '4px',
+                                                overflowX: 'auto',
+                                                whiteSpace: 'nowrap',
+                                            }}
+                                        >
+                                            {form.job_app_format.map((format, index) => (
                                                 <span
                                                     key={index}
                                                     style={{
@@ -842,9 +836,10 @@ const SettingPage = () => {
                                                         color: '#fff',
                                                         padding: '4px 10px',
                                                         borderRadius: '4px',
-                                                        display: 'flex',
+                                                        display: 'inline-flex',
                                                         alignItems: 'center',
                                                         fontSize: '14px',
+                                                        marginRight: '6px'
                                                     }}
                                                 >
                                                     {format}
@@ -858,36 +853,8 @@ const SettingPage = () => {
                                                             color: '#fff',
                                                             fontSize: '16px',
                                                             lineHeight: '1',
-                                                            cursor: 'pointer',
+                                                            cursor: 'pointer'
                                                         }}
-                                                    >
-                                                        ×
-                                                    </button>
-                                                </span>
-                                            ))}
-
-                                        <input
-                                            type="text"
-                                            value={input}
-                                            onChange={(e) => setInput(e.target.value)}
-                                            onKeyDown={handleAddFormat}
-                                            placeholder="Add format and press Enter"
-                                            style={{ border: 'none', outline: 'none', flex: 1, minWidth: '100px' }}
-                                        />
-                                    </div>
-                                </div> */}
-
-                                   <div className="mb-3">
-                                        <label className="form-label d-block mb-2">Job Application file format</label>
-                                        <div className="form-control d-flex flex-wrap align-items-center"
-                                            style={{ minHeight: '42px', gap: '6px', padding: '4px 6px', borderRadius: '4px' }}>
-                                            {form.job_app_format.map((format, index) => (
-                                                <span key={index} style={{ background: '#00c4cc', color: '#fff', padding: '4px 10px', borderRadius: '4px', display: 'flex', alignItems: 'center', fontSize: '14px' }}>
-                                                    {format}
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleRemoveFormat(format)}
-                                                        style={{ marginLeft: '6px', background: 'transparent', border: 'none', color: '#fff', fontSize: '16px', lineHeight: '1', cursor: 'pointer' }}
                                                     >
                                                         ×
                                                     </button>
@@ -899,9 +866,16 @@ const SettingPage = () => {
                                                 value={input}
                                                 onChange={(e) => setInput(e.target.value)}
                                                 onKeyDown={handleAddFormat}
-                                                style={{ border: 'none', outline: 'none', flex: 1, minWidth: '100px', fontSize: '14px' }}
+                                                style={{
+                                                    border: 'none',
+                                                    outline: 'none',
+                                                    flex: 1,
+                                                    minWidth: '100px',
+                                                    fontSize: '14px'
+                                                }}
                                             />
                                         </div>
+
 
                                     </div>
 
@@ -925,8 +899,45 @@ const SettingPage = () => {
 
                                     <div className="mb-4">
                                         <label className="form-label mt-2">Logo</label>
-                                        <div className="text-start">
+                                        {/* <div className="text-start">
                                             <button type="button" className="btn btn-sm add-btn">Browse</button>
+                                        </div> */}
+
+                                        <div className="text-start">
+                                            <input
+                                                type="file"
+                                                name="job_list_logo"
+                                                className="form-control"
+                                                accept=".gif,.png,.jpg,.jpeg"
+                                                onChange={(e) => {
+                                                    if (e.target.files[0]) {
+                                                        setForm({ ...form, job_list_logo: e.target.files[0] });
+                                                    }
+                                                }}
+                                            />
+
+                                            {form.job_list_logo && (
+                                                <div className="mt-2">
+                                                    <img
+                                                        src={
+                                                            typeof form.job_list_logo === "string"
+                                                                ? `http://localhost:3000/uploads/${form.job_list_logo}`
+                                                                : URL.createObjectURL(form.job_list_logo)
+                                                        }
+                                                        alt="Payslip Logo"
+                                                        style={{ maxWidth: "150px", maxHeight: "150px" }}
+                                                    />
+                                                    <div className="mt-1">
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-danger btn-sm"
+                                                            onClick={() => setForm({ ...form, job_list_logo: null })}
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="mt-2 text-muted" style={{ fontSize: '12px', lineHeight: '1.5' }}>
@@ -946,58 +957,29 @@ const SettingPage = () => {
                 );
 
 
-            // case 'Email Notifications':
-            //     return (
-            //         <div>
-            //             <form onSubmit={handleSubmit}>
-
-            //                <div className="mb-3">
-            //                         <label className="form-label d-block mb-2">
-            //                             Enable email notifications
-            //                         </label>
-            //                         <label className="switch">
-            //                             <input
-            //                                 type="checkbox"
-            //                                 name="enable_email_notifi"
-            //                                 checked={form.enable_email_notifi || false}
-            //                                 onChange={(e) =>
-            //                                     setForm({ ...form, enable_email_notifi: e.target.checked })
-            //                                 }
-            //                             />
-            //                             <span className="slider round"></span>
-            //                         </label>
-            //                     </div>
-
-            //                 <div className="text-end mb-2">
-            //                     <button type="submit" className="btn btn-sm add-btn">Save</button>
-            //                 </div>
-            //             </form>
-            //         </div>
-            //     );
-            
-               case 'Email Noifications':
+            case 'Email Noifications':
                 return (
                     <div>
                         <form onSubmit={handleSubmit}>
-                        <div className="mb-3">
-                            <label className="form-label d-block mb-2">Enable email notificationsp</label>
-                            <label className="switch">
-                                <input
-                                    type="checkbox"
-                                    name="enable_email_notifi"
-                                    checked={form.enable_email_notifi || false}
-                                    onChange={(e) =>
-                                        setForm({ ...form, enable_email_notifi: e.target.checked })
-                                    }
-                                />
-                                <span className="slider round"></span>
-                            </label>
-                        </div>
+                            <div className="mb-3">
+                                <label className="form-label d-block mb-2">Enable email notificationsp</label>
+                                <label className="switch">
+                                    <input
+                                        type="checkbox"
+                                        name="enable_email_notifi"
+                                        checked={form.enable_email_notifi || false}
+                                        onChange={(e) =>
+                                            setForm({ ...form, enable_email_notifi: e.target.checked })
+                                        }
+                                    />
+                                    <span className="slider round"></span>
+                                </label>
+                            </div>
 
-                        <div className="text-end mb-2">
-                            <button type="submit" className="btn btn-sm add-btn">Save</button>
-                        </div>
-</form>
+                            <div className="text-end mb-2">
+                                <button type="submit" className="btn btn-sm add-btn">Save</button>
+                            </div>
+                        </form>
                     </div>
                 );
 
@@ -1011,8 +993,8 @@ const SettingPage = () => {
                                     <label>Animation Effects</label>
                                     <select
                                         className="form-control"
-                                        name="menuAnimationEffect"
-                                        value={form.menuAnimationEffect}
+                                        name="animation_top_menu"
+                                        value={form.animation_top_menu}
                                         onChange={handleChange}
                                     >
                                         <option value="rollin">rollin</option>
@@ -1035,8 +1017,8 @@ const SettingPage = () => {
                                     <label>Animation Effects</label>
                                     <select
                                         className="form-control"
-                                        name="modalAnimationEffect"
-                                        value={form.modalAnimationEffect}
+                                        name="animation_modal_dialogs"
+                                        value={form.animation_modal_dialogs}
                                         onChange={handleChange}
                                     >
                                         <option value="rollin">rollin</option>
@@ -1073,8 +1055,8 @@ const SettingPage = () => {
                                 <label>Position</label>
                                 <select
                                     className="form-control"
-                                    name="notificationPosition"
-                                    value={form.notificationPosition || "tr"}
+                                    name="notification_position"
+                                    value={form.notification_position || "tr"}
                                     onChange={handleChange}
                                 >
                                     <option value="tr">Top Right</option>
@@ -1096,8 +1078,8 @@ const SettingPage = () => {
                                 <label className="switch">
                                     <input
                                         type="checkbox"
-                                        name="enableCloseButton"
-                                        checked={form.enableCloseButton || false}
+                                        name="enable_close_btn"
+                                        checked={form.enable_close_btn || false}
                                         onChange={handleChange}
                                     />
                                     <span className="slider round"></span>
@@ -1110,8 +1092,8 @@ const SettingPage = () => {
                                 <label className="switch">
                                     <input
                                         type="checkbox"
-                                        name="progressBar"
-                                        checked={form.progressBar || false}
+                                        name="progress_bar"
+                                        checked={form.progress_bar || false}
                                         onChange={handleChange}
                                     />
                                     <span className="slider round"></span>
@@ -1130,23 +1112,23 @@ const SettingPage = () => {
 
 
             case "Files Manager":
+
                 return (
                     <form onSubmit={handleSubmit}>
                         <div className="col-md-12">
                             <div className="row">
-                                {/* Max File Size */}
                                 <div className="col-md-3">
                                     <div className="mb-3">
                                         <label className="form-label">Max. File Size</label>
                                         <div className="input-group">
                                             <input
                                                 type="number"
-                                                name="maxFileSize"
+                                                name="file_size"
                                                 className="form-control"
                                                 placeholder="10"
                                                 min="0"
                                                 style={{ height: "38px" }}
-                                                value={form.maxFileSize || ""}
+                                                value={form.file_size || ""}
                                                 onChange={handleChange}
                                             />
                                             <span
@@ -1159,73 +1141,72 @@ const SettingPage = () => {
                                     </div>
                                 </div>
 
-                                {/* Allowed Extensions */}
-                                <div className="col-md-9">
-                                    <div className="mb-3">
-                                        <label className="form-label d-block mb-2">
-                                            Allowed extensions
-                                        </label>
-                                        <div
-                                            className="form-control d-flex flex-wrap align-items-center"
+
+
+                                <div className="mb-3 col-md-9">
+                                    <label className="form-label d-block mb-2">Job Application file format</label>
+                                   <div
+                                            className="form-control d-flex align-items-center fileFormat"
                                             style={{
-                                                minHeight: "42px",
-                                                gap: "6px",
-                                                padding: "4px 6px",
-                                                borderRadius: "4px",
+                                                minHeight: '42px',
+                                                gap: '6px',
+                                                padding: '4px 6px',
+                                                borderRadius: '4px',
+                                                overflowX: 'auto',
+                                                whiteSpace: 'nowrap',
                                             }}
                                         >
-                                            {Array.isArray(formats1) ? formats1.map((format, index) => (
+                                            {form.job_app_format.map((format, index) => (
                                                 <span
                                                     key={index}
                                                     style={{
-                                                        background: "#00c4cc",
-                                                        color: "#fff",
-                                                        padding: "2px 6px",
-                                                        borderRadius: "4px",
-                                                        display: "flex",
-                                                        alignItems: "center",
-                                                        fontSize: "10px",
+                                                        background: '#00c4cc',
+                                                        color: '#fff',
+                                                        padding: '4px 10px',
+                                                        borderRadius: '4px',
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        fontSize: '14px',
+                                                        marginRight: '6px'
                                                     }}
                                                 >
                                                     {format}
                                                     <button
                                                         type="button"
-                                                        onClick={() => handleRemove(format)}
+                                                        onClick={() => handleRemoveFormat(format)}
                                                         style={{
-                                                            marginLeft: "6px",
-                                                            background: "transparent",
-                                                            border: "none",
-                                                            color: "#fff",
-                                                            fontSize: "16px",
-                                                            lineHeight: "1",
-                                                            cursor: "pointer",
+                                                            marginLeft: '6px',
+                                                            background: 'transparent',
+                                                            border: 'none',
+                                                            color: '#fff',
+                                                            fontSize: '16px',
+                                                            lineHeight: '1',
+                                                            cursor: 'pointer'
                                                         }}
                                                     >
                                                         ×
                                                     </button>
                                                 </span>
-                                            )) : null}
-
+                                            ))}
 
                                             <input
                                                 type="text"
-                                                style={{
-                                                    border: "none",
-                                                    outline: "none",
-                                                    flex: 1,
-                                                    minWidth: "100px",
-                                                    fontSize: "14px",
-                                                }}
                                                 value={input}
                                                 onChange={(e) => setInput(e.target.value)}
-                                                onKeyDown={handleKeyDown}
+                                                onKeyDown={handleAddFormat}
+                                                style={{
+                                                    border: 'none',
+                                                    outline: 'none',
+                                                    flex: 1,
+                                                    minWidth: '100px',
+                                                    fontSize: '14px'
+                                                }}
                                             />
                                         </div>
-                                    </div>
+
                                 </div>
                             </div>
 
-                            {/* Checkbox */}
                             <div className="mb-3">
                                 <label className="form-label d-block mb-2">
                                     Employee can view/download all department files
@@ -1233,8 +1214,8 @@ const SettingPage = () => {
                                 <label className="switch">
                                     <input
                                         type="checkbox"
-                                        name="allowDepartmentFiles"
-                                        checked={form.allowDepartmentFiles || false}
+                                        name="emp_download_dept_file"
+                                        checked={form.emp_download_dept_file || false}
                                         onChange={handleChange}
                                     />
                                     <span className="slider round"></span>
