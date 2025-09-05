@@ -1,137 +1,73 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DataTable from 'react-data-table-component';
-// import './organization.css';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-
-
+import axios from 'axios';
 
 const DatewiseAttendance = () => {
-
-    // const [showModal, setShowModal] = useState(false);
-    const [selectedRow, setSelectedRow] = useState(null);
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [description, setDescription] = useState('<div class="mb-3"><label>Hello, Your Payslip is generated</label></div>');
-
-    // const handleView = (row) => {
-    //     setSelectedRow(row);
-    //     setShowModal(true);
-    // };
-
-
-    const handleEdit = (row) => {
-        setSelectedRow(row);
-        setShowEditModal(true);
-    };
-
-    // const handleDelete = (row) => {
-    //     if (window.confirm('Are you sure to delete this record?')) {
-    //         console.log('Deleting:', row);
-    //     }
-    // };
-
-
-    const columns = [
-        { name: 'Status', selector: row => row.status },
-        { name: 'Date', selector: row => row.date },
-        { name: 'Clock IN', selector: row => row.clockIn },
-        { name: 'Clock Out', selector: row => row.clockOut },
-        { name: 'Late', selector: row => row.late },
-        { name: 'Early Leaving', selector: row => row.earlyLeaving },
-        { name: 'Overtime', selector: row => row.overtime },
-        { name: 'Total Work', selector: row => row.totalWork },
-        { name: 'Total Rest', selector: row => row.totalRest },
-    ];
-
-    const data = [
-        {
-            status: 'Absent',
-            date: '23-Jul-2025',
-            clockIn: '-',
-            clockOut: '-',
-            late: '00:00',
-            earlyLeaving: '00:00',
-            overtime: '00:00',
-            totalWork: '00:00',
-            totalRest: '00:00'
-        },
-        {
-            status: 'Absent',
-            date: '23-Jul-2025',
-            clockIn: '-',
-            clockOut: '-',
-            late: '00:00',
-            earlyLeaving: '00:00',
-            overtime: '00:00',
-            totalWork: '00:00',
-            totalRest: '00:00'
-        }, {
-            status: 'Absent',
-            date: '23-Jul-2025',
-            clockIn: '-',
-            clockOut: '-',
-            late: '00:00',
-            earlyLeaving: '00:00',
-            overtime: '00:00',
-            totalWork: '00:00',
-            totalRest: '00:00'
-        }, {
-            status: 'Absent',
-            date: '23-Jul-2025',
-            clockIn: '-',
-            clockOut: '-',
-            late: '00:00',
-            earlyLeaving: '00:00',
-            overtime: '00:00',
-            totalWork: '00:00',
-            totalRest: '00:00'
-        },
-    ];
-
-    const customStyles = {
-        headCells: {
-            style: {
-                backgroundColor: '#2b528c',
-                color: 'white',
-                fontSize: '14px',
-            },
-        },
-    };
-
-    const conditionalRowStyles = [
-        {
-            when: (row, index) => index % 2 === 0,
-            style: {
-                backgroundColor: 'white',
-            },
-        },
-        {
-            when: (row, index) => index % 2 !== 0,
-            style: {
-                backgroundColor: '#f8f9fa',
-            },
-        },
-    ];
+    const [fromDate, setFromDate] = useState('');
+    const [toDate, setToDate] = useState('');
+    const [employeeId, setEmployeeId] = useState('');
+    const [employees, setEmployees] = useState([]);
+    const [attendanceData, setAttendanceData] = useState([]);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    const totalEntries = data.length;
-    const totalPages = Math.ceil(totalEntries / rowsPerPage);
 
-    const paginatedData = data.slice(
+    useEffect(() => {
+        axios.get('http://localhost:3000/employee')
+            .then(res => setEmployees(res.data))
+            .catch(err => console.error(err));
+    }, []);
+
+    const fetchAttendance = () => {
+
+        if (!fromDate || !toDate || !employeeId) {
+            alert("Please select from date, to date, and employee");
+            return;
+        }
+
+
+        axios.get('http://localhost:3000/attendance/datewise', {
+            params: {
+                emp_id: employeeId,
+                startDate: fromDate,
+                endDate: toDate
+            }
+        })
+            .then(res => setAttendanceData(res.data))
+            .catch(err => console.error(err));
+    };
+
+    const columns = [
+        { name: 'Status', selector: row => row.attendance_status },
+        { name: 'Date', selector: row => new Date(row.attendance_date).toLocaleDateString() },
+        { name: 'Clock IN', selector: row => row.attendance_clock_in },
+        { name: 'Clock Out', selector: row => row.attendance_clock_out },
+        { name: 'Late', selector: row => row.attendance_late || '00:00' },
+        { name: 'Early Leaving', selector: row => row.attendance_early_leaving || '00:00' },
+        { name: 'Overtime', selector: row => row.attendance_overtime || '00:00' },
+        { name: 'Total Work', selector: row => row.attendance_total_work || '00:00' },
+        { name: 'Total Rest', selector: row => row.attendance_total_rest || '00:00' },
+    ];
+
+    const customStyles = {
+        headCells: { style: { backgroundColor: '#2b528c', color: 'white', fontSize: '14px' } },
+    };
+
+    const conditionalRowStyles = [
+        { when: (row, index) => index % 2 === 0, style: { backgroundColor: 'white' } },
+        { when: (row, index) => index % 2 !== 0, style: { backgroundColor: '#f8f9fa' } },
+    ];
+
+    const totalEntries = attendanceData.length;
+    const totalPages = Math.ceil(totalEntries / rowsPerPage);
+    const paginatedData = attendanceData.slice(
         (currentPage - 1) * rowsPerPage,
         currentPage * rowsPerPage
     );
 
     const startEntry = (currentPage - 1) * rowsPerPage + 1;
     const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
-
-    // const [showAddForm, setShowAddForm] = useState(false);
-
-    // const toggleAddForm = () => {
-    //     setShowAddForm((prev) => !prev);
-    // };
 
     return (
         <div className="custom-container">
@@ -141,32 +77,33 @@ const DatewiseAttendance = () => {
             </p>
 
             <div className="card no-radius mb-3 col-md-7">
-                <div className="card-header text-white new-emp-bg fw-bold">Select Date</div>
-                <div className="card-body d-flex align-items-start">
-                    <input type="date" name="" id="" className='me-3' />
-                    <input type="date" name="" id="" />
+                <div className="card-header text-white new-emp-bg fw-bold">Select Date & Employee</div>
+                <div className="card-body d-flex align-items-start gap-2">
+                    <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} />
+                    <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} />
                 </div>
-                <div className="card-body d-flex align-items-start">
-
-                    <select id="" className="form-control">
-                        <option value="">Department Head</option>
-                        <option value="admin">Admin Admin</option>
-                        <option value="anjali">Anjali Patle</option>
-                        <option value="amit">Amit Kumar</option>
-                        <option value="aniket">Aniket Rane</option>
+                <div className="card-body d-flex align-items-start gap-2">
+                    <select
+                        value={employeeId}
+                        onChange={(e) => setEmployeeId(e.target.value)}
+                        className="form-control"
+                    >
+                        <option value="" disabled>Select Employee</option>
+                        {employees.map(emp => (
+                            <option key={emp._id} value={emp._id}>
+                                {emp.firstName} {emp.lastName}
+                            </option>
+                        ))}
                     </select>
-                    <button className="btn btn-sm add-btn ms-4">Get</button>
+
+                    <button className="btn btn-sm add-btn" onClick={fetchAttendance}>Get</button>
                 </div>
             </div>
-
 
             <div className="card no-radius">
                 <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
                     <span>Attendance</span>
-                    {/* <button className="btn btn-sm add-btn" onClick={toggleAddForm}>{showAddForm ? '- Hide' : '+ Add New'}</button> */}
                 </div>
-
-
                 <div className="px-3 mt-4">
                     <div className="d-flex justify-content-between align-items-center mb-2">
                         <div className="d-flex align-items-center gap-2">
@@ -175,10 +112,7 @@ const DatewiseAttendance = () => {
                                 id="entriesSelect"
                                 className="form-select form-select-sm w-auto"
                                 value={rowsPerPage}
-                                onChange={(e) => {
-                                    setRowsPerPage(Number(e.target.value));
-                                    setCurrentPage(1);
-                                }}
+                                onChange={e => { setRowsPerPage(Number(e.target.value)); setCurrentPage(1); }}
                             >
                                 <option value="10">10</option>
                                 <option value="25">25</option>
@@ -200,24 +134,18 @@ const DatewiseAttendance = () => {
                         subHeader
                         subHeaderAlign="right"
                         subHeaderComponent={
-                           <div className="d-flex flex-wrap justify-content-between align-items-center w-100 gap-2">
-                                            <div className="d-flex flex-wrap gap-2">
-                                                <button className="btn btn-sm btn-outline-dark">Copy</button>
-                                                <button className="btn btn-sm btn-outline-dark">CSV</button>
-                                                <button className="btn btn-sm btn-outline-dark">PDF</button>
-                                                <button className="btn btn-sm btn-outline-dark">Print</button>
-                                            </div>
-
-                                            <div className="d-flex align-items-center gap-2">
-                                                <label htmlFor="searchInput" className="mb-0">Search:</label>
-                                                <input
-                                                    id="searchInput"
-                                                    type="text"
-                                                    className="form-control form-control-sm"
-                                                    onChange={() => { }}
-                                                />
-                                            </div>
-                                        </div>
+                            <div className="d-flex flex-wrap justify-content-between align-items-center w-100 gap-2">
+                                <div className="d-flex flex-wrap gap-2">
+                                    <button className="btn btn-sm btn-outline-dark">Copy</button>
+                                    <button className="btn btn-sm btn-outline-dark">CSV</button>
+                                    <button className="btn btn-sm btn-outline-dark">PDF</button>
+                                    <button className="btn btn-sm btn-outline-dark">Print</button>
+                                </div>
+                                <div className="d-flex align-items-center gap-2">
+                                    <label htmlFor="searchInput" className="mb-0">Search:</label>
+                                    <input id="searchInput" type="text" className="form-control form-control-sm" onChange={() => { }} />
+                                </div>
+                            </div>
                         }
                     />
                 </div>
@@ -231,32 +159,24 @@ const DatewiseAttendance = () => {
                 <div className="d-flex justify-content-end align-items-center p-3">
                     <button
                         className="btn btn-sm btn-outline-secondary px-3 prev-next me-1"
-                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                         disabled={currentPage === 1}
-                    >
-                        Prev
-                    </button>
+                    >Prev</button>
 
                     {[...Array(totalPages)].map((_, i) => (
                         <button
                             key={i}
-                            className={`btn btn-sm btn-outline-secondary prev-next me-1 ${currentPage === i + 1 ? 'active' : ''
-                                }`}
+                            className={`btn btn-sm btn-outline-secondary prev-next me-1 ${currentPage === i + 1 ? 'active' : ''}`}
                             onClick={() => setCurrentPage(i + 1)}
-                        >
-                            {i + 1}
-                        </button>
+                        >{i + 1}</button>
                     ))}
 
                     <button
                         className="btn btn-sm btn-outline-secondary px-3 prev-next"
-                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                         disabled={currentPage === totalPages}
-                    >
-                        Next
-                    </button>
+                    >Next</button>
                 </div>
-
             </div>
         </div>
     );
