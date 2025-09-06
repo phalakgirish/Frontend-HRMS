@@ -1,109 +1,161 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'
+import axios from 'axios';
 import './timesheet.css';
+// import Papa from 'papaparse';
 
 const ImportAttendance = () => {
   const [file, setFile] = useState(null);
+  const [employees, setEmployees] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState('');
   const [report, setReport] = useState([]);
 
-  // Handle file selection
+  useEffect(() => {
+    axios.get('http://localhost:3000/employee')
+      .then(res => setEmployees(res.data))
+      .catch(err => console.error(err));
+  }, []);
+
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
     setReport([]);
   };
 
-  // Handle CSV import
-  const handleImport = async () => {
-    if (!file) {
-      alert('Please select a CSV file first.');
-      return;
-    }
+  const isValidDate = (dateStr) => /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
 
-    const formData = new FormData();
-    formData.append('file', file);
+  const isValidTime = (timeStr) => /^([0-1]\d|2[0-3]):([0-5]\d)$/.test(timeStr);
 
-    try {
-      const res = await fetch('http://localhost:3000/attendance/import', {
-        method: 'POST',
-        body: formData,
-      });
+  // const handleImport = () => {
+  //   if (!file) return alert('Please select a CSV file.');
+  //   if (!selectedEmployee) return alert('Please select an employee.');
 
-      const data = await res.json();
+  //   Papa.parse(file, {
+  //     header: true,
+  //     skipEmptyLines: true,
+  //     complete: async (results) => {
+  //       const dataToSend = [];
+  //       const tempReport = [];
 
-      if (res.ok) {
-        setReport(data);
-      } else {
-        alert(data.message || 'Import failed.');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Error while importing attendance.');
-    }
-  };
+  //       results.data.forEach((row, index) => {
+  //         const date = row['Attendance Date']?.trim();
+  //         let clockIn = row['Clock In Time']?.trim() || '09:00';
+  //         let clockOut = row['Clock Out Time']?.trim() || '18:00';
+  //         const status = row['Status']?.trim() || 'Present';
+
+  //         let msg = '';
+
+  //         if (!date || !isValidDate(date)) {
+  //           msg = 'Invalid or missing date';
+  //         } else if (!isValidTime(clockIn)) {
+  //           msg = 'Invalid clock in';
+  //           clockIn = '09:00';
+  //         } else if (!isValidTime(clockOut)) {
+  //           msg = 'Invalid clock out';
+  //           clockOut = '18:00';
+  //         }
+
+  //         const [inH, inM] = clockIn.split(':').map(Number);
+  //         const [outH, outM] = clockOut.split(':').map(Number);
+  //         const totalWork = (outH + outM / 60) - (inH + inM / 60);
+
+  //         dataToSend.push({
+  //           employee_id: selectedEmployee,
+  //           attendance_date: date,
+  //           attendance_clock_in: clockIn,
+  //           attendance_clock_out: clockOut,
+  //           attendance_status: status,
+  //           attendance_total_work: totalWork.toFixed(2),
+  //           attendance_overtime: totalWork > 8 ? (totalWork - 8).toFixed(2) : '0',
+  //         });
+
+  //         tempReport.push({
+  //           row: index + 1,
+  //           date,
+  //           clockIn,
+  //           clockOut,
+  //           status,
+  //           msg: msg || 'Ready to import',
+  //         });
+  //       });
+
+  //       setReport(tempReport);
+
+  //       const validData = dataToSend.filter(d => isValidDate(d.attendance_date));
+  //       if (!validData.length) return alert('No valid rows to import');
+
+  //       try {
+  //         const res = await axios.post('http://localhost:3000/attendance/import', validData);
+  //         alert('Import completed!');
+  //         console.log(res.data);
+  //       } catch (err) {
+  //         console.error(err);
+  //         alert('Import failed. Check console.');
+  //       }
+  //     }
+  //   });
+  // };
 
   return (
     <div className="custom-container">
       <h5>Import Attendance</h5>
-      <p style={{ fontSize: '15px', color: 'rgb(98, 98, 98)' }}>
-        <span style={{ color: 'red' }}>Home</span> / Import Attendance
-      </p>
 
       <div className="card no-radius">
         <div className="card-header text-dark">Import CSV File Only</div>
-        <div className="card-body d-flex align-items-start">
-          <div style={{ color: 'grey', fontSize: '14px' }}>
-            <p>The first line in downloaded CSV file should remain as it is. Do not change the column order.</p>
-            <p>Correct order: Employee ID, Attendance Date, Clock In Time, Clock Out Time.</p>
-          </div>
-        </div>
+        <div className="card-body d-flex flex-column gap-2">
 
-        <div className="text-start ms-4">
-          <a href="/sample-csv-attendance.csv" download className="btn btn-sm down-btn mb-2">
-            <i className="fas fa-download me-1"></i> Download Sample File
-          </a>
-        </div>
+          <label>Select Employee</label>
+          <select
+            className="form-select form-select-sm w-auto mb-2"
+            value={selectedEmployee}
+            onChange={(e) => setSelectedEmployee(e.target.value)}
+          >
+            <option value="">-- Choose Employee --</option>
+            {employees.map(emp => (
+              <option key={emp._id} value={emp._id}>
+                {emp.firstName} {emp.lastName}
+              </option>
+            ))}
+          </select>
 
-        <div className="cont">
-          <p>Upload File</p>
           <input
             type="file"
-            accept=".csv, application/vnd.ms-excel"
+            accept=".csv"
             onChange={handleFileChange}
             className="btn btn-sm add-btn mb-2"
           />
-          <p style={{ fontSize: '10px' }}>Allowed file size 500 KB</p>
-          <button type="button" className="btn btn-sm add-btn" onClick={handleImport}>
-            Import
-          </button>
-        </div>
+          {/* <button className="btn btn-sm add-btn" onClick={handleImport}>Import</button> */}
+          <button className="btn btn-sm add-btn">Import</button>
 
-        {/* Display import report */}
-        {report.length > 0 && (
-          <div style={{ marginTop: '20px' }}>
-            <h6>Import Report</h6>
-            <table className="table table-sm table-bordered">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Employee ID</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th>Message</th>
-                </tr>
-              </thead>
-              <tbody>
-                {report.map((row, index) => (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{row.employee_id}</td>
-                    <td>{row.attendance_date}</td>
-                    <td>{row.attendance_status || 'Present'}</td>
-                    <td>{row.msg}</td>
+          {report.length > 0 && (
+            <div style={{ marginTop: '20px' }}>
+              <h6>Import Report</h6>
+              <table className="table table-sm table-bordered">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Clock In</th>
+                    <th>Clock Out</th>
+                    <th>Status</th>
+                    <th>Message</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody>
+                  {report.map(r => (
+                    <tr key={r.row}>
+                      <td>{r.row}</td>
+                      <td>{r.date}</td>
+                      <td>{r.clockIn}</td>
+                      <td>{r.clockOut}</td>
+                      <td>{r.status}</td>
+                      <td>{r.msg}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+        </div>
       </div>
     </div>
   );
