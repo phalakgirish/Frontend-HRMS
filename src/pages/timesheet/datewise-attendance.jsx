@@ -40,7 +40,8 @@ const DatewiseAttendance = () => {
 
     const columns = [
         { name: 'Status', selector: row => row.attendance_status },
-        { name: 'Date', selector: row => new Date(row.attendance_date).toLocaleDateString() },
+        { name: 'Date', selector: row => new Date(row.attendance_date).toLocaleDateString()
+ },
         { name: 'Clock IN', selector: row => row.attendance_clock_in },
         { name: 'Clock Out', selector: row => row.attendance_clock_out },
         { name: 'Late', selector: row => row.attendance_late || '00:00' },

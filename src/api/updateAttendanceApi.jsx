@@ -10,9 +10,9 @@ export const createUpdateAttendance = (data) => {
   return axios.post(BASE_URL, data);
 };
 
-export const updateUpdateAttendance = (id,updatedData) =>{
-  return axios.put(`${BASE_URL}/${id}`, updatedData);
-}
+export const updateUpdateAttendance = (id, data) =>
+  axios.put(`http://localhost:3000/update-attendance/${id}`, data);
+
 
 export const deleteUpdateAttendance = async (id) => {
   return await axios.delete(`${BASE_URL}/${id}`);
