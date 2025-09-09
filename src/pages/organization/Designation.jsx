@@ -300,7 +300,7 @@ const Designation = () => {
 
                             <form className="p-3" onSubmit={handleSubmit}>
                                 <div className="row">
-                                
+
                                     <div className="col-md-12 mb-3">
                                         <label>Department</label>
                                         <select
@@ -413,15 +413,6 @@ const Designation = () => {
                             </form>
                         </div>
                     </div>
-
-
-
-
-
-
-
-
-
 
 
                     <div className="col-12 col-lg-8">
@@ -591,7 +582,7 @@ const Designation = () => {
                                                                 />
                                                                 {errors.designation && (
                                                                     <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
-                                                                       Designation Name is Required!
+                                                                        Designation Name is Required!
                                                                     </p>
                                                                 )}
                                                             </div>
@@ -613,7 +604,7 @@ const Designation = () => {
                                                                 />
                                                                 {errors.expenceLimit && (
                                                                     <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
-                                                                       Expense Limit is Required!
+                                                                        Expense Limit is Required!
                                                                     </p>
                                                                 )}
                                                             </div>

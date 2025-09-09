@@ -1,161 +1,143 @@
-import React, { useState, useEffect } from 'react'
-import axios from 'axios';
+import React, { useState } from 'react';
 import './timesheet.css';
-// import Papa from 'papaparse';
+import Papa from "papaparse";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ImportAttendance = () => {
   const [file, setFile] = useState(null);
-  const [employees, setEmployees] = useState([]);
-  const [selectedEmployee, setSelectedEmployee] = useState('');
   const [report, setReport] = useState([]);
-
-  useEffect(() => {
-    axios.get('http://localhost:3000/employee')
-      .then(res => setEmployees(res.data))
-      .catch(err => console.error(err));
-  }, []);
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
     setReport([]);
   };
 
-  const isValidDate = (dateStr) => /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
+  const handlePreview = () => {
+    if (!file) {
+      alert("Please select a CSV file first.");
+      return;
+    }
 
-  const isValidTime = (timeStr) => /^([0-1]\d|2[0-3]):([0-5]\d)$/.test(timeStr);
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (result) => {
+        const mapped = result.data.map((row) => ({
+          employee_id: row["Employee ID"],
+          attendance_date: row["Attendance Date"],
+          attendance_clock_in: row["Clock In Time"],
+          attendance_clock_out: row["Clock Out Time"],
+          attendance_status: "Present", // default
+        }));
+        setReport(mapped);
+      },
+    });
+  };
 
-  // const handleImport = () => {
-  //   if (!file) return alert('Please select a CSV file.');
-  //   if (!selectedEmployee) return alert('Please select an employee.');
+  const handleImport = () => {
+    if (!file) {
+      alert("Please select a CSV file first.");
+      return;
+    }
 
-  //   Papa.parse(file, {
-  //     header: true,
-  //     skipEmptyLines: true,
-  //     complete: async (results) => {
-  //       const dataToSend = [];
-  //       const tempReport = [];
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async function (results) {
+        const records = results.data.map(r => ({
+          employee_id: r["Employee ID"],
+          attendance_date: r["Attendance Date"],
+          attendance_clock_in: r["Clock In Time"] || "09:00",
+          attendance_clock_out: r["Clock Out Time"] || "18:00",
+          attendance_reason: r["Attendance Reason"] || "",
+        }));
 
-  //       results.data.forEach((row, index) => {
-  //         const date = row['Attendance Date']?.trim();
-  //         let clockIn = row['Clock In Time']?.trim() || '09:00';
-  //         let clockOut = row['Clock Out Time']?.trim() || '18:00';
-  //         const status = row['Status']?.trim() || 'Present';
+        try {
+          const res = await fetch("http://localhost:3000/attendance/import", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(records),
+          });
 
-  //         let msg = '';
+          const data = await res.json();
+          if (res.ok) {
+            setReport(data.results || []);
+            toast.success("Attendance imported successfully!");
+          } else {
+            toast.error(data.message || "Import failed.");
+          }
+          data.results.forEach(r => {
+            if (r.msg && r.msg.includes("Duplicate")) {
+              toast.warn(`Duplicate skipped: Employee ID ${r.employee_id}, Date ${r.attendance_date}`);
+            }
+          });
+          setFile(null);
+          setReport([]);
+        } catch (err) {
+          console.error(err);
+          alert("Error while importing attendance.");
+        }
+      }
+    });
+  };
 
-  //         if (!date || !isValidDate(date)) {
-  //           msg = 'Invalid or missing date';
-  //         } else if (!isValidTime(clockIn)) {
-  //           msg = 'Invalid clock in';
-  //           clockIn = '09:00';
-  //         } else if (!isValidTime(clockOut)) {
-  //           msg = 'Invalid clock out';
-  //           clockOut = '18:00';
-  //         }
-
-  //         const [inH, inM] = clockIn.split(':').map(Number);
-  //         const [outH, outM] = clockOut.split(':').map(Number);
-  //         const totalWork = (outH + outM / 60) - (inH + inM / 60);
-
-  //         dataToSend.push({
-  //           employee_id: selectedEmployee,
-  //           attendance_date: date,
-  //           attendance_clock_in: clockIn,
-  //           attendance_clock_out: clockOut,
-  //           attendance_status: status,
-  //           attendance_total_work: totalWork.toFixed(2),
-  //           attendance_overtime: totalWork > 8 ? (totalWork - 8).toFixed(2) : '0',
-  //         });
-
-  //         tempReport.push({
-  //           row: index + 1,
-  //           date,
-  //           clockIn,
-  //           clockOut,
-  //           status,
-  //           msg: msg || 'Ready to import',
-  //         });
-  //       });
-
-  //       setReport(tempReport);
-
-  //       const validData = dataToSend.filter(d => isValidDate(d.attendance_date));
-  //       if (!validData.length) return alert('No valid rows to import');
-
-  //       try {
-  //         const res = await axios.post('http://localhost:3000/attendance/import', validData);
-  //         alert('Import completed!');
-  //         console.log(res.data);
-  //       } catch (err) {
-  //         console.error(err);
-  //         alert('Import failed. Check console.');
-  //       }
-  //     }
-  //   });
-  // };
 
   return (
     <div className="custom-container">
       <h5>Import Attendance</h5>
+      <p style={{ fontSize: '15px', color: 'rgb(98, 98, 98)' }}>
+        <span style={{ color: 'red' }}>Home</span> / Import Attendance
+      </p>
 
       <div className="card no-radius">
         <div className="card-header text-dark">Import CSV File Only</div>
-        <div className="card-body d-flex flex-column gap-2">
 
-          <label>Select Employee</label>
-          <select
-            className="form-select form-select-sm w-auto mb-2"
-            value={selectedEmployee}
-            onChange={(e) => setSelectedEmployee(e.target.value)}
-          >
-            <option value="">-- Choose Employee --</option>
-            {employees.map(emp => (
-              <option key={emp._id} value={emp._id}>
-                {emp.firstName} {emp.lastName}
-              </option>
-            ))}
-          </select>
-
+        <div className="cont">
+          <p>Upload File</p>
           <input
             type="file"
-            accept=".csv"
+            accept=".csv, application/vnd.ms-excel"
             onChange={handleFileChange}
             className="btn btn-sm add-btn mb-2"
           />
-          {/* <button className="btn btn-sm add-btn" onClick={handleImport}>Import</button> */}
-          <button className="btn btn-sm add-btn">Import</button>
+          <p style={{ fontSize: '10px' }}>Allowed file size 500 KB</p>
 
-          {report.length > 0 && (
-            <div style={{ marginTop: '20px' }}>
-              <h6>Import Report</h6>
-              <table className="table table-sm table-bordered">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Date</th>
-                    <th>Clock In</th>
-                    <th>Clock Out</th>
-                    <th>Status</th>
-                    <th>Message</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {report.map(r => (
-                    <tr key={r.row}>
-                      <td>{r.row}</td>
-                      <td>{r.date}</td>
-                      <td>{r.clockIn}</td>
-                      <td>{r.clockOut}</td>
-                      <td>{r.status}</td>
-                      <td>{r.msg}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
+          <button type="button" className="btn btn-sm add-btn me-2" onClick={handlePreview}>
+            Preview
+          </button>
+          <button type="button" className="btn btn-sm add-btn" onClick={handleImport}>
+            Import
+          </button>
         </div>
+
+        {report.length > 0 && (
+          <div style={{ marginTop: '20px' }}>
+            <h6>Import Preview</h6>
+            <table className="table table-sm table-bordered">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Employee ID</th>
+                  <th>Attendance Date</th>
+                  <th>Clock In Time</th>
+                  <th>Clock Out Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                {report.map((row, index) => (
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>{row.employee_id}</td>
+                    <td>{row.attendance_date}</td>
+                    <td>{row.attendance_clock_in}</td>
+                    <td>{row.attendance_clock_out}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
