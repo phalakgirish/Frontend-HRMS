@@ -71,6 +71,8 @@ import Shift from './pages/employees/details.jsx/Shift';
 import EmpLocation from './pages/employees/details.jsx/EmpLocation';
 import Assets from './pages/employees/details.jsx/Assets';
 import ProfilePicture from './pages/employees/details.jsx/ProfilePicture';
+import BasicInformationForm from './pages/employees/details.jsx/BasicInformation';
+import ChangePassword from './pages/employees/details.jsx/ChangePassword';
 
 function Layout({ children, collapsed, toggleSidebar }) {
   const location = useLocation();
@@ -163,6 +165,7 @@ function App() {
           {/* Employees */}
           <Route path="/employees" element={<Employees />} />
           <Route path="/empDetails/:employeeId" element={<EmpDetails />} />
+          <Route path="/empDetails/:employeeId/basicinfo" element={<BasicInformationForm />} />
           <Route path="/empDetails/:employeeId/familydetails" element={<FamilyDetails />} />
           <Route path="/empDetails/:employeeId/qualification" element={<Qualification />} />
           <Route path="/empDetails/:employeeId/experience" element={<WorkExperience />} />
@@ -172,6 +175,8 @@ function App() {
           <Route path="/empDetails/:employeeId/location" element={<EmpLocation />} />
           <Route path="/empDetails/:employeeId/assets" element={<Assets />} />
           <Route path="/empDetails/:employeeId/profilepicture" element={<ProfilePicture />} />
+          <Route path="/empDetails/:employeeId/changepassword" element={<ChangePassword />} />
+
 
 
           <Route path="/awards" element={<Awards />} />
