@@ -378,7 +378,8 @@ const UpdateAttendance = () => {
     return (
         <div className="custom-container">
             <h5>Update Attendance</h5>
-            <p style={{ fontSize: '15px', color: 'rgb(98, 98, 98)' }}>
+            <p style={{ fontSize: '15px', color: 'rgb(98, 98, 98)' }}>+
+                
                 <span style={{ color: 'red' }}>Home</span> / Update Attendance
             </p>
 

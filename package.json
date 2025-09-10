@@ -16,6 +16,8 @@
     "ajv-keywords": "^3.5.2",
     "axios": "^1.11.0",
     "bootstrap": "^5.3.7",
+    "debug": "^4.3.4",
+    "file-saver": "^2.0.5",
     "html2pdf.js": "^0.10.3",
     "jwt-decode": "^4.0.0",
     "papaparse": "^5.5.3",
@@ -30,7 +32,8 @@
     "react-select": "^5.10.2",
     "react-toastify": "^11.0.5",
     "styled-components": "^6.1.19",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -92,7 +92,18 @@ const ImportAttendance = () => {
 
       <div className="card no-radius">
         <div className="card-header text-dark">Import CSV File Only</div>
+ <div className="card-body d-flex align-items-start">
+          <div style={{ color: 'grey', fontSize: '14px' }}>
+            <p>The first line in downloaded CSV file should remain as it is. Do not change the column order.</p>
+            <p>Correct order: Employee ID, Attendance Date, Clock In Time, Clock Out Time.</p>
+          </div>
+        </div>
 
+        <div className="text-start ms-4">
+          <a href="/sample-csv-attendance1.csv" download className="btn btn-sm down-btn mb-2">
+            <i className="fas fa-download me-1"></i> Download Sample File
+          </a>
+        </div>
         <div className="cont">
           <p>Upload File</p>
           <input

@@ -113,7 +113,7 @@ const EmpDetails = () => {
     const renderContent = () => {
         switch (selectedDepartment) {
             case 'Basic Information':
-                return <BasicInformationForm form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
+                return <BasicInformationForm employeeId={form._id} form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
 
             case 'Profile Picture':
                 return <ProfilePicture employeeId={form._id} form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />;
@@ -144,7 +144,7 @@ const EmpDetails = () => {
 
 
             case 'Change Password':
-                return <ChangePassword form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />
+                return <ChangePassword employeeId={form._id} form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />
 
             case 'Assets':
                 return <Assets employeeId={form._id} form={form} setForm={setForm} handleSubmit={handleSubmit} mode={mode} />
