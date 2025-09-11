@@ -14,7 +14,7 @@ const OrgPolicies = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [description, setDescription] = useState('');
     const [Orgpolicy, setOrgpolicy] = useState([]);
-    const [paginated, setPaginated] = useState([]);
+    // const [paginated, setPaginated] = useState([]);
     const editorRef = useRef(null);
     const [editorKey, setEditorKey] = useState(0);
     const [form, setForm] = useState({
@@ -206,36 +206,6 @@ const OrgPolicies = () => {
         { name: 'Added By', selector: row => row.addedBy }
     ];
 
-    // const data = [
-    //     {
-    //         action: '-',
-    //         title: 'Smoke-free work environment',
-    //         company: 'All Companies',
-    //         createdAt: '28-Apr-2017',
-    //         addedBy: 'Admin Admin'
-    //     },
-    //     {
-    //         action: '-',
-    //         title: 'Smoke-free work environment',
-    //         company: 'All Companies',
-    //         createdAt: '28-Apr-2017',
-    //         addedBy: 'Admin Admin'
-    //     },
-    //     {
-    //         action: '-',
-    //         title: 'Smoke-free work environment',
-    //         company: 'All Companies',
-    //         createdAt: '28-Apr-2017',
-    //         addedBy: 'Admin Admin'
-    //     },
-    //     {
-    //         action: '-',
-    //         title: 'Smoke-free work environment',
-    //         company: 'All Companies',
-    //         createdAt: '28-Apr-2017',
-    //         addedBy: 'Admin Admin'
-    //     },
-    // ];
 
     const customStyles = {
         headCells: {
@@ -267,17 +237,22 @@ const OrgPolicies = () => {
 
     const totalEntries = Orgpolicy.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
-    console.log('Paginated data:', paginated);
-
-    const paginate = (data, page) => {
-        const start = (page - 1) * rowsPerPage;
-        const end = start + rowsPerPage;
-        setPaginated(data.slice(start, end));
-        setCurrentPage(page);
-    };
-
-    const startEntry = (currentPage - 1) * rowsPerPage + 1;
-    const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
+     const [paginated, setPaginated] = useState(Orgpolicy.slice(0, rowsPerPage));
+   
+       const paginate = (data, page) => {
+           const start = (page - 1) * rowsPerPage;
+           const end = start + rowsPerPage;
+           setPaginated(data.slice(start, end));
+           setCurrentPage(page);
+       };
+   
+       const startEntry = (currentPage - 1) * rowsPerPage + 1;
+       const endEntry = Math.min(currentPage * rowsPerPage, Orgpolicy.length);
+       useEffect(() => {
+           const start = (currentPage - 1) * rowsPerPage;
+           const end = start + rowsPerPage;
+           setPaginated(Orgpolicy.slice(start, end));
+       }, [Orgpolicy, currentPage, rowsPerPage]);
 
     // const [showAddForm, setShowAddForm] = useState(false);
 
@@ -422,14 +397,6 @@ const OrgPolicies = () => {
                     </div>
 
 
-
-
-
-
-
-
-
-
                     <div className="col-12 col-lg-8">
                         <div className="card no-radius h-100">
                             <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
@@ -438,23 +405,21 @@ const OrgPolicies = () => {
                             </div>
 
 
-                            <div className="px-3 mt-4">
-                                <div className="d-flex justify-content-between align-items-center mb-2">
+                           <div className="px-3">
+                                <div className="d-flex justify-content-between align-items-center mb-2 mt-3">
                                     <div className="d-flex align-items-center gap-2">
                                         <label htmlFor="entriesSelect" className="mb-0 ms-4">Show</label>
                                         <select
-                                            id="entriesSelect"
-                                            className="form-select form-select-sm w-auto"
                                             value={rowsPerPage}
                                             onChange={(e) => {
                                                 setRowsPerPage(Number(e.target.value));
                                                 setCurrentPage(1);
                                             }}
                                         >
-                                            <option value="10">10</option>
-                                            <option value="25">25</option>
-                                            <option value="50">50</option>
-                                            <option value="100">100</option>
+                                            <option value={10}>10</option>
+                                            <option value={25}>25</option>
+                                            <option value={50}>50</option>
+                                            <option value={100}>100</option>
                                         </select>
                                         <span className="ms-1">entries</span>
                                     </div>

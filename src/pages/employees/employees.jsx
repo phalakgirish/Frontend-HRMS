@@ -19,7 +19,7 @@ const Employees = () => {
 
     //from backend
     const [Employee, setEmployee] = useState([]);
-    const [paginated, setPaginated] = useState([]);
+    // const [paginated, setPaginated] = useState(Employee.slice(0, rowsPerPage));
 
 
     const [form, setForm] = useState({
@@ -187,7 +187,7 @@ const Employees = () => {
         try {
             const response = await getEmployee();
             setEmployee(response.data);
-            paginate(response.data, currentPage);
+            // paginate(response.data, currentPage);
         } catch (error) {
             console.error('Error fetching Employee:', error);
         }
@@ -395,13 +395,13 @@ const Employees = () => {
         },
     ];
 
-
     const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [rowsPerPage, setRowsPerPage] = useState(10);  
 
     const totalEntries = Employee.length;
-    const totalPages = Math.ceil(totalEntries / rowsPerPage);
-    // console.log('Paginated data:', paginated);
+    const totalPages = Math.ceil(totalEntries / rowsPerPage); 
+
+    const [paginated, setPaginated] = useState(Employee.slice(0, rowsPerPage));
 
     const paginate = (data, page) => {
         const start = (page - 1) * rowsPerPage;
@@ -411,7 +411,12 @@ const Employees = () => {
     };
 
     const startEntry = (currentPage - 1) * rowsPerPage + 1;
-    const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
+    const endEntry = Math.min(currentPage * rowsPerPage, Employee.length);
+    useEffect(() => {
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        setPaginated(Employee.slice(start, end));
+    }, [Employee, currentPage, rowsPerPage]);
 
     const [showAddForm, setShowAddForm] = useState(false);
 
@@ -1129,18 +1134,16 @@ const Employees = () => {
                         <div className="d-flex align-items-center gap-2">
                             <label htmlFor="entriesSelect" className="mb-0 ms-4">Show</label>
                             <select
-                                id="entriesSelect"
-                                className="form-select form-select-sm w-auto"
                                 value={rowsPerPage}
                                 onChange={(e) => {
                                     setRowsPerPage(Number(e.target.value));
                                     setCurrentPage(1);
                                 }}
                             >
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
+                                <option value={10}>10</option>
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
                             </select>
                             <span className="ms-1">entries</span>
                         </div>

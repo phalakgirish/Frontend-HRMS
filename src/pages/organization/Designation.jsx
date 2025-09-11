@@ -14,7 +14,7 @@ const Designation = () => {
 
     //from backend
     const [designation, setDesignation] = useState([]);
-    const [paginated, setPaginated] = useState([]);
+    // const [paginated, setPaginated] = useState([]);
 
     const [editId, setEditId] = useState(null);
 
@@ -261,20 +261,22 @@ const Designation = () => {
     //backend
     const totalEntries = designation.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
-    // console.log('Paginated data:', paginated);
-
-    const paginate = (data, page) => {
-        const start = (page - 1) * rowsPerPage;
-        const end = start + rowsPerPage;
-        setPaginated(data.slice(start, end));
-        setCurrentPage(page);
-    };
-
-
-
-    const startEntry = (currentPage - 1) * rowsPerPage + 1;
-    const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
-
+     const [paginated, setPaginated] = useState(designation.slice(0, rowsPerPage));
+   
+       const paginate = (data, page) => {
+           const start = (page - 1) * rowsPerPage;
+           const end = start + rowsPerPage;
+           setPaginated(data.slice(start, end));
+           setCurrentPage(page);
+       };
+   
+       const startEntry = (currentPage - 1) * rowsPerPage + 1;
+       const endEntry = Math.min(currentPage * rowsPerPage, designation.length);
+       useEffect(() => {
+           const start = (currentPage - 1) * rowsPerPage;
+           const end = start + rowsPerPage;
+           setPaginated(designation.slice(start, end));
+       }, [designation, currentPage, rowsPerPage]);
     // const [showAddForm, setShowAddForm] = useState(false);
 
     // const toggleAddForm = () => {
@@ -423,23 +425,21 @@ const Designation = () => {
                             </div>
 
 
-                            <div className="px-3 mt-4">
-                                <div className="d-flex justify-content-between align-items-center mb-2">
+                           <div className="px-3">
+                                <div className="d-flex justify-content-between align-items-center mb-2 mt-3">
                                     <div className="d-flex align-items-center gap-2">
                                         <label htmlFor="entriesSelect" className="mb-0 ms-4">Show</label>
                                         <select
-                                            id="entriesSelect"
-                                            className="form-select form-select-sm w-auto"
                                             value={rowsPerPage}
                                             onChange={(e) => {
                                                 setRowsPerPage(Number(e.target.value));
                                                 setCurrentPage(1);
                                             }}
                                         >
-                                            <option value="10">10</option>
-                                            <option value="25">25</option>
-                                            <option value="50">50</option>
-                                            <option value="100">100</option>
+                                            <option value={10}>10</option>
+                                            <option value={25}>25</option>
+                                            <option value={50}>50</option>
+                                            <option value={100}>100</option>
                                         </select>
                                         <span className="ms-1">entries</span>
                                     </div>

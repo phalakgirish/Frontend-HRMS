@@ -19,7 +19,7 @@ const Announcements = () => {
     const [editorKey, setEditorKey] = useState(0);
     //from backend
     const [announcement, setAnnouncement] = useState([]);
-    const [paginated, setPaginated] = useState([]);
+    // const [paginated, setPaginated] = useState([]);
 
 
     const [form, setForm] = useState({
@@ -243,37 +243,6 @@ const Announcements = () => {
         { name: 'Published By', selector: row => row.publishedBy },
     ];
 
-    // const data = [
-    //     {
-    //         action: '-',
-    //         title: 'New Announcements',
-    //         summary: 'Tomorrow will be holiday on behalf of Moharram',
-    //         publishedFor: 'Human Resource',
-    //         startDate: '17-04-2025',
-    //         endDate: '18-04-2025',
-    //         publishedBy: 'Admin Admin'
-    //     },
-    //     {
-    //         action: '-',
-    //         title: 'New Announcements',
-    //         summary: 'Tomorrow will be holiday on behalf of Moharram',
-    //         publishedFor: 'Human Resource',
-    //         startDate: '17-04-2025',
-    //         endDate: '18-04-2025',
-    //         publishedBy: 'Admin Admin'
-    //     },
-    //     {
-    //         action: '-',
-    //         title: 'New Announcements',
-    //         summary: 'Tomorrow will be holiday on behalf of Moharram',
-    //         publishedFor: 'Human Resource',
-    //         startDate: '17-04-2025',
-    //         endDate: '18-04-2025',
-    //         publishedBy: 'Admin Admin'
-    //     },
-    //     // Add more records as needed
-    // ];
-
     const customStyles = {
         headCells: {
             style: {
@@ -304,7 +273,7 @@ const Announcements = () => {
 
     const totalEntries = announcement.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
-    console.log('Paginated data:', paginated);
+    const [paginated, setPaginated] = useState(announcement.slice(0, rowsPerPage));
 
     const paginate = (data, page) => {
         const start = (page - 1) * rowsPerPage;
@@ -313,9 +282,13 @@ const Announcements = () => {
         setCurrentPage(page);
     };
 
-
     const startEntry = (currentPage - 1) * rowsPerPage + 1;
-    const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
+    const endEntry = Math.min(currentPage * rowsPerPage, announcement.length);
+    useEffect(() => {
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        setPaginated(announcement.slice(start, end));
+    }, [announcement, currentPage, rowsPerPage]);
 
     const [showAddForm, setShowAddForm] = useState(false);
 
@@ -567,23 +540,21 @@ const Announcements = () => {
                 </div>
 
 
-                <div className="px-3 mt-4">
-                    <div className="d-flex justify-content-between align-items-center mb-2">
+                <div className="px-3">
+                    <div className="d-flex justify-content-between align-items-center mb-2 mt-3">
                         <div className="d-flex align-items-center gap-2">
                             <label htmlFor="entriesSelect" className="mb-0 ms-4">Show</label>
                             <select
-                                id="entriesSelect"
-                                className="form-select form-select-sm w-auto"
                                 value={rowsPerPage}
                                 onChange={(e) => {
                                     setRowsPerPage(Number(e.target.value));
                                     setCurrentPage(1);
                                 }}
                             >
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
+                                <option value={10}>10</option>
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
                             </select>
                             <span className="ms-1">entries</span>
                         </div>
