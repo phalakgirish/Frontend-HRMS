@@ -18,7 +18,7 @@ const Promotions = () => {
 
     //from backend
     const [Promotion, setPromotion] = useState([]);
-    const [paginated, setPaginated] = useState([]);
+    // const [paginated, setPaginated] = useState([]);
 
     const [editId, setEditId] = useState(null);
 
@@ -213,36 +213,6 @@ const Promotions = () => {
         { name: 'Added By', selector: row => row.addedBy }
     ];
 
-    // const data = [
-    //     {
-    //         action: '-',
-    //         employeeName: 'Shubham Kadam',
-    //         PromotionTitle: 'Snr. Manager',
-    //         PromotionDate: '17-May-2022',
-    //         addedBy: 'Admin Admin'
-    //     },
-    //     {
-    //         action: '-',
-    //         employeeName: 'Shubham Kadam',
-    //         PromotionTitle: 'Snr. Manager',
-    //         PromotionDate: '17-May-2022',
-    //         addedBy: 'Admin Admin'
-    //     }, {
-    //         action: '-',
-    //         employeeName: 'Shubham Kadam',
-    //         PromotionTitle: 'Snr. Manager',
-    //         PromotionDate: '17-May-2022',
-    //         addedBy: 'Admin Admin'
-    //     }, {
-    //         action: '-',
-    //         employeeName: 'Shubham Kadam',
-    //         PromotionTitle: 'Snr. Manager',
-    //         PromotionDate: '17-May-2022',
-    //         addedBy: 'Admin Admin'
-    //     },
-    //     // Add more records as needed
-    // ];
-
     const customStyles = {
         headCells: {
             style: {
@@ -273,7 +243,7 @@ const Promotions = () => {
 
     const totalEntries = Promotion.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
-    console.log('Paginated data:', paginated);
+    const [paginated, setPaginated] = useState(Promotion.slice(0, rowsPerPage));
 
     const paginate = (data, page) => {
         const start = (page - 1) * rowsPerPage;
@@ -283,7 +253,12 @@ const Promotions = () => {
     };
 
     const startEntry = (currentPage - 1) * rowsPerPage + 1;
-    const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
+    const endEntry = Math.min(currentPage * rowsPerPage, Promotion.length);
+    useEffect(() => {
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        setPaginated(Promotion.slice(start, end));
+    }, [Promotion, currentPage, rowsPerPage]);
 
     const [showAddForm, setShowAddForm] = useState(false);
 
@@ -444,23 +419,21 @@ const Promotions = () => {
                 </div>
 
 
-                <div className="px-3 mt-4">
-                    <div className="d-flex justify-content-between align-items-center mb-2">
+                <div className="px-3">
+                    <div className="d-flex justify-content-between align-items-center mb-2 mt-4">
                         <div className="d-flex align-items-center gap-2">
                             <label htmlFor="entriesSelect" className="mb-0 ms-4">Show</label>
                             <select
-                                id="entriesSelect"
-                                className="form-select form-select-sm w-auto"
                                 value={rowsPerPage}
                                 onChange={(e) => {
                                     setRowsPerPage(Number(e.target.value));
                                     setCurrentPage(1);
                                 }}
                             >
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
+                                <option value={10}>10</option>
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
                             </select>
                             <span className="ms-1">entries</span>
                         </div>
@@ -533,6 +506,7 @@ const Promotions = () => {
                         Next
                     </button>
                 </div>
+
 
                 {showModal && selectedRow && (
                     <div className="modal show fade d-block" tabIndex="-1" role="dialog">

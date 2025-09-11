@@ -19,7 +19,7 @@ const Expense = () => {
     const [editorKey, setEditorKey] = useState(0);
     //from backend
     const [expense, setExpense] = useState([]);
-    const [paginated, setPaginated] = useState([]);
+    // const [paginated, setPaginated] = useState([]);
 
     const [editId, setEditId] = useState(null);
 
@@ -219,40 +219,6 @@ const Expense = () => {
         { name: 'Status', selector: row => row.status }
     ];
 
-    // const data = [
-    //     {
-    //         action: '-',
-    //         employee: 'Shubham Kadam',
-    //         expense: 'Rent',
-    //         amount: 'Rs.5000',
-    //         purchaseDate: '17-04-2025',
-    //         status: 'Pending'
-    //     },
-    //     {
-    //         action: '-',
-    //         employee: 'Shubham Kadam',
-    //         expense: 'Rent',
-    //         amount: 'Rs.5000',
-    //         purchaseDate: '17-04-2025',
-    //         status: 'Pending'
-    //     }, {
-    //         action: '-',
-    //         employee: 'Shubham Kadam',
-    //         expense: 'Rent',
-    //         amount: 'Rs.5000',
-    //         purchaseDate: '17-04-2025',
-    //         status: 'Pending'
-    //     }, {
-    //         action: '-',
-    //         employee: 'Abc Deff',
-    //         expense: 'Rent',
-    //         amount: 'Rs.8000',
-    //         purchaseDate: '17-04-2025',
-    //         status: 'Pending'
-    //     },
-    //     // Add more records as needed
-    // ];
-
     const customStyles = {
         headCells: {
             style: {
@@ -283,7 +249,7 @@ const Expense = () => {
 
     const totalEntries = expense.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
-    // console.log('Paginated data:', paginated);
+    const [paginated, setPaginated] = useState(expense.slice(0, rowsPerPage));
 
     const paginate = (data, page) => {
         const start = (page - 1) * rowsPerPage;
@@ -293,7 +259,12 @@ const Expense = () => {
     };
 
     const startEntry = (currentPage - 1) * rowsPerPage + 1;
-    const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
+    const endEntry = Math.min(currentPage * rowsPerPage, expense.length);
+    useEffect(() => {
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        setPaginated(expense.slice(start, end));
+    }, [expense, currentPage, rowsPerPage]);
 
     const [showAddForm, setShowAddForm] = useState(false);
 
@@ -501,23 +472,21 @@ const Expense = () => {
                 </div>
 
 
-                <div className="px-3 mt-4">
-                    <div className="d-flex justify-content-between align-items-center mb-2">
+                <div className="px-3">
+                    <div className="d-flex justify-content-between align-items-center mb-2 mt-3">
                         <div className="d-flex align-items-center gap-2">
                             <label htmlFor="entriesSelect" className="mb-0 ms-4">Show</label>
                             <select
-                                id="entriesSelect"
-                                className="form-select form-select-sm w-auto"
                                 value={rowsPerPage}
                                 onChange={(e) => {
                                     setRowsPerPage(Number(e.target.value));
                                     setCurrentPage(1);
                                 }}
                             >
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
+                                <option value={10}>10</option>
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
                             </select>
                             <span className="ms-1">entries</span>
                         </div>

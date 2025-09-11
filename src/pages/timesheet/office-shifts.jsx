@@ -17,7 +17,7 @@ const OfficeShifts = () => {
     const [editId, setEditId] = useState(null);
 
     const [OfficeShifts, setOfficeShifts] = useState([]);
-    const [paginated, setPaginated] = useState([]);
+    // const [paginated, setPaginated] = useState([]);
 
 
     const [form, setForm] = useState({
@@ -34,13 +34,13 @@ const OfficeShifts = () => {
     });
 
 
-const formatTime12Hour = (time24) => {
-  if (!time24) return "";
-  let [hour, min] = time24.split(":").map(Number);
-  const ampm = hour >= 12 ? "PM" : "AM";
-  hour = hour % 12 || 12;
-  return `${hour}:${min.toString().padStart(2, "0")} ${ampm}`;
-};
+    const formatTime12Hour = (time24) => {
+        if (!time24) return "";
+        let [hour, min] = time24.split(":").map(Number);
+        const ampm = hour >= 12 ? "PM" : "AM";
+        hour = hour % 12 || 12;
+        return `${hour}:${min.toString().padStart(2, "0")} ${ampm}`;
+    };
 
 
     useEffect(() => {
@@ -158,37 +158,37 @@ const formatTime12Hour = (time24) => {
     };
 
 
-const handleEdit = (row) => {
-  // ensure days is an array
-  const daysArray = Array.isArray(row.days) ? row.days : [];
+    const handleEdit = (row) => {
+        // ensure days is an array
+        const daysArray = Array.isArray(row.days) ? row.days : [];
 
-  const getDayTimes = (dayName) => {
-    const dayObj = daysArray.find(
-      (d) => d.day.toLowerCase() === dayName.toLowerCase()
-    );
-    return {
-      inTime: dayObj?.inTime || "",
-      outTime: dayObj?.outTime || "",
+        const getDayTimes = (dayName) => {
+            const dayObj = daysArray.find(
+                (d) => d.day.toLowerCase() === dayName.toLowerCase()
+            );
+            return {
+                inTime: dayObj?.inTime || "",
+                outTime: dayObj?.outTime || "",
+            };
+        };
+
+        setEditId(row._id);
+        setForm({
+            shiftName: row.shiftName || "",
+            days: {
+                Monday: getDayTimes("Monday"),
+                Tuesday: getDayTimes("Tuesday"),
+                Wednesday: getDayTimes("Wednesday"),
+                Thursday: getDayTimes("Thursday"),
+                Friday: getDayTimes("Friday"),
+                Saturday: getDayTimes("Saturday"),
+                Sunday: getDayTimes("Sunday"),
+            },
+        });
+
+        setSelectedRow(row);
+        setShowEditModal(true);
     };
-  };
-
-  setEditId(row._id);
-  setForm({
-    shiftName: row.shiftName || "",
-    days: {
-      Monday: getDayTimes("Monday"),
-      Tuesday: getDayTimes("Tuesday"),
-      Wednesday: getDayTimes("Wednesday"),
-      Thursday: getDayTimes("Thursday"),
-      Friday: getDayTimes("Friday"),
-      Saturday: getDayTimes("Saturday"),
-      Sunday: getDayTimes("Sunday"),
-    },
-  });
-
-  setSelectedRow(row);
-  setShowEditModal(true);
-};
 
 
 
@@ -237,63 +237,63 @@ const handleEdit = (row) => {
             wrap: true,
         },
         { name: 'Day', selector: row => row.shiftName, wrap: true },
-        { 
-        name: 'Monday', 
-        selector: row => {
-            const day = row.days.find(d => d.day === "Monday");
-            return day ? `${formatTime12Hour(day.inTime)} to ${formatTime12Hour(day.outTime)}` : "";
+        {
+            name: 'Monday',
+            selector: row => {
+                const day = row.days.find(d => d.day === "Monday");
+                return day ? `${formatTime12Hour(day.inTime)} to ${formatTime12Hour(day.outTime)}` : "";
+            },
+            wrap: true
         },
-        wrap: true 
-    },
-    { 
-        name: 'Tuesday', 
-        selector: row => {
-            const day = row.days.find(d => d.day === "Tuesday");
-            return day ? `${formatTime12Hour(day.inTime)} to ${formatTime12Hour(day.outTime)}` : "";
+        {
+            name: 'Tuesday',
+            selector: row => {
+                const day = row.days.find(d => d.day === "Tuesday");
+                return day ? `${formatTime12Hour(day.inTime)} to ${formatTime12Hour(day.outTime)}` : "";
+            },
+            wrap: true
         },
-        wrap: true 
-    },
-    { 
-        name: 'Wednesday', 
-        selector: row => {
-            const day = row.days.find(d => d.day === "Wednesday");
-            return day ? `${formatTime12Hour(day.inTime)} to ${formatTime12Hour(day.outTime)}` : "";
+        {
+            name: 'Wednesday',
+            selector: row => {
+                const day = row.days.find(d => d.day === "Wednesday");
+                return day ? `${formatTime12Hour(day.inTime)} to ${formatTime12Hour(day.outTime)}` : "";
+            },
+            wrap: true
         },
-        wrap: true 
-    },
-    { 
-        name: 'Thursday', 
-        selector: row => {
-            const day = row.days.find(d => d.day === "Thursday");
-            return day ? `${formatTime12Hour(day.inTime)} to ${formatTime12Hour(day.outTime)}` : "";
+        {
+            name: 'Thursday',
+            selector: row => {
+                const day = row.days.find(d => d.day === "Thursday");
+                return day ? `${formatTime12Hour(day.inTime)} to ${formatTime12Hour(day.outTime)}` : "";
+            },
+            wrap: true
         },
-        wrap: true 
-    },
-    { 
-        name: 'Friday', 
-        selector: row => {
-            const day = row.days.find(d => d.day === "Friday");
-            return day ? `${formatTime12Hour(day.inTime)} to ${formatTime12Hour(day.outTime)}` : "";
+        {
+            name: 'Friday',
+            selector: row => {
+                const day = row.days.find(d => d.day === "Friday");
+                return day ? `${formatTime12Hour(day.inTime)} to ${formatTime12Hour(day.outTime)}` : "";
+            },
+            wrap: true
         },
-        wrap: true 
-    },
-    { 
-        name: 'Saturday', 
-        selector: row => {
-            const day = row.days.find(d => d.day === "Saturday");
-            return day ? `${formatTime12Hour(day.inTime)} to ${formatTime12Hour(day.outTime)}` : "";
+        {
+            name: 'Saturday',
+            selector: row => {
+                const day = row.days.find(d => d.day === "Saturday");
+                return day ? `${formatTime12Hour(day.inTime)} to ${formatTime12Hour(day.outTime)}` : "";
+            },
+            wrap: true
         },
-        wrap: true 
-    },
-    { 
-        name: 'Sunday', 
-        selector: row => {
-            const day = row.days.find(d => d.day === "Sunday");
-            return day ? `${formatTime12Hour(day.inTime)} to ${formatTime12Hour(day.outTime)}` : "";
+        {
+            name: 'Sunday',
+            selector: row => {
+                const day = row.days.find(d => d.day === "Sunday");
+                return day ? `${formatTime12Hour(day.inTime)} to ${formatTime12Hour(day.outTime)}` : "";
+            },
+            wrap: true
         },
-        wrap: true 
-    },
-];
+    ];
 
 
     const customStyles = {
@@ -385,17 +385,22 @@ const handleEdit = (row) => {
 
     const totalEntries = OfficeShifts.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
-    // console.log('Paginated data:', paginated);
-
-    const paginate = (data, page) => {
-        const start = (page - 1) * rowsPerPage;
-        const end = start + rowsPerPage;
-        setPaginated(data.slice(start, end));
-        setCurrentPage(page);
-    };
-
-    const startEntry = (currentPage - 1) * rowsPerPage + 1;
-    const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
+    const [paginated, setPaginated] = useState(OfficeShifts.slice(0, rowsPerPage));
+  
+      const paginate = (data, page) => {
+          const start = (page - 1) * rowsPerPage;
+          const end = start + rowsPerPage;
+          setPaginated(data.slice(start, end));
+          setCurrentPage(page);
+      };
+  
+      const startEntry = (currentPage - 1) * rowsPerPage + 1;
+      const endEntry = Math.min(currentPage * rowsPerPage, OfficeShifts.length);
+      useEffect(() => {
+          const start = (currentPage - 1) * rowsPerPage;
+          const end = start + rowsPerPage;
+          setPaginated(OfficeShifts.slice(start, end));
+      }, [OfficeShifts, currentPage, rowsPerPage]);
 
     const [showAddForm, setShowAddForm] = useState(false);
 
@@ -560,23 +565,21 @@ const handleEdit = (row) => {
                 </div>
 
 
-                <div className="px-3 mt-4">
-                    <div className="d-flex justify-content-between align-items-center mb-2">
+                <div className="px-3">
+                    <div className="d-flex justify-content-between align-items-center mb-2 mt-4">
                         <div className="d-flex align-items-center gap-2">
                             <label htmlFor="entriesSelect" className="mb-0 ms-4">Show</label>
                             <select
-                                id="entriesSelect"
-                                className="form-select form-select-sm w-auto"
                                 value={rowsPerPage}
                                 onChange={(e) => {
                                     setRowsPerPage(Number(e.target.value));
                                     setCurrentPage(1);
                                 }}
                             >
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
+                                <option value={10}>10</option>
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
                             </select>
                             <span className="ms-1">entries</span>
                         </div>

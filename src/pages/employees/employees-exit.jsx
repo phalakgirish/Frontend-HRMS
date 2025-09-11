@@ -20,7 +20,7 @@ const Employeeexit = () => {
 
     //from backend
     const [EmployeeExit, setEmployeeExit] = useState([]);
-    const [paginated, setPaginated] = useState([]);
+    // const [paginated, setPaginated] = useState([]);
 
 
     const [form, setForm] = useState({
@@ -256,26 +256,6 @@ const Employeeexit = () => {
 
     ];
 
-    // const data = [
-    //     {
-    //         action: '-',
-    //         employee: 'Rohit Mahadic',
-    //         exitType: 'Retirement',
-    //         exitDate: '17-May-2022',
-    //         exitInterview: 'Yes',
-    //         inactivateAccount: 'Yes',
-    //         addedBy: 'Admin Admin'
-    //     },
-    //     {
-    //         action: '-',
-    //         employee: 'Rohit Mahadicc',
-    //         exitType: 'Retirement',
-    //         exitDate: '17-May-2022',
-    //         exitInterview: 'Yes',
-    //         inactivateAccount: 'Yes',
-    //         addedBy: 'Admin Admin'
-    //     },
-    // ];
 
     const customStyles = {
         headCells: {
@@ -307,7 +287,7 @@ const Employeeexit = () => {
 
     const totalEntries = EmployeeExit.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
-    console.log('Paginated data:', paginated);
+    const [paginated, setPaginated] = useState(EmployeeExit.slice(0, rowsPerPage));
 
     const paginate = (data, page) => {
         const start = (page - 1) * rowsPerPage;
@@ -317,7 +297,12 @@ const Employeeexit = () => {
     };
 
     const startEntry = (currentPage - 1) * rowsPerPage + 1;
-    const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
+    const endEntry = Math.min(currentPage * rowsPerPage, EmployeeExit.length);
+    useEffect(() => {
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        setPaginated(EmployeeExit.slice(start, end));
+    }, [EmployeeExit, currentPage, rowsPerPage]);
 
     const [showAddForm, setShowAddForm] = useState(false);
 
@@ -555,24 +540,21 @@ const Employeeexit = () => {
                     <button className="btn btn-sm add-btn" onClick={toggleAddForm}>{showAddForm ? '- Hide' : '+ Add New'}</button>
                 </div>
 
-
-                <div className="px-3 mt-4">
-                    <div className="d-flex justify-content-between align-items-center mb-2">
+                <div className="px-3">
+                    <div className="d-flex justify-content-between align-items-center mb-2 mt-4">
                         <div className="d-flex align-items-center gap-2">
                             <label htmlFor="entriesSelect" className="mb-0 ms-4">Show</label>
                             <select
-                                id="entriesSelect"
-                                className="form-select form-select-sm w-auto"
                                 value={rowsPerPage}
                                 onChange={(e) => {
                                     setRowsPerPage(Number(e.target.value));
                                     setCurrentPage(1);
                                 }}
                             >
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
+                                <option value={10}>10</option>
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
                             </select>
                             <span className="ms-1">entries</span>
                         </div>
@@ -645,6 +627,7 @@ const Employeeexit = () => {
                         Next
                     </button>
                 </div>
+
 
                 {showModal && selectedRow && (
                     <div className="modal show fade d-block" tabIndex="-1" role="dialog">
