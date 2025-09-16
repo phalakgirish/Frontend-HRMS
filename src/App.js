@@ -73,6 +73,7 @@ import Assets from './pages/employees/details.jsx/Assets';
 import ProfilePicture from './pages/employees/details.jsx/ProfilePicture';
 import BasicInformationForm from './pages/employees/details.jsx/BasicInformation';
 import ChangePassword from './pages/employees/details.jsx/ChangePassword';
+import PayrollMonthly from './pages/payroll/payroll-monthly';
 
 function Layout({ children, collapsed, toggleSidebar }) {
   const location = useLocation();
@@ -207,6 +208,7 @@ function App() {
           {/* Payroll */}
           <Route path="/managesalary" element={<ManageSalary />} />
           <Route path="/generatepayslip" element={<GeneratePayslip />} />
+          <Route path="/payroll-monthly/:empid" element={<PayrollMonthly />} />
           <Route path="/paymenthistory" element={<PaymentHistory />} />
           <Route path="/payslip/:empId" element={<Payslip />} />
 
