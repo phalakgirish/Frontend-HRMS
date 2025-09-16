@@ -1,54 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DataTable from 'react-data-table-component';
+import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 const GeneratePayslip = () => {
 
-    // const [showModal, setShowModal] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [description, setDescription] = useState('<div class="mb-3"><label>Hello, Your Payslip is generated</label></div>');
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
 
-    // const handleView = (row) => {
-    //     setSelectedRow(row);
-    //     setShowModal(true);
-    // };
-
+    useEffect(() => {
+        axios
+            .get("http://localhost:3000/employee")
+            .then((res) => {
+                setData(res.data);
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("Error fetching employee:", err);
+                setLoading(false);
+            });
+    }, []);
 
     const handleEdit = (row) => {
-        setSelectedRow(row);
-        setShowEditModal(true);
+        navigate(`/payroll-monthly/${row.id}`);
     };
-
-    // const handleDelete = (row) => {
-    //     if (window.confirm('Are you sure to delete this record?')) {
-    //         console.log('Deleting:', row);
-    //     }
-    // };
 
 
     const columns = [
-        { name: 'Employee ID', selector: row => row.empId },
-        { name: 'Name', selector: row => row.name },
-        { name: 'Salary Type', selector: row => row.salaryType },
-        { name: 'CTC', selector: row => row.ctc },
-        { name: 'Net Salary', selector: row => row.netSalary },
+        { name: 'Employee ID', selector: row => row.id },
+        { name: 'Name', selector: row => `${row.firstName} ${row.lastName}` },
+        { name: 'Salary Type', selector: row => `${row.id} (Monthly)` },
+        { name: 'CTC', selector: row => row.employeeCtc },
+        { name: 'Net Salary', selector: row => row.monthlyCtc },
         {
             name: 'Employee Status',
             cell: (row) => (
-                <span className={`badge ${row.empStatus === 'Active' ? 'bg-success' : 'bg-danger'}`}>
-                    {row.empStatus}
-                </span>
-            ),
-            selector: row => row.empStatus
-        },
-        {
-            name: 'Status',
-            cell: (row) => (
-                <span className={`badge ${row.status === 'Paid' ? 'bg-success' : 'bg-danger'}`}>
+                <span className={`badge ${row.status === 'Active' ? 'bg-success' : 'bg-danger'}`}>
                     {row.status}
                 </span>
             ),
             selector: row => row.status
+        },
+        {
+            name: 'Status',
+            cell: (row) => (
+                <span
+                    className={`badge ${row.status?.toLowerCase() === "paid" ? "bg-success" : "bg-danger"
+                        }`}
+                >
+                    {row.status || "Unpaid"}
+                </span>
+            ),
+            selector: (row) => row.status
         },
         {
             name: 'Action',
@@ -67,46 +73,46 @@ const GeneratePayslip = () => {
         },
     ];
 
-    const data = [
-        {
-            empId: 'Absent',
-            name: 'Anjali Patle',
-            salaryType: 'UBISL0001 (Monthly)',
-            ctc: '600000',
-            netSalary: '46997',
-            empStatus: 'Active',
-            status: 'Unpaid',
-            action: '-',
-        },
-        {
-            empId: 'Absent',
-            name: 'Anjali Patle',
-            salaryType: 'UBISL0001 (Monthly)',
-            ctc: '600000',
-            netSalary: '46997',
-            empStatus: 'Active',
-            status: 'Unpaid',
-            action: '0 Net Salary',
-        }, {
-            empId: 'Absent',
-            name: 'Anjali Patle',
-            salaryType: 'UBISL0001 (Monthly)',
-            ctc: '600000',
-            netSalary: '46997',
-            empStatus: 'Active',
-            status: 'Unpaid',
-            action: '-',
-        }, {
-            empId: 'Absent',
-            name: 'Anjali Patle',
-            salaryType: 'UBISL0001 (Monthly)',
-            ctc: '600000',
-            netSalary: '46997',
-            empStatus: 'Active',
-            status: 'Unpaid',
-            action: '-',
-        },
-    ];
+    // const data = [
+    //     {
+    //         empId: 'Absent',
+    //         name: 'Anjali Patle',
+    //         salaryType: 'UBISL0001 (Monthly)',
+    //         ctc: '600000',
+    //         netSalary: '46997',
+    //         empStatus: 'Active',
+    //         status: 'Unpaid',
+    //         action: '-',
+    //     },
+    //     {
+    //         empId: 'Absent',
+    //         name: 'Anjali Patle',
+    //         salaryType: 'UBISL0001 (Monthly)',
+    //         ctc: '600000',
+    //         netSalary: '46997',
+    //         empStatus: 'Active',
+    //         status: 'Unpaid',
+    //         action: '0 Net Salary',
+    //     }, {
+    //         empId: 'Absent',
+    //         name: 'Anjali Patle',
+    //         salaryType: 'UBISL0001 (Monthly)',
+    //         ctc: '600000',
+    //         netSalary: '46997',
+    //         empStatus: 'Active',
+    //         status: 'Unpaid',
+    //         action: '-',
+    //     }, {
+    //         empId: 'Absent',
+    //         name: 'Anjali Patle',
+    //         salaryType: 'UBISL0001 (Monthly)',
+    //         ctc: '600000',
+    //         netSalary: '46997',
+    //         empStatus: 'Active',
+    //         status: 'Unpaid',
+    //         action: '-',
+    //     },
+    // ];
 
     const customStyles = {
         headCells: {
@@ -135,6 +141,7 @@ const GeneratePayslip = () => {
 
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [data, setData] = useState([]);
 
     const totalEntries = data.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
@@ -147,11 +154,6 @@ const GeneratePayslip = () => {
     const startEntry = (currentPage - 1) * rowsPerPage + 1;
     const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
 
-    // const [showAddForm, setShowAddForm] = useState(false);
-
-    // const toggleAddForm = () => {
-    //     setShowAddForm((prev) => !prev);
-    // };
 
     return (
         <div className="custom-container">
@@ -161,7 +163,6 @@ const GeneratePayslip = () => {
             </p>
 
             <div className="d-flex gap-3">
-                {/* Generate Payslip Card */}
                 <div className="card no-radius mb-3 col-md-6">
                     <div className="card-header text-white new-emp-bg fw-bold">
                         Generate Payslip
@@ -172,11 +173,13 @@ const GeneratePayslip = () => {
                             <label htmlFor="employee" className="form-label">Employee</label>
                             <select id="employee" className="form-control">
                                 <option value="">All Employees</option>
-                                <option value="admin">Admin Admin</option>
-                                <option value="anjali">Anjali Patle</option>
-                                <option value="amit">Amit Kumar</option>
-                                <option value="aniket">Aniket Rane</option>
+                                {data.map(emp => (
+                                    <option key={emp.id} value={emp.id}>
+                                        {emp.name}
+                                    </option>
+                                ))}
                             </select>
+
                         </div>
 
                         <div className="mb-3">
@@ -194,7 +197,6 @@ const GeneratePayslip = () => {
                     </div>
                 </div>
 
-                {/* Export for NEFT Card */}
                 <div className="card no-radius mb-3 col-md-6">
                     <div className="card-header text-white new-emp-bg fw-bold">
                         Export for NEFT
@@ -260,23 +262,23 @@ const GeneratePayslip = () => {
                         subHeaderAlign="right"
                         subHeaderComponent={
                             <div className="d-flex flex-wrap justify-content-between align-items-center w-100 gap-2">
-                                            <div className="d-flex flex-wrap gap-2">
-                                                <button className="btn btn-sm btn-outline-dark">Copy</button>
-                                                <button className="btn btn-sm btn-outline-dark">CSV</button>
-                                                <button className="btn btn-sm btn-outline-dark">PDF</button>
-                                                <button className="btn btn-sm btn-outline-dark">Print</button>
-                                            </div>
+                                <div className="d-flex flex-wrap gap-2">
+                                    <button className="btn btn-sm btn-outline-dark">Copy</button>
+                                    <button className="btn btn-sm btn-outline-dark">CSV</button>
+                                    <button className="btn btn-sm btn-outline-dark">PDF</button>
+                                    <button className="btn btn-sm btn-outline-dark">Print</button>
+                                </div>
 
-                                            <div className="d-flex align-items-center gap-2">
-                                                <label htmlFor="searchInput" className="mb-0">Search:</label>
-                                                <input
-                                                    id="searchInput"
-                                                    type="text"
-                                                    className="form-control form-control-sm"
-                                                    onChange={() => { }}
-                                                />
-                                            </div>
-                                        </div>
+                                <div className="d-flex align-items-center gap-2">
+                                    <label htmlFor="searchInput" className="mb-0">Search:</label>
+                                    <input
+                                        id="searchInput"
+                                        type="text"
+                                        className="form-control form-control-sm"
+                                        onChange={() => { }}
+                                    />
+                                </div>
+                            </div>
                         }
                     />
                 </div>
