@@ -1,23 +1,29 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import html2pdf from 'html2pdf.js';
+import axios from 'axios';
 
 const Payslip = () => {
     const { empId } = useParams();
-    const location = useLocation();
     const pdfRef = useRef();
 
-    const { paymentMonth, empName, paidAmt, paymentDate, paymentType } = location.state || {};
+    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState([]);
+    const [employee, setEmployee] = useState(null);
 
-    if (!location.state) {
-        return (
-            <div className="custom-container">
-                <h5>Error</h5>
-                <p>Payslip details are missing. Please go back and try again.</p>
-            </div>
-        );
-    }
+
+
+    useEffect(() => {
+        axios.get(`http://localhost:3000/employee`)
+            .then(res => {
+                //   console.log("API response:", res.data);
+                const emp = res.data.find(e => e._id === empId || e.id === empId);
+                setEmployee(emp || null);
+            })
+            .catch(err => console.error(err));
+    }, [empId]);
+
 
     const handleDownloadPdf = () => {
         const element = pdfRef.current;
@@ -57,16 +63,29 @@ const Payslip = () => {
 
                     <div className="card-body d-flex justify-content-between">
                         <div className="w-50 pe-3">
+                            {/* <ul className="list-group list-group-flush">
+                                <li className="list-group-item"><strong>Salary Month:</strong> {employee.salaryMonth || '-'}</li>
+                                <li className="list-group-item"><strong>Employee ID:</strong> {employee.id}</li>
+                                <li className="list-group-item"><strong>Employee Name:</strong> {employee.firstName} {employee.lastName}</li>
+                                <li className="list-group-item"><strong>Joining Date:</strong> {employee.joiningDate || '-'}</li>
+                                <li className="list-group-item"><strong>Department:</strong> {employee.department || '-'}</li>
+                                <li className="list-group-item"><strong>Designation:</strong> {employee.designation || '-'}</li>
+                                <li className="list-group-item"><strong>Location:</strong> {employee.location || '-'}</li>
+                                <li className="list-group-item"><strong>Grade:</strong> {employee.grade || '-'}</li>
+                                <li className="list-group-item"><strong>LOP:</strong> {employee.lop || '-'}</li>
+                            </ul> */}
                             <ul className="list-group list-group-flush">
-                                <li className="list-group-item"><strong>Salary Month:</strong> {paymentMonth}</li>
-                                <li className="list-group-item"><strong>Employee ID:</strong> {empId}</li>
-                                <li className="list-group-item"><strong>Employee Name:</strong> {empName}</li>
-                                <li className="list-group-item"><strong>Joining Date:</strong> { }</li>
-                                <li className="list-group-item"><strong>Department:</strong> { }</li>
-                                <li className="list-group-item"><strong>Designation:</strong> { }</li>
-                                <li className="list-group-item"><strong>Location:</strong> { }</li>
-                                <li className="list-group-item"><strong>Grade:</strong> { }</li>
-                                <li className="list-group-item"><strong>LOP:</strong> { }</li>
+                                {/* Salary Month not in DB → skip or add manually */}
+                                {/* <li className="list-group-item"><strong>Salary Month:</strong> {employee.salaryMonth || '-'}</li> */}
+                                <li className="list-group-item"><strong>Employee ID:</strong> {employee?.id}</li>
+                                <li className="list-group-item"><strong>Employee Name:</strong> {employee?.firstName} {employee?.lastName}</li>
+                                {/* <li className="list-group-item"><strong>Company:</strong> {employee?.company}</li> */}
+                                <li className="list-group-item"><strong>Joining Date:</strong> {employee?.joiningDate}</li>
+                                <li className="list-group-item"><strong>Department:</strong> {employee?.department}</li>
+                                <li className="list-group-item"><strong>Designation:</strong> {employee?.designation}</li>
+                                <li className="list-group-item"><strong>Location:</strong> {employee?.locationName}</li>
+                                <li className="list-group-item"><strong>Grade:</strong> {employee?.grade}</li>
+                                <li className="list-group-item"><strong>LOP:</strong> {employee?.lop}</li>
                             </ul>
                         </div>
                         <div className="w-50 ps-3">

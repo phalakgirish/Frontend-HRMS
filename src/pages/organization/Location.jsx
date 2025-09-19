@@ -257,9 +257,9 @@ const Location = () => {
                 else if (!/^\d+$/.test(value)) {
                     error = `Basic Salary must be a number without alphabets or special characters`;
                 }
-                else if (Number(value) < 0 || Number(value) > 99) {
-                    error = `Basic Salary must be between 0 and 99`;
-                }
+                // else if (Number(value) < 0 || Number(value) > 99) {
+                //     error = `Basic Salary must be between 0 and 99`;
+                // }
                 break;
 
             case "pfEmployer":
@@ -1110,7 +1110,7 @@ const Location = () => {
 
                                     <div className='row'>
                                         <div className="col-md-6 mb-3">
-                                            <label>Basic Salary (%)</label>
+                                            <label>Basic Salary</label>
                                             <input
                                                 type="text"
                                                 value={form.basiSalary}
@@ -1120,7 +1120,7 @@ const Location = () => {
                                                     validateField("basiSalary", value);
                                                 }}
                                                 className={`form-control ${errors.basiSalary ? "is-invalid" : ""}`}
-                                                placeholder="Basic Salary (%)"
+                                                placeholder="Basic Salary"
                                                 onBlur={(e) => validateField("basiSalary", e.target.value)}
                                             />
                                             {errors.basiSalary && (

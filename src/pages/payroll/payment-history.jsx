@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DataTable from 'react-data-table-component';
 // import './organization.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 
 
@@ -14,17 +15,32 @@ const PaymentHistory = () => {
     const [selectedRow, setSelectedRow] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [description, setDescription] = useState('<div class="mb-3"><label>Hello, Your Payslip is generated</label></div>');
+    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState([]);
 
 
-const handleView = (row) => {
-    setSelectedRow(row);
-    setShowModal(true);
-};
+    const handleView = (row) => {
+        setSelectedRow(row);
+        setShowModal(true);
+    };
 
-const handleClose = () => {
-    setShowModal(false);
-    setSelectedRow(null);
-};
+    const handleClose = () => {
+        setShowModal(false);
+        setSelectedRow(null);
+    };
+
+    useEffect(() => {
+        axios
+            .get("http://localhost:3000/employee")
+            .then((res) => {
+                setData(res.data);
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("Error fetching employee:", err);
+                setLoading(false);
+            });
+    }, []);
 
     const columns = [
         {
@@ -37,7 +53,7 @@ const handleClose = () => {
                     >
                         <i className="fas fa-arrow-right"></i>
                     </button>
-                     {showModal && (
+                    {showModal && (
                         <>
                             <div className="modal-backdrop fade show"></div>
 
@@ -159,93 +175,118 @@ const handleClose = () => {
                     className="text-primary"
                     style={{ cursor: 'pointer' }}
                 >
-                    {row.empId}
+                    {row.id}
                 </span>
             ),
         },
-        { name: 'Employee Name', selector: row => row.empName },
+        { name: 'Employee Name', selector: row => `${row.firstName} ${row.lastName}` },
         { name: 'Paid Amount', selector: row => row.paidAmt },
         { name: 'Payment Month', selector: row => row.paymentMonth },
         { name: 'Payment Date', selector: row => row.paymentDate },
         { name: 'Payment Type', selector: row => row.paymentType },
+        // {
+        //     name: 'Payslip',
+        //     cell: (row) => (
+        //         <span
+        //             className="text-success"
+        //             style={{ cursor: 'pointer' }}
+        //             onClick={() => {
+        //                 navigate(`/payslip/${row.id}`, {
+        //                     // state: {
+        //                     //     paymentMonth: row.paymentMonth,
+        //                     //     empName: row.empName,
+        //                     //     paidAmt: row.paidAmt,
+        //                     //     paymentDate: row.paymentDate,
+        //                     //     paymentType: row.paymentType,
+        //                     // }
+        //                 });
+        //             }}
+
+
+        //         >
+        //             {/* {row.payslip} */}
+        //         </span>
+        //     ),
+        //     ignoreRowClick: true,
+        //     allowOverflow: true,
+        //     // button: true
+        // }
         {
             name: 'Payslip',
             cell: (row) => (
                 <span
                     className="text-success"
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: 'pointer', textDecoration: 'none' }}
                     onClick={() => {
-                        navigate(`/payslip/${row.empId}`, {
+                        navigate(`/payslip/${row.id}`, {
                             state: {
                                 paymentMonth: row.paymentMonth,
-                                empName: row.empName,
+                                empName: `${row.firstName} ${row.lastName}`,
                                 paidAmt: row.paidAmt,
                                 paymentDate: row.paymentDate,
-                                paymentType: row.paymentType,
+                                paymentType: row.paymentType
                             }
                         });
                     }}
-
-
                 >
-                    {row.payslip}
+                    Generate Payslip
                 </span>
             ),
             ignoreRowClick: true,
             allowOverflow: true,
-            // button: true
         }
+
     ];
 
-    const data = [
-        {
-            action: '-',
-            empId: 'ATOZ053',
-            empName: 'Mahendra Chaudhary',
-            paidAmt: 'Rs.27164',
-            paymentMonth: 'November, 2021',
-            paymentDate: '18-Nov-2021',
-            paymentType: 'Cash',
-            payslip: 'Generate Payslip'
-        },
-        {
-            action: '-',
-            empId: 'ATOZ057',
-            empName: 'Mahendra Chaudhary',
-            paidAmt: 'Rs.27164',
-            paymentMonth: 'November, 2021',
-            paymentDate: '18-Nov-2021',
-            paymentType: 'Cash',
-            payslip: 'Generate Payslip'
-        }, {
-            action: '-',
-            empId: 'ATOZ023',
-            empName: 'Mahendra Chaudhary',
-            paidAmt: 'Rs.27164',
-            paymentMonth: 'November, 2021',
-            paymentDate: '18-Nov-2021',
-            paymentType: 'Cash',
-            payslip: 'Generate Payslip'
-        }, {
-            action: '-',
-            empId: 'ATOZ056',
-            empName: 'Mahendra Chaudhary',
-            paidAmt: 'Rs.27164',
-            paymentMonth: 'November, 2021',
-            paymentDate: '18-Nov-2021',
-            paymentType: 'Cash',
-            payslip: 'Generate Payslip'
-        }, {
-            action: '-',
-            empId: 'ATOZ051',
-            empName: 'Mahendra Chaudhary',
-            paidAmt: 'Rs.27164',
-            paymentMonth: 'November, 2021',
-            paymentDate: '18-Nov-2021',
-            paymentType: 'Cash',
-            payslip: 'Generate Payslip'
-        },
-    ];
+    // const data = [
+    //     {
+    //         action: '-',
+    //         empId: 'ATOZ053',
+    //         empName: 'Mahendra Chaudhary',
+    //         paidAmt: 'Rs.27164',
+    //         paymentMonth: 'November, 2021',
+    //         paymentDate: '18-Nov-2021',
+    //         paymentType: 'Cash',
+    //         payslip: 'Generate Payslip'
+    //     },
+    //     {
+    //         action: '-',
+    //         empId: 'ATOZ057',
+    //         empName: 'Mahendra Chaudhary',
+    //         paidAmt: 'Rs.27164',
+    //         paymentMonth: 'November, 2021',
+    //         paymentDate: '18-Nov-2021',
+    //         paymentType: 'Cash',
+    //         payslip: 'Generate Payslip'
+    //     }, {
+    //         action: '-',
+    //         empId: 'ATOZ023',
+    //         empName: 'Mahendra Chaudhary',
+    //         paidAmt: 'Rs.27164',
+    //         paymentMonth: 'November, 2021',
+    //         paymentDate: '18-Nov-2021',
+    //         paymentType: 'Cash',
+    //         payslip: 'Generate Payslip'
+    //     }, {
+    //         action: '-',
+    //         empId: 'ATOZ056',
+    //         empName: 'Mahendra Chaudhary',
+    //         paidAmt: 'Rs.27164',
+    //         paymentMonth: 'November, 2021',
+    //         paymentDate: '18-Nov-2021',
+    //         paymentType: 'Cash',
+    //         payslip: 'Generate Payslip'
+    //     }, {
+    //         action: '-',
+    //         empId: 'ATOZ051',
+    //         empName: 'Mahendra Chaudhary',
+    //         paidAmt: 'Rs.27164',
+    //         paymentMonth: 'November, 2021',
+    //         paymentDate: '18-Nov-2021',
+    //         paymentType: 'Cash',
+    //         payslip: 'Generate Payslip'
+    //     },
+    // ];
 
     const customStyles = {
         headCells: {

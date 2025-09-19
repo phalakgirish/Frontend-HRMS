@@ -208,7 +208,7 @@ function App() {
           {/* Payroll */}
           <Route path="/managesalary" element={<ManageSalary />} />
           <Route path="/generatepayslip" element={<GeneratePayslip />} />
-          <Route path="/payroll-monthly/:empid" element={<PayrollMonthly />} />
+          <Route path="/payroll-monthly/:empId" element={<PayrollMonthly />} />
           <Route path="/paymenthistory" element={<PaymentHistory />} />
           <Route path="/payslip/:empId" element={<Payslip />} />
 
