@@ -34,7 +34,9 @@ const GeneratePayslip = () => {
         { name: 'Name', selector: row => `${row.firstName} ${row.lastName}` },
         { name: 'Salary Type', selector: row => `${row.id} (Monthly)` },
         { name: 'CTC', selector: row => row.employeeCtc },
-        { name: 'Net Salary', selector: row => row.monthlyCtc },
+        { name: 'Net Salary', 
+            // selector: row => row.monthlyCtc
+         },
         {
             name: 'Employee Status',
             cell: (row) => (
@@ -46,15 +48,15 @@ const GeneratePayslip = () => {
         },
         {
             name: 'Status',
-            cell: (row) => (
-                <span
-                    className={`badge ${row.status?.toLowerCase() === "paid" ? "bg-success" : "bg-danger"
-                        }`}
-                >
-                    {row.status || "Unpaid"}
-                </span>
-            ),
-            selector: (row) => row.status
+            // cell: (row) => (
+            //     <span
+            //         className={`badge ${row.status?.toLowerCase() === "paid" ? "bg-success" : "bg-danger"
+            //             }`}
+            //     >
+            //         {row.status || "Unpaid"}
+            //     </span>
+            // ),
+            // selector: (row) => row.status
         },
         {
             name: 'Action',
@@ -175,7 +177,7 @@ const GeneratePayslip = () => {
                                 <option value="">All Employees</option>
                                 {data.map(emp => (
                                     <option key={emp.id} value={emp.id}>
-                                        {emp.name}
+                                        {emp.firstName} {emp.lastName}
                                     </option>
                                 ))}
                             </select>
