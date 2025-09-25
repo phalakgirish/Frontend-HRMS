@@ -9,7 +9,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
-  z-index: 1000;
+  z-index: 1100;
+  position: fixed;
 }
 
 .topbar-left,
@@ -25,6 +26,22 @@
   cursor: pointer;
 }
 
+@media (max-width: 768px) {
+  .icon-bar {
+    font-size: 15px;
+    margin-top: 10px;
+  }
+  .icon1{
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .icon-bar {
+    font-size: 22px !important;
+  }
+}
+
 
 .icon1 {
   font-size: 22px;
@@ -32,6 +49,7 @@
   cursor: pointer;
   margin: 0;
 }
+
 
 .logo {
   font-family: 'Georgia', serif;
