@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { getPayroll, createPayroll, updatePayroll, deletePayroll } from '../../api/payrollApi';
+import { getPayroll, createPayroll, updatePayroll, deletePayroll, getPayrollByEmpId } from '../../api/payrollApi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
@@ -12,18 +12,7 @@ const PayrollMonthly = () => {
   const [employee, setEmployee] = useState(null);
   const [data, setData] = useState([]);
 
-  // const [form, setForm] = useState({
-  //   tds: 0,
-  //   advance: 0,
-  //   arrierAdjustmentPlus: 0,
-  //   arrierAdjustmentMinus: 0,
-  //   bonus: 0,
-  //   groupInsPremium: 0,
-  //   incentive: 0,
-  //   lwf: 0,
-  //   paymentMethod: 0,
-  //   comments: 0
-  // });
+   const [form, setForm] = useState({});
 
   useEffect(() => {
     axios
@@ -39,168 +28,176 @@ const PayrollMonthly = () => {
   }, []);
 
   const [formData, setFormData] = useState({
-    basiSalary: 0,
+    basic: 0,
     hra: 0,
     lta: 0,
-    allowance: 0,
+    allowance: 0,   
+    medical: 1250,
+    executive: 0,
+
     pfEmployer: 0,
-    medical: 0,
-    esc: 0,
     gratuity: 0,
-    pt: 0,
+    esi: 0,    
+
+    pfEmployee: 0,
+    pt: 200,
     tds: 0,
     advance: 0,
+    arrierAdjustmentPlus: 0,
+    arrierAdjustmentMinus: 0,
     bonus: 0,
     incentive: 0,
     lwf: 0,
-    arrierAdjustmentPlus: 0,
-    arrierAdjustmentMinus: 0,
     lop: 0,
-    monthlyCtc: 0
+
+    grossSalary: 0,
+    totalDeductions: 0,
+    netSalary: 0,
+    totalCtc: 0,
+    paymentMethod: ''
   });
 
 
   useEffect(() => {
-    const fetchEmployeeAndLocation = async () => {
+    const fetchEmployee = async () => {
       try {
         setLoading(true);
 
         const empRes = await fetch(`http://localhost:3000/employee/code/${empId}`);
         if (!empRes.ok) throw new Error("Employee not found");
+
         const empData = await empRes.json();
         setEmployee(empData);
 
-        const locRes = await fetch(`http://localhost:3000/location`);
-        if (!locRes.ok) throw new Error("Locations not found");
-        const locData = await locRes.json();
-
-        const empLocation = locData.find(
-          loc => empData.locationName.toLowerCase().includes(loc.locationName.toLowerCase())
-        );
-
-        if (empLocation) {
-          setFormData({
-            basiSalary: empLocation.basiSalary || 0,
-            hra: empLocation.hra || 0,
-            lta: empLocation.lta || 0,
-            allowance: empLocation.allowance || 0,
-            pfEmployer: empLocation.pfEmployer || 0,
-            medical: empLocation.medical || 0,
-            esc: empLocation.esc || 0,
-            gratuity: empLocation.gratuity || 0,
-            pt: 0,
-            tds: 0,
-            advance: 0,
-            bonus: 0,
-            incentive: 0,
-            lwf: 0,
-            arrierAdjustmentPlus: 0,
-            arrierAdjustmentMinus: 0,
-            lop: 0,
-            paymentMethod: 0,
-            comments: ''
-          });
-        }
-
         setLoading(false);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching employee:", err);
         setLoading(false);
       }
     };
 
-    fetchEmployeeAndLocation();
+    fetchEmployee();
   }, [empId]);
 
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
 
-//     try {
-//       const payload = {
-//         empId,
-//         ...formData,
-//         ...form
-//       };
-
-//       await createPayroll(payload);
-//       toast.success("Payroll saved successfully!");
-
-//       setForm({
-//         tds: '',
-//         advance: '',
-//         arrierAdjustmentPlus: '',
-//         arrierAdjustmentMinus: '',
-//         bonus: '',
-//         groupInsPremium: '',
-//         incentive: '',
-//         lwf: '',
-//         paymentMethod: '',
-//         comments: ''
-//       });
-
-//     } catch (err) {
-//       console.error("Error saving Payroll:", err);
-//       toast.error("Payroll failed to save!");
-//     }
-//   };
 
 useEffect(() => {
-  if (!employee?.monthlyCtc) return;
+  const loadPayroll = async () => {
+    try {
+      const payroll = await getPayrollByEmpId(empId); // already res.data
+      if (payroll) {
+        setForm(payroll);
+        setFormData(prev => ({ ...prev, ...payroll })); // merge safely
+      }
+    } catch (err) {
+      console.error("❌ Failed to load payroll:", err);
+    }
+  };
 
-  const monthlyCTC = Number(employee.monthlyCtc || 0);
+  loadPayroll();
+}, [empId]);
 
-  // Basic = 40% of CTC
-  const basic = monthlyCTC * 0.4;
 
-  // HRA = 40% of Basic
-  const hra = basic * 0.4;
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-  // LTA = 5% of CTC
-  const lta = monthlyCTC * 0.05;
+  try {
+    // ✅ Prefer calculated formData, then override with user-input form
+    const merged = { ...form, ...formData };
 
-  // Conveyance + Medical + Executive = remaining
-  const remaining = monthlyCTC - (basic + hra + lta);
-  const conveyance = remaining * 0.4;
-  const medical = remaining * 0.3;
-  const executive = remaining * 0.3;
+    // ✅ Clean only numeric fields, leave strings intact
+    const cleanForm = Object.fromEntries(
+      Object.entries(merged).map(([key, value]) => {
+        if (typeof value === "string" && isNaN(Number(value))) {
+          return [key, value]; // keep string (like "Online")
+        }
+        return [key, value === "" || value == null ? 0 : Number(value)];
+      })
+    );
 
-  // Employer contributions
-  const pfEmployer = basic * 0.12;
-  const gratuity = basic * 0.0481;
+    const payload = { empId, ...cleanForm };
 
-  // Employee contributions (deductions)
-  const pfEmployee = basic * 0.12;
-  const pt = 200; // example fixed
-  const tds = 0;  // for now
+    console.log("📤 Sending payload:", payload);
 
-  // Gross
-  const grossSalary = basic + hra + lta + conveyance + medical + executive;
+    // ✅ Send to API
+    const res = await createPayroll(payload); 
+    toast.success("Payroll saved successfully!");
 
-  // Total deductions
-  const totalDeductions = pfEmployee + pt + tds;
+    // ✅ Don't overwrite calculated data with backend defaults
+    if (res?.data) {
+      setFormData(prev => ({ ...prev, ...payload })); // keep frontend-calculated
+      setForm(prev => ({ ...prev, ...payload }));
+    }  
 
-  // Net
-  const netSalary = grossSalary - totalDeductions;
+  } catch (err) {
+    console.error("❌ Error saving Payroll:", err.response?.data || err.message);
+    toast.error("Payroll failed to save!");
+  }
+};
 
-  // Update state
-  setFormData(prev => ({
-    ...prev,
-    basic,
-    hra,
-    lta,
-    conveyance,
-    medical,
-    executive,
-    pfEmployer,
-    gratuity,
-    pfEmployee,
-    pt,
-    grossSalary,
-    totalDeductions,
-    netSalary,
-    totalCtc: monthlyCTC
-  }));
-}, [employee]);
+
+
+  useEffect(() => {
+    if (!employee?.employeeCtc) return;
+
+    const totalCtc = Number(employee.employeeCtc);
+    const monthlyCTC = totalCtc / 12;
+
+    const basic = Math.round(monthlyCTC * 0.5);
+    const hra = Math.round(basic * 0.5);
+    const lta = Math.round(basic * 0.0833);
+
+    let conveyance = monthlyCTC <= 15000 ? 500 : 1600;
+    let medical = monthlyCTC <= 15000 ? 250 : 1250;
+
+    // PF (Employer + Employee)
+    let pfEmployer = Math.round(basic * 0.12);
+    const PF_MIN = 997;
+    const PF_MAX = 1800;
+    pfEmployer = Math.min(Math.max(pfEmployer, PF_MIN), PF_MAX);
+
+    let pfEmployee = pfEmployer;
+
+    // Gratuity
+    const gratuity = Math.round(basic * 0.0481);
+
+    // ESI only if salary <= 21,000
+    let esi = 0;
+    if (monthlyCTC <= 21000) {
+      esi = Math.round((basic + hra + lta + conveyance + medical) * 0.0334);
+    }
+
+    // Gross = CTC - employer contributions
+    const grossSalary = Math.round(monthlyCTC - (pfEmployer + gratuity + esi));
+
+    // Executive = balance
+    const executive = Math.round(grossSalary - (basic + hra + lta + conveyance + medical));
+
+    // Deductions
+    const pt = 200;
+    const tds = 0;
+    const totalDeductions = Math.round(pfEmployee + pt + tds);
+    const netSalary = Math.round(grossSalary - totalDeductions);
+
+    setFormData(prev => ({
+      ...prev,
+      basic,
+      hra,
+      lta,
+      conveyance,
+      medical,
+      executive,
+      pfEmployer,
+      gratuity,
+      esi,
+      pfEmployee,
+      pt,
+      grossSalary,
+      totalDeductions,
+      netSalary,
+      totalCtc: Math.round(monthlyCTC)
+    }));
+  }, [employee]);
 
 
 
@@ -224,7 +221,7 @@ useEffect(() => {
           </div>
 
           <form className="p-3"
-          //  onSubmit={handleSubmit}
+           onSubmit={handleSubmit}
           >
             <div className="row">
 
@@ -233,8 +230,7 @@ useEffect(() => {
                 <input
                   type="text"
                   className="form-control"
-                  // value={formData.basiSalary || ''}
-                  // onChange={(e) => setFormData({ ...formData, basiSalary: e.target.value })}
+                  value={formData.basic || ''}
                   placeholder="Basic Salary" disabled
                 />
               </div>
@@ -244,8 +240,7 @@ useEffect(() => {
                 <input
                   type="text"
                   className="form-control"
-                  // value={formData.pfEmployer || ''}
-                  // onChange={(e) => setFormData({ ...formData, pfEmployer: e.target.value })}
+                  value={formData.pfEmployer || ''}
                   placeholder="PF" disabled
                 />
               </div>
@@ -255,8 +250,7 @@ useEffect(() => {
                 <input
                   type="text"
                   className="form-control"
-                  // value={formData.hra || ''}
-                  // onChange={(e) => setFormData({ ...formData, hra: e.target.value })}
+                  value={formData.hra || ''}
                   placeholder="HRA" disabled
                 />
               </div>
@@ -266,8 +260,7 @@ useEffect(() => {
                 <input
                   type="text"
                   className="form-control"
-                  // value={formData.esc || ''}
-                  // onChange={(e) => setFormData({ ...formData, esc: e.target.value })}
+                  value={formData.esi || ''}
                   placeholder="ESI" disabled
                 />
               </div>
@@ -277,8 +270,7 @@ useEffect(() => {
                 <input
                   type="text"
                   className="form-control"
-                  // value={formData.lta || ''}
-                  // onChange={(e) => setFormData({ ...formData, lta: e.target.value })}
+                  value={formData.lta || ''}
                   placeholder="LTA" disabled
                 />
               </div>
@@ -288,8 +280,7 @@ useEffect(() => {
                 <input
                   type="text"
                   className="form-control"
-                  // value={formData.pt || ''}
-                  // onChange={(e) => setFormData({ ...formData, pt: e.target.value })}
+                  value={formData.pt || ''}
                   placeholder="PT" disabled
                 />
               </div>
@@ -299,8 +290,7 @@ useEffect(() => {
                 <input
                   type="text"
                   className="form-control"
-                  // value={formData.allowance || ''}
-                  // onChange={(e) => setFormData({ ...formData, allowance: e.target.value })}
+                  value={formData.conveyance || ''}
                   placeholder="Allowance" disabled
                 />
               </div>
@@ -310,8 +300,7 @@ useEffect(() => {
                 <input
                   type="text"
                   className="form-control"
-                  // value={formData.gratuity || ''}
-                  // onChange={(e) => setFormData({ ...formData, gratuity: e.target.value })}
+                  value={formData.gratuity || ''}
                   placeholder="Graduity" disabled
                 />
               </div>
@@ -321,8 +310,7 @@ useEffect(() => {
                 <input
                   type="text"
                   className="form-control"
-                  // value={formData.medical || ''}
-                  // onChange={(e) => setFormData({ ...formData, medical: e.target.value })}
+                  value={formData.medical || ''}
                   placeholder="Medical Allowance" disabled
                 />
               </div>
@@ -346,8 +334,7 @@ useEffect(() => {
                 <input
                   type="text"
                   className="form-control"
-                  // value={formData.excecutiveAllowance || ''}
-                  // onChange={(e) => setFormData({ ...formData, excecutiveAllowance: e.target.value })}
+                  value={formData.executive || ''}
                   placeholder="Executive Allowance" disabled
                 />
               </div>
@@ -472,12 +459,22 @@ useEffect(() => {
 
               <div className="col-md-6 mb-3">
                 <label>Gross Earning</label>
-                <input type="text" className='form-control' placeholder='Gross Earning' disabled />
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.grossSalary || ''}
+                  placeholder="Gross Earning" disabled
+                />
               </div>
 
               <div className="col-md-6 mb-3">
                 <label>Total Deduction</label>
-                <input type="text" className='form-control' placeholder='Total Deduction' disabled />
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.totalDeductions || ''}
+                  placeholder="Gross Earning" disabled
+                />
               </div>
 
               <div className="col-md-6 mb-3">
@@ -485,7 +482,7 @@ useEffect(() => {
                 <input
                   type="text"
                   className="form-control"
-                  // value={formData.monthlyCtc ?? 0}
+                  value={formData.netSalary ?? 0}
                   placeholder="Net Salary"
                   disabled
                 />
@@ -501,11 +498,11 @@ useEffect(() => {
                 <label>Payment Method</label>
                 <select
                   id="paymentMethod"
-                  // value={form.paymentMethod}
-                  // onChange={(e) => {
-                  //   const { value } = e.target;
-                  //   setForm({ ...form, paymentMethod: value, location: "" });
-                  // }}
+                  value={form.paymentMethod}
+                  onChange={(e) => {
+                    const { value } = e.target;
+                    setForm({ ...form, paymentMethod: value, location: "" });
+                  }}
                   className="form-select"
                 >
                   <option>Select Payment Method</option>
@@ -522,11 +519,13 @@ useEffect(() => {
                 <label>Comments</label>
                 <input
                   type="text"
-                  // value={form.comments}
+                  value={form.comments}
                   // onChange={(e) => {
                   //   const { value } = e.target;
                   //   setForm({ ...form, comments: value });
                   // }}
+                    onChange={(e) => setForm({ ...form, comments: e.target.value })}
+
                   className="form-control"
                   placeholder="Comments"
                 />

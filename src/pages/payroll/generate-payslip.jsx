@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DataTable from 'react-data-table-component';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+import { getAllPayrolls } from '../../api/payrollApi';
 
 const GeneratePayslip = () => {
 
@@ -9,20 +10,56 @@ const GeneratePayslip = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [description, setDescription] = useState('<div class="mb-3"><label>Hello, Your Payslip is generated</label></div>');
     const navigate = useNavigate();
+    // const [paginated, setPaginated] = useState([]);
+
+    const [employees, setEmployees] = useState([]);
+    const [payrolls, setPayrolls] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        axios
-            .get("http://localhost:3000/employee")
-            .then((res) => {
-                setData(res.data);
+        const fetchData = async () => {
+            try {
+                const empRes = await axios.get("http://localhost:3000/employee");
+                setEmployees(empRes.data);
+
+                const payrollRes = await getAllPayrolls();
+                setPayrolls(payrollRes);
+
                 setLoading(false);
-            })
-            .catch((err) => {
-                console.error("Error fetching employee:", err);
+            } catch (err) {
+                console.error("❌ Error fetching data:", err);
                 setLoading(false);
-            });
+            }
+        };
+
+        fetchData();
     }, []);
+
+    const payrollMap = payrolls.reduce((acc, p) => {
+        acc[p.empId] = p.netSalary;
+        return acc;
+    }, {});
+
+    const [mergedData, setMergedData] = useState([]);
+
+    useEffect(() => {
+        if (employees.length && payrolls.length) {
+            const payrollMap = payrolls.reduce((acc, p) => {
+                acc[p.empId] = p;
+                return acc;
+            }, {});
+
+            const merged = employees.map(emp => ({
+                ...emp,
+                netSalary: payrollMap[emp.id]?.netSalary || "—"
+            }));
+
+            setMergedData(merged);
+        } else {
+            setMergedData(employees); // fallback when no payrolls yet
+        }
+    }, [employees, payrolls]);
+
 
     const handleEdit = (row) => {
         navigate(`/payroll-monthly/${row.id}`);
@@ -34,9 +71,11 @@ const GeneratePayslip = () => {
         { name: 'Name', selector: row => `${row.firstName} ${row.lastName}` },
         { name: 'Salary Type', selector: row => `${row.id} (Monthly)` },
         { name: 'CTC', selector: row => row.employeeCtc },
-        { name: 'Net Salary', 
-            // selector: row => row.monthlyCtc
-         },
+        {
+            name: 'Net Salary',
+            selector: row => row.netSalary
+
+        },
         {
             name: 'Employee Status',
             cell: (row) => (
@@ -75,47 +114,6 @@ const GeneratePayslip = () => {
         },
     ];
 
-    // const data = [
-    //     {
-    //         empId: 'Absent',
-    //         name: 'Anjali Patle',
-    //         salaryType: 'UBISL0001 (Monthly)',
-    //         ctc: '600000',
-    //         netSalary: '46997',
-    //         empStatus: 'Active',
-    //         status: 'Unpaid',
-    //         action: '-',
-    //     },
-    //     {
-    //         empId: 'Absent',
-    //         name: 'Anjali Patle',
-    //         salaryType: 'UBISL0001 (Monthly)',
-    //         ctc: '600000',
-    //         netSalary: '46997',
-    //         empStatus: 'Active',
-    //         status: 'Unpaid',
-    //         action: '0 Net Salary',
-    //     }, {
-    //         empId: 'Absent',
-    //         name: 'Anjali Patle',
-    //         salaryType: 'UBISL0001 (Monthly)',
-    //         ctc: '600000',
-    //         netSalary: '46997',
-    //         empStatus: 'Active',
-    //         status: 'Unpaid',
-    //         action: '-',
-    //     }, {
-    //         empId: 'Absent',
-    //         name: 'Anjali Patle',
-    //         salaryType: 'UBISL0001 (Monthly)',
-    //         ctc: '600000',
-    //         netSalary: '46997',
-    //         empStatus: 'Active',
-    //         status: 'Unpaid',
-    //         action: '-',
-    //     },
-    // ];
-
     const customStyles = {
         headCells: {
             style: {
@@ -147,14 +145,22 @@ const GeneratePayslip = () => {
 
     const totalEntries = data.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
+    const [paginated, setPaginated] = useState(data.slice(0, rowsPerPage));
 
-    const paginatedData = data.slice(
-        (currentPage - 1) * rowsPerPage,
-        currentPage * rowsPerPage
-    );
+    const paginate = (data, page) => {
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        setPaginated(data.slice(start, end));
+        setCurrentPage(page);
+    };
 
     const startEntry = (currentPage - 1) * rowsPerPage + 1;
-    const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
+    const endEntry = Math.min(currentPage * rowsPerPage, data.length);
+    useEffect(() => {
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        setPaginated(data.slice(start, end));
+    }, [data, currentPage, rowsPerPage]);
 
 
     return (
@@ -230,23 +236,21 @@ const GeneratePayslip = () => {
                 </div>
 
 
-                <div className="px-3 mt-4">
-                    <div className="d-flex justify-content-between align-items-center mb-2">
+                <div className="px-3">
+                    <div className="d-flex justify-content-between align-items-center mb-2 mt-3">
                         <div className="d-flex align-items-center gap-2">
                             <label htmlFor="entriesSelect" className="mb-0 ms-4">Show</label>
                             <select
-                                id="entriesSelect"
-                                className="form-select form-select-sm w-auto"
                                 value={rowsPerPage}
                                 onChange={(e) => {
                                     setRowsPerPage(Number(e.target.value));
                                     setCurrentPage(1);
                                 }}
                             >
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
+                                <option value={10}>10</option>
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
                             </select>
                             <span className="ms-1">entries</span>
                         </div>
@@ -254,7 +258,8 @@ const GeneratePayslip = () => {
 
                     <DataTable
                         columns={columns}
-                        data={paginatedData}
+                        data={mergedData}
+                        progressPending={loading}
                         fixedHeader
                         highlightOnHover
                         customStyles={customStyles}

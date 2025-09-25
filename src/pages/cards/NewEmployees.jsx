@@ -1,5 +1,6 @@
 import DataTable from 'react-data-table-component';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 
 const employees = [
@@ -83,42 +84,59 @@ export const WorkAnniversaryList = () => {
 
 
 const columns = [
-  { name: 'Status', selector: row => row.status, sortable: true },
-  { name: 'Employee', selector: row => row.employee, sortable: true },
-  { name: 'Clock IN', selector: row => row.clockIn },
-  { name: 'Clock Out', selector: row => row.clockOut },
-  { name: 'Late', selector: row => row.late },
-  { name: 'Early Leaving', selector: row => row.earlyLeaving },
-  { name: 'Overtime', selector: row => row.overtime },
-  { name: 'Total Work', selector: row => row.totalWork },
-  { name: 'Total Rest', selector: row => row.totalRest },
+  {
+    name: "Employee",
+    selector: (row) =>
+      row.employee_id
+        ? `${row.employee_id.firstName} ${row.employee_id.lastName}`
+        : "N/A",
+    sortable: true,
+  },
+  {
+    name: "Date",
+    selector: (row) =>
+      row.attendance_date ? row.attendance_date.split("T")[0] : "",
+  },
+  {
+    name: "Clock In",
+    selector: (row) => row.attendance_clock_in || "-",
+  },
+  {
+    name: "Clock Out",
+    selector: (row) => row.attendance_clock_out || "-",
+  },
+  {
+    name: "Status",
+    selector: (row) => row.attendance_status || "-",
+  },
 ];
 
-const data = [
-  {
-    status: 'Absent',
-    employee: 'Admin Admin',
-    clockIn: '-',
-    clockOut: '-',
-    late: '00:00',
-    earlyLeaving: '00:00',
-    overtime: '00:00',
-    totalWork: '00:00',
-    totalRest: '00:00'
-  },
-  {
-    status: 'Present',
-    employee: 'Jane Doe',
-    clockIn: '09:05',
-    clockOut: '17:00',
-    late: '00:05',
-    earlyLeaving: '00:00',
-    overtime: '00:30',
-    totalWork: '07:55',
-    totalRest: '01:00'
-  },
-  // Add more if needed
-];
+
+// const data = [
+//   {
+//     status: 'Absent',
+//     employee: 'Admin Admin',
+//     clockIn: '-',
+//     clockOut: '-',
+//     late: '00:00',
+//     earlyLeaving: '00:00',
+//     overtime: '00:00',
+//     totalWork: '00:00',
+//     totalRest: '00:00'
+//   },
+//   {
+//     status: 'Present',
+//     employee: 'Jane Doe',
+//     clockIn: '09:05',
+//     clockOut: '17:00',
+//     late: '00:05',
+//     earlyLeaving: '00:00',
+//     overtime: '00:30',
+//     totalWork: '07:55',
+//     totalRest: '01:00'
+//   },
+//   // Add more if needed
+// ];
 
 const customStyles = {
   headCells: {
@@ -145,52 +163,82 @@ const conditionalRowStyles = [
 ];
 
 
+
 export const TodayAttendance = () => {
+
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    const fetchAttendance = async () => {
+      try {
+        const today = new Date().toISOString().split("T")[0];
+
+        const res = await axios.get(`http://localhost:3000/attendance`, {
+          params: { attendance_date: today }
+        });
+
+        setData(res.data); 
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching today's attendance:", err);
+        setLoading(false);
+      }
+    };
+
+    fetchAttendance();
+  }, []);
+
 
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const totalEntries = data.length;
   const totalPages = Math.ceil(totalEntries / rowsPerPage);
-  
-  const paginatedData = data.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
-  
+
+  const [paginated, setPaginated] = useState(data.slice(0, rowsPerPage));
+
+  const paginate = (data, page) => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    setPaginated(data.slice(start, end));
+    setCurrentPage(page);
+  };
+
   const startEntry = (currentPage - 1) * rowsPerPage + 1;
-  const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
+  const endEntry = Math.min(currentPage * rowsPerPage, data.length);
+  useEffect(() => {
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    setPaginated(data.slice(start, end));
+  }, [data, currentPage, rowsPerPage]);
 
   return (
     <div className="card no-radius">
       <div className="card-header text-white new-emp-bg">Today Attendance</div>
 
 
-      <div className="px-3 mt-4">
-        <div className="d-flex justify-content-between align-items-center mb-2">
-
+      <div className="px-3">
+        <div className="d-flex justify-content-between align-items-center mb-2 mt-3">
           <div className="d-flex align-items-center gap-2">
             <label htmlFor="entriesSelect" className="mb-0 ms-4">Show</label>
             <select
-              id="entriesSelect"
-              className="form-select form-select-sm w-auto"
               value={rowsPerPage}
               onChange={(e) => {
                 setRowsPerPage(Number(e.target.value));
-                setCurrentPage(1); 
+                setCurrentPage(1);
               }}
             >
-              <option value="10">10</option>
-              <option value="25">25</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
             </select>
-
             <span className="ms-1">entries</span>
           </div>
         </div>
+
         <DataTable
           columns={columns}
-          data={paginatedData}
+          data={paginated}
           fixedHeader
           highlightOnHover
           customStyles={customStyles}
@@ -199,8 +247,8 @@ export const TodayAttendance = () => {
           subHeader
           subHeaderAlign="right"
           subHeaderComponent={
-            <div className="d-flex justify-content-between align-items-center w-100">
-              <div className="d-flex">
+            <div className="d-flex flex-wrap justify-content-between align-items-center w-100 gap-2">
+              <div className="d-flex flex-wrap gap-2">
                 <button className="btn btn-sm btn-outline-dark">Copy</button>
                 <button className="btn btn-sm btn-outline-dark">CSV</button>
                 <button className="btn btn-sm btn-outline-dark">PDF</button>
@@ -221,13 +269,11 @@ export const TodayAttendance = () => {
         />
       </div>
 
-
       <div className="p-3">
         <p className="mb-0 text-muted" style={{ fontSize: '0.9rem' }}>
           Showing {startEntry} to {endEntry} of {totalEntries} entries
         </p>
       </div>
-
 
       <div className="d-flex justify-content-end align-items-center p-3">
         <button

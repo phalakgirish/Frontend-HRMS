@@ -17,3 +17,14 @@ export const updatePayroll = (id,updatedData) =>{
 export const deletePayroll = async (id) => {
   return await axios.delete(`${BASE_URL}/${id}`);
 };
+
+export const getPayrollByEmpId = async (empId) => {
+  const res = await axios.get(`${BASE_URL}/${empId}`);
+  return res.data;
+};
+
+export const getAllPayrolls = async () => {
+  const res = await axios.get("http://localhost:3000/payroll");
+  return res.data;
+};
+

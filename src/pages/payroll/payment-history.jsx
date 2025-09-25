@@ -319,13 +319,22 @@ const PaymentHistory = () => {
     const totalEntries = data.length;
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
 
-    const paginatedData = data.slice(
-        (currentPage - 1) * rowsPerPage,
-        currentPage * rowsPerPage
-    );
+    const [paginated, setPaginated] = useState(data.slice(0, rowsPerPage));
+
+    const paginate = (data, page) => {
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        setPaginated(data.slice(start, end));
+        setCurrentPage(page);
+    };
 
     const startEntry = (currentPage - 1) * rowsPerPage + 1;
-    const endEntry = Math.min(currentPage * rowsPerPage, totalEntries);
+    const endEntry = Math.min(currentPage * rowsPerPage, data.length);
+    useEffect(() => {
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        setPaginated(data.slice(start, end));
+    }, [data, currentPage, rowsPerPage]);
 
     // const [showAddForm, setShowAddForm] = useState(false);
 
@@ -349,23 +358,21 @@ const PaymentHistory = () => {
                 </div>
 
 
-                <div className="px-3 mt-4">
-                    <div className="d-flex justify-content-between align-items-center mb-2">
+                <div className="px-3">
+                    <div className="d-flex justify-content-between align-items-center mb-2 mt-3">
                         <div className="d-flex align-items-center gap-2">
                             <label htmlFor="entriesSelect" className="mb-0 ms-4">Show</label>
                             <select
-                                id="entriesSelect"
-                                className="form-select form-select-sm w-auto"
                                 value={rowsPerPage}
                                 onChange={(e) => {
                                     setRowsPerPage(Number(e.target.value));
                                     setCurrentPage(1);
                                 }}
                             >
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
+                                <option value={10}>10</option>
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
                             </select>
                             <span className="ms-1">entries</span>
                         </div>
@@ -373,7 +380,7 @@ const PaymentHistory = () => {
 
                     <DataTable
                         columns={columns}
-                        data={paginatedData}
+                        data={paginated}
                         fixedHeader
                         highlightOnHover
                         customStyles={customStyles}
@@ -438,6 +445,7 @@ const PaymentHistory = () => {
                         Next
                     </button>
                 </div>
+
 
 
                 {showEditModal && selectedRow && (

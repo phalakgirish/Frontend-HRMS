@@ -214,7 +214,7 @@ const Expense = () => {
         },
         { name: 'Employee', selector: row => row.employee, sortable: true },
         { name: 'Expense', selector: row => row.expense },
-        { name: 'Amount', selector: row => row.amount },
+        { name: 'Amount', selector: row =>  `Rs. ${row.amount} ` },
         { name: 'Purchase Date', selector: row => row.purchasedDate },
         { name: 'Status', selector: row => row.status }
     ];
@@ -400,8 +400,8 @@ const Expense = () => {
                                             onBlur={(e) => validateField("status", e.target.value)}
                                         >
                                             <option value="">Status</option>
-                                            <option value="pending">Pending</option>
-                                            <option value="approved">Approved</option>
+                                            <option value="Pending">Pending</option>
+                                            <option value="Approved">Approved</option>
                                         </select>
                                         {errors.status && (
                                             <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Status is Required!</p>
@@ -746,8 +746,8 @@ const Expense = () => {
                                                             onBlur={(e) => validateField("status", e.target.value)}
                                                         >
                                                             <option value="">Status</option>
-                                                            <option value="pending">Pending</option>
-                                                            <option value="approved">Approved</option>
+                                                            <option value="Pending">Pending</option>
+                                                            <option value="Approved">Approved</option>
                                                         </select>
                                                         {errors.status && (
                                                             <p className="text-danger mb-0" style={{ fontSize: '13px' }}>Status is Required!</p>
