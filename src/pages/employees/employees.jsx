@@ -396,10 +396,10 @@ const Employees = () => {
     ];
 
     const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);  
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const totalEntries = Employee.length;
-    const totalPages = Math.ceil(totalEntries / rowsPerPage); 
+    const totalPages = Math.ceil(totalEntries / rowsPerPage);
 
     const [paginated, setPaginated] = useState(Employee.slice(0, rowsPerPage));
 
@@ -930,39 +930,54 @@ const Employees = () => {
 
                                     <div className='row'>
                                         <div className="col-md-6 mb-3">
-                                            <label>Employee CTC</label>
-                                            <input type="text" value={form.employeeCtc} placeholder='Employee CTC'
+                                            <label>Employee CTC (Annual)</label>
+                                            <input
+                                                type="text"
+                                                value={form.employeeCtc}
+                                                placeholder="Employee CTC"
                                                 onChange={(e) => {
                                                     const { value } = e.target;
-                                                    setForm({ ...form, employeeCtc: value });
+
+                                                    // update annual
+                                                    let updatedForm = { ...form, employeeCtc: value };
+
+                                                    // if value is a number, update monthly automatically
+                                                    if (!isNaN(value) && value !== "") {
+                                                        updatedForm.monthlyCtc = Math.round(Number(value) / 12);
+                                                    } else {
+                                                        updatedForm.monthlyCtc = "";
+                                                    }
+
+                                                    setForm(updatedForm);
                                                     validateField("employeeCtc", value);
                                                 }}
                                                 className={`form-control ${errors.employeeCtc ? "is-invalid" : ""}`}
                                                 onBlur={(e) => validateField("employeeCtc", e.target.value)}
-
                                             />
                                             {errors.employeeCtc && (
-                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.employeeCtc}</p>
+                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
+                                                    {errors.employeeCtc}
+                                                </p>
                                             )}
                                         </div>
 
                                         <div className="col-md-6 mb-3">
                                             <label>Monthly CTC</label>
-                                            <input type="text" value={form.monthlyCtc} placeholder='Monthly CTC'
-                                                onChange={(e) => {
-                                                    const { value } = e.target;
-                                                    setForm({ ...form, monthlyCtc: value });
-                                                    validateField("monthlyCtc", value);
-                                                }}
+                                            <input
+                                                type="text"
+                                                value={form.monthlyCtc}
+                                                placeholder="Monthly CTC"
+                                                readOnly // make it readonly so user cannot manually change
                                                 className={`form-control ${errors.monthlyCtc ? "is-invalid" : ""}`}
-                                                onBlur={(e) => validateField("monthlyCtc", e.target.value)}
-
-                                            />
+                                             />
                                             {errors.monthlyCtc && (
-                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>{errors.monthlyCtc}</p>
+                                                <p className="text-danger mb-0" style={{ fontSize: '13px' }}>
+                                                    {errors.monthlyCtc}
+                                                </p>
                                             )}
                                         </div>
                                     </div>
+
 
                                     <div className='row'>
                                         <div className="col-md-6 mb-3">

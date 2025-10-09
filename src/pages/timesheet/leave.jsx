@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { getLeave, createLeave, updateLeave, deleteLeave } from '../../api/leaveApi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
 
 
 const Leave = () => {
@@ -15,6 +16,8 @@ const Leave = () => {
     const [selectedRow, setSelectedRow] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [description, setDescription] = useState('');
+    const [employees, setEmployees] = useState([]);
+    const [employeeId, setEmployeeId] = useState('');
 
     //from backend
     const [Leave, setLeave] = useState([]);
@@ -23,6 +26,7 @@ const Leave = () => {
     const [editId, setEditId] = useState(null);
 
     const [form, setForm] = useState({
+        employeeCode: '',
         employee: '',
         leaveType: '',
         appliedOn: '',
@@ -114,6 +118,22 @@ const Leave = () => {
         return error;
     };
 
+    useEffect(() => {
+  if (showEditModal && selectedRow) {
+    setForm({
+      employeeId: selectedRow.employeeId || "",
+      employee: selectedRow.employee || "",
+      leaveType: selectedRow.leaveType || "",
+      appliedOn: selectedRow.appliedOn?.slice(0, 10) || "", // format YYYY-MM-DD
+      endDate: selectedRow.endDate?.slice(0, 10) || "",
+      days: selectedRow.days || "",
+      reason: selectedRow.reason || "",
+      status: selectedRow.status || "Pending",
+    });
+  }
+}, [showEditModal, selectedRow]);
+
+
 
     // const handleSubmit = async (e) => {
     //     e.preventDefault();
@@ -153,19 +173,22 @@ const Leave = () => {
     // };
 
     const handleSubmit = async (e) => {
-
         e.preventDefault();
         if (validateForm()) {
             try {
-
+                // ✅ Clean payload
                 const payload = {
-
-                    ...form,
+                    employeeId: form.employeeId,  // only send ID
+                    leaveType: form.leaveType,
+                    appliedOn: form.appliedOn,
+                    endDate: form.endDate,
+                    requestDuration: form.requestDuration,
                     days: Number(form.days),
-                    // status: form.status || "pending", 
+                    reason: form.reason,
+                    addedBy: form.addedBy || "",
                 };
-                console.log("Submitting payload:", payload);
 
+                console.log("Submitting payload:", payload);
 
                 if (editId) {
                     await updateLeave(editId, payload);
@@ -176,18 +199,7 @@ const Leave = () => {
                 }
 
                 fetchLeave();
-
-                setForm({
-                    employee: "",
-                    leaveType: "",
-                    appliedOn: "",
-                    endDate: "",
-                    requestDuration: "",
-                    days: "",
-                    reason: "",
-                    // status: "", 
-                    addedBy: "",
-                });
+                setForm(emptyForm);
                 setEditId(null);
                 setShowEditModal(false);
                 setShowAddForm(false);
@@ -253,6 +265,12 @@ const Leave = () => {
 
     const navigate = useNavigate();
 
+    useEffect(() => {
+        fetch("http://localhost:3000/employee")
+            .then(res => res.json())
+            .then(data => setEmployees(data))
+            .catch(err => console.error("Error fetching employees:", err));
+    }, []);
 
     useEffect(() => {
         if (form.appliedOn && form.endDate) {
@@ -392,6 +410,8 @@ const Leave = () => {
         setShowAddForm((prev) => !prev);
     };
 
+
+
     return (
         <div className="custom-container">
             <h5>Leave</h5>
@@ -474,32 +494,36 @@ const Leave = () => {
 
                                     <div className="mb-3">
                                         <label>Leave for Employee</label>
-                                        <select id="leaveEmp" value={form.employee}
+                                        <select
+                                            value={form.employeeId || ""}
                                             onChange={(e) => {
-                                                const { value } = e.target;
-                                                setForm({ ...form, employee: value });
-                                                validateField("employee", value);
-                                            }}
-                                            className={`form-control ${errors.employee ? "is-invalid" : ""}`}
-                                            onBlur={(e) => validateField("employee", e.target.value)}
-                                        >
-                                            <option value="">Choose an Employee..</option>
-                                            <option value="Admin">Admin Admin</option>
-                                            <option value="Anjali Patle">Anjali Patle</option>
-                                            <option value="Amit Kumar">Amit Kumar</option>
-                                            <option value="Aniket Rane">Aniket Rane</option>
-                                            <option value="Shubham Kadam">Shubham Kadam</option>
-                                            <option value="Abhijieet Tawate">Abhijieet Tawate</option>
-                                            <option value="Pravin Bildlan">Pravin Bildlan</option>
-                                            <option value="Amit Pednekar">Amit Pednekar</option>
-                                            <option value="Mahendra Chaudhary">Mahendra Chaudhary</option>
-                                            <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
-                                            <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
-                                        </select>
-                                        {errors.employee && (
-                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This field is required!</p>)}
-                                    </div>
+                                                const selectedEmp = employees.find(emp => emp._id === e.target.value);
 
+                                                if (selectedEmp) {
+                                                    setForm({
+                                                        ...form,
+                                                        employeeId: selectedEmp._id, // only send ID
+                                                        employee: `${selectedEmp.firstName} ${selectedEmp.lastName}`, // optional for display
+                                                    });
+                                                }
+                                            }}
+                                            className="form-control"
+                                        >
+                                            <option value="">-- Select Employee --</option>
+                                            {employees.map((emp) => (
+                                                <option key={emp._id} value={emp._id}>
+                                                    {emp.firstName} {emp.lastName}
+                                                    {emp.employeeCode ? ` (${emp.employeeCode})` : ""}
+                                                </option>
+                                            ))}
+                                        </select>
+
+                                        {errors.employee && (
+                                            <p className="text-danger mb-0" style={{ fontSize: "13px" }}>
+                                                This field is required!
+                                            </p>
+                                        )}
+                                    </div>
 
                                 </div>
 
@@ -774,32 +798,36 @@ const Leave = () => {
 
                                                     <div className="mb-3">
                                                         <label>Leave for Employee</label>
-                                                        <select id="leaveEmp" value={form.employee}
+                                                        <select
+                                                            value={form.employeeId || ""}
                                                             onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, employee: value });
-                                                                validateField("employee", value);
-                                                            }}
-                                                            className={`form-control ${errors.employee ? "is-invalid" : ""}`}
-                                                            onBlur={(e) => validateField("employee", e.target.value)}
-                                                        >
-                                                            <option value="">Choose an Employee..</option>
-                                                            <option value="Admin">Admin Admin</option>
-                                                            <option value="Anjali Patle">Anjali Patle</option>
-                                                            <option value="Amit Kumar">Amit Kumar</option>
-                                                            <option value="Aniket Rane">Aniket Rane</option>
-                                                            <option value="Shubham Kadam">Shubham Kadam</option>
-                                                            <option value="Abhijieet Tawate">Abhijieet Tawate</option>
-                                                            <option value="Pravin Bildlan">Pravin Bildlan</option>
-                                                            <option value="Amit Pednekar">Amit Pednekar</option>
-                                                            <option value="Mahendra Chaudhary">Mahendra Chaudhary</option>
-                                                            <option value="Hamsa Dhwjaa">Hamsa Dhwjaa</option>
-                                                            <option value="Manoj Kumar Sinha">Manoj Kumar Sinha</option>
-                                                        </select>
-                                                        {errors.employee && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This field is required!</p>)}
-                                                    </div>
+                                                                const selectedEmp = employees.find(emp => emp._id === e.target.value);
 
+                                                                if (selectedEmp) {
+                                                                    setForm({
+                                                                        ...form,
+                                                                        employeeId: selectedEmp._id, // only send ID
+                                                                        employee: `${selectedEmp.firstName} ${selectedEmp.lastName}`, // optional for display
+                                                                    });
+                                                                }
+                                                            }}
+                                                            className="form-control"
+                                                        >
+                                                            <option value="">-- Select Employee --</option>
+                                                            {employees.map((emp) => (
+                                                                <option key={emp._id} value={emp._id}>
+                                                                    {emp.firstName} {emp.lastName}
+                                                                    {emp.employeeCode ? ` (${emp.employeeCode})` : ""}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+
+                                                        {errors.employee && (
+                                                            <p className="text-danger mb-0" style={{ fontSize: "13px" }}>
+                                                                This field is required!
+                                                            </p>
+                                                        )}
+                                                    </div>
 
                                                 </div>
 
@@ -822,24 +850,24 @@ const Leave = () => {
                                                     </div>
 
                                                     {/* <div className="mb-3">
-                                                        <label>Status</label>
-                                                        <select id="status" value={form.status}
-                                                            onChange={(e) => {
-                                                                const { value } = e.target;
-                                                                setForm({ ...form, status: value });
-                                                                validateField("status", value);
-                                                            }}
-                                                            className={`form-control ${errors.status ? "is-invalid" : ""}`}
-                                                            onBlur={(e) => validateField("status", e.target.value)}
-                                                        >
-                                                            <option value="">Status</option>
-                                                            <option value="pending">Pending</option>
-                                                            <option value="accepted">Accepted</option>
-                                                            <option value="rejected">Rejected</option>
-                                                        </select>
-                                                        {errors.status && (
-                                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This field is required!</p>)}
-                                                    </div> */}
+                                        <label>Status</label>
+                                        <select id="status" value={form.status}
+                                            onChange={(e) => {
+                                                const { value } = e.target;
+                                                setForm({ ...form, status: value });
+                                                validateField("status", value);
+                                            }}
+                                            className={`form-control ${errors.status ? "is-invalid" : ""}`}
+                                            onBlur={(e) => validateField("status", e.target.value)}
+                                        >
+                                            <option value="">Status</option>
+                                            <option value="pending">Pending</option>
+                                            <option value="accepted">Accepted</option>
+                                            <option value="rejected">Rejected</option>
+                                        </select>
+                                        {errors.status && (
+                                            <p className="text-danger mb-0" style={{ fontSize: '13px' }}>This field is required!</p>)}
+                                    </div> */}
 
                                                 </div>
                                                 <div className="mb-3">
@@ -858,9 +886,8 @@ const Leave = () => {
 
                                             </div>
 
-                                            <div className="text-end">
-                                                <button type="button" className="btn btn-sm btn-light me-2" onClick={() => { resetForm(); setShowEditModal(false) }}>Close</button>
-                                                <button type="submit" onClick={(e) => handleSubmit(e)} className="btn btn-sm add-btn">Update</button>
+                                            <div className="text-start mb-2">
+                                                <button type="submit" className="btn btn-sm add-btn">Save</button>
                                             </div>
                                         </form>
 
