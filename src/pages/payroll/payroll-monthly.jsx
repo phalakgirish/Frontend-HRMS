@@ -12,7 +12,7 @@ const PayrollMonthly = () => {
   const [employee, setEmployee] = useState(null);
   const [data, setData] = useState([]);
 
-   const [form, setForm] = useState({});
+  const [form, setForm] = useState({});
 
   useEffect(() => {
     axios
@@ -31,15 +31,15 @@ const PayrollMonthly = () => {
     basic: 0,
     hra: 0,
     lta: 0,
-    allowance: 0,   
+    allowance: 0,
     medical: 1250,
     executive: 0,
 
     pfEmployer: 0,
     gratuity: 0,
-    esi: 0,    
+    esi: 0,
 
-    pfEmployee: 0,
+    // pfEmployee: 0,
     pt: 200,
     tds: 0,
     advance: 0,
@@ -54,7 +54,7 @@ const PayrollMonthly = () => {
     totalDeductions: 0,
     netSalary: 0,
     totalCtc: 0,
-    paymentMethod: ''
+    // paymentMethod: ''
   });
 
 
@@ -81,59 +81,88 @@ const PayrollMonthly = () => {
 
 
 
-useEffect(() => {
-  const loadPayroll = async () => {
-    try {
-      const payroll = await getPayrollByEmpId(empId); // already res.data
-      if (payroll) {
-        setForm(payroll);
-        setFormData(prev => ({ ...prev, ...payroll })); // merge safely
+  useEffect(() => {
+    const loadPayroll = async () => {
+      try {
+        const payroll = await getPayrollByEmpId(empId); // already res.data
+        if (payroll) {
+          setForm(payroll);
+          setFormData(prev => ({ ...prev, ...payroll })); // merge safely
+        }
+      } catch (err) {
+        console.error("❌ Failed to load payroll:", err);
       }
+    };
+
+    loadPayroll();
+  }, [empId]);
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      // ✅ Prefer calculated formData, then override with user-input form
+      const merged = { ...form, ...formData };
+
+      // ✅ Clean only numeric fields, leave strings intact
+      const cleanForm = Object.fromEntries(
+        Object.entries(merged).map(([key, value]) => {
+          if (typeof value === "string" && isNaN(Number(value))) {
+            return [key, value]; // keep string (like "Online")
+          }
+          return [key, value === "" || value == null ? 0 : Number(value)];
+        })
+      );
+
+      const payload = { empId, ...cleanForm };
+
+      console.log("📤 Sending payload:", payload);
+
+      // ✅ Send to API
+      const res = await createPayroll(payload);
+      toast.success("Payroll saved successfully!");
+
+      // ✅ Don't overwrite calculated data with backend defaults
+      if (res?.data) {
+        setFormData(prev => ({ ...prev, ...payload })); // keep frontend-calculated
+        setForm(prev => ({ ...prev, ...payload }));
+      }
+
     } catch (err) {
-      console.error("❌ Failed to load payroll:", err);
+      console.error("❌ Error saving Payroll:", err.response?.data || err.message);
+      toast.error("Payroll failed to save!");
     }
   };
 
-  loadPayroll();
-}, [empId]);
+  useEffect(() => {
+    if (!employee?.employeeCode) return;
 
+    // 📅 get current YYYY-MM
+    const monthStr = new Date().toISOString().slice(0, 7);
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+    fetch(`/leave/employee/${employee.employeeCode}/${monthStr}`)
+      .then(res => res.json())
+      .then(data => {
+        const lopDays = data?.lopDays || 0;
 
-  try {
-    // ✅ Prefer calculated formData, then override with user-input form
-    const merged = { ...form, ...formData };
+        setFormData(prev => {
+          // calculate lopDeduction here also
+          const workingDays = 30; // 👈 make this dynamic if you want
+          const lopDeduction = Math.round(
+            ((prev.grossSalary || 0) / workingDays) * lopDays
+          );
 
-    // ✅ Clean only numeric fields, leave strings intact
-    const cleanForm = Object.fromEntries(
-      Object.entries(merged).map(([key, value]) => {
-        if (typeof value === "string" && isNaN(Number(value))) {
-          return [key, value]; // keep string (like "Online")
-        }
-        return [key, value === "" || value == null ? 0 : Number(value)];
+          return {
+            ...prev,
+            lopDays,
+            lopDeduction,
+            netSalaryAfterLOP: (prev.netSalary || 0) - lopDeduction,
+          };
+        });
       })
-    );
-
-    const payload = { empId, ...cleanForm };
-
-    console.log("📤 Sending payload:", payload);
-
-    // ✅ Send to API
-    const res = await createPayroll(payload); 
-    toast.success("Payroll saved successfully!");
-
-    // ✅ Don't overwrite calculated data with backend defaults
-    if (res?.data) {
-      setFormData(prev => ({ ...prev, ...payload })); // keep frontend-calculated
-      setForm(prev => ({ ...prev, ...payload }));
-    }  
-
-  } catch (err) {
-    console.error("❌ Error saving Payroll:", err.response?.data || err.message);
-    toast.error("Payroll failed to save!");
-  }
-};
+      .catch(err => console.error("❌ Error fetching LOP:", err));
+  }, [employee]);
 
 
 
@@ -143,41 +172,57 @@ const handleSubmit = async (e) => {
     const totalCtc = Number(employee.employeeCtc);
     const monthlyCTC = totalCtc / 12;
 
-    const basic = Math.round(monthlyCTC * 0.5);
+    const basic = Math.round(totalCtc / 12 * 0.5);
     const hra = Math.round(basic * 0.5);
     const lta = Math.round(basic * 0.0833);
 
-    let conveyance = monthlyCTC <= 15000 ? 500 : 1600;
-    let medical = monthlyCTC <= 15000 ? 250 : 1250;
+    const total = Math.round(basic + hra + lta)
+    // console.log("total is ",total);
 
-    // PF (Employer + Employee)
-    let pfEmployer = Math.round(basic * 0.12);
-    const PF_MIN = 997;
-    const PF_MAX = 1800;
-    pfEmployer = Math.min(Math.max(pfEmployer, PF_MIN), PF_MAX);
+    // let conveyance = monthlyCTC <= 15000 ? 500 : 1600;
+    let conveyance = 1600;
+    // let medical = monthlyCTC <= 15000 ? 250 : 1250;
+    let medical = 1250;
 
-    let pfEmployee = pfEmployer;
-
-    // Gratuity
-    const gratuity = Math.round(basic * 0.0481);
-
-    // ESI only if salary <= 21,000
-    let esi = 0;
-    if (monthlyCTC <= 21000) {
-      esi = Math.round((basic + hra + lta + conveyance + medical) * 0.0334);
+    let executive = Math.ceil(basic * 0.1826);
+    let warning = "";
+    if (executive < 0) {
+      executive = 0;
+      warning = "Low CTC – deductions adjusted, executive allowance set to 0.";
     }
 
-    // Gross = CTC - employer contributions
-    const grossSalary = Math.round(monthlyCTC - (pfEmployer + gratuity + esi));
+    const totalAllow = Math.round(conveyance + medical + executive);
+    // console.log("total allowance is ",totalAllow);
 
-    // Executive = balance
-    const executive = Math.round(grossSalary - (basic + hra + lta + conveyance + medical));
 
-    // Deductions
+
+    const gratuity = Math.round(basic * 0.0481);
+
+
+
+
+    const grossSalary = Math.round(total + totalAllow);
+
+ let pfEmployer = grossSalary > 15000 
+  ? 1800 
+  : Math.round(grossSalary * 0.12);
+
+
+
+    let esi = grossSalary < 21000 ? Math.round(grossSalary * 0.0325) : 0;
+
     const pt = 200;
     const tds = 0;
-    const totalDeductions = Math.round(pfEmployee + pt + tds);
+    const totalDeductions = Math.round(pfEmployer + pt + tds);
     const netSalary = Math.round(grossSalary - totalDeductions);
+
+    // const workingDays = 30;
+    // const lopDeduction = Math.round((grossSalary / workingDays) * (formData.lopDays || 0));
+    // const netSalaryAfterLOP = netSalary - lopDeduction;
+
+    const totalExtra = Math.round(pfEmployer + gratuity + esi);
+    // console.log("total allowance is ",totalExtra);
+
 
     setFormData(prev => ({
       ...prev,
@@ -190,16 +235,18 @@ const handleSubmit = async (e) => {
       pfEmployer,
       gratuity,
       esi,
-      pfEmployee,
+      // pfEmployee,
       pt,
       grossSalary,
       totalDeductions,
       netSalary,
-      totalCtc: Math.round(monthlyCTC)
+      totalCtc: Math.round(monthlyCTC),
+      warning,
+      // lopDays: prev.lopDays || 0,
+      // lopDeduction,
+      // netSalaryAfterLOP
     }));
-  }, [employee]);
-
-
+  }, [employee, formData.lopDays]);
 
 
 
@@ -217,11 +264,15 @@ const handleSubmit = async (e) => {
       <div ref={pdfRef}>
         <div className="card no-radius">
           <div className="card-header text-white new-emp-bg d-flex justify-content-between align-items-center">
-            Payment
+            {`Payment - ${new Date().toLocaleString("default", {
+              month: "long",
+              year: "numeric",
+            })} - ${employee?.firstName || ""} ${employee?.lastName || ""}`}
           </div>
 
+
           <form className="p-3"
-           onSubmit={handleSubmit}
+            onSubmit={handleSubmit}
           >
             <div className="row">
 
@@ -337,6 +388,11 @@ const handleSubmit = async (e) => {
                   value={formData.executive || ''}
                   placeholder="Executive Allowance" disabled
                 />
+                {formData.warning && (
+                  <p className="text-warning mb-1 mt-0" style={{ fontSize: '13px' }}>
+                    {formData.warning}
+                  </p>
+                )}
               </div>
 
               <div className="col-md-6 mb-3">
@@ -444,8 +500,15 @@ const handleSubmit = async (e) => {
 
               <div className="col-md-6 mb-3">
                 <label>LOP no of days</label>
-                <input type="text" className='form-control' placeholder='LOP no of days' disabled />
+                <input
+                  type="text"
+                  value={formData.lopDays || 0}
+                  className='form-control'
+                  placeholder='LOP no of days'
+                  disabled
+                />
               </div>
+
 
               <div className="col-md-6 mb-3">
                 <label></label>
@@ -454,7 +517,7 @@ const handleSubmit = async (e) => {
 
               <div className="col-md-6 mb-3">
                 <label>LOP</label>
-                <input type="text" className='form-control' placeholder='LOP' disabled />
+                <input type="text" value={formData.lopDeduction || 0} className='form-control' placeholder='LOP' disabled />
               </div>
 
               <div className="col-md-6 mb-3">
@@ -487,7 +550,6 @@ const handleSubmit = async (e) => {
                   disabled
                 />
               </div>
-
 
               <div className="col-md-6 mb-3">
                 <label>Payment Amount</label>
@@ -524,7 +586,7 @@ const handleSubmit = async (e) => {
                   //   const { value } = e.target;
                   //   setForm({ ...form, comments: value });
                   // }}
-                    onChange={(e) => setForm({ ...form, comments: e.target.value })}
+                  onChange={(e) => setForm({ ...form, comments: e.target.value })}
 
                   className="form-control"
                   placeholder="Comments"
