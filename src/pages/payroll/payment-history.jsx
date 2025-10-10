@@ -17,7 +17,8 @@ const PaymentHistory = () => {
     const [description, setDescription] = useState('<div class="mb-3"><label>Hello, Your Payslip is generated</label></div>');
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState([]);
-
+    const [employees, setEmployees] = useState([]);
+    const [payrolls, setPayrolls] = useState([]);
 
     const handleView = (row) => {
         setSelectedRow(row);
@@ -30,17 +31,27 @@ const PaymentHistory = () => {
     };
 
     useEffect(() => {
-        axios
-            .get("http://localhost:3000/employee")
-            .then((res) => {
-                setData(res.data);
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.error("Error fetching employee:", err);
-                setLoading(false);
-            });
+        axios.get("http://localhost:3000/employee")
+            .then(res => setEmployees(res.data))
+            .catch(err => console.error(err));
     }, []);
+
+    useEffect(() => {
+        axios.get("http://localhost:3000/payroll")
+            .then(res => setPayrolls(res.data))
+            .catch(err => console.error(err));
+    }, []);
+
+    const mergedData = employees.map(emp => {
+        const payroll = payrolls.find(p => p.empId === emp.id) || {};
+        return {
+            ...emp,
+            netSalary: payroll.netSalary || "-",
+            paymentStatus: payroll.paymentStatus || "Unpaid",
+            paymentMethod: payroll.paymentMethod || "-"
+        };
+    });
+
 
     const columns = [
         {
@@ -180,10 +191,10 @@ const PaymentHistory = () => {
             ),
         },
         { name: 'Employee Name', selector: row => `${row.firstName} ${row.lastName}` },
-        { name: 'Paid Amount', selector: row => row.paidAmt },
+        { name: 'Paid Amount', selector: row => row.netSalary },
         { name: 'Payment Month', selector: row => row.paymentMonth },
         { name: 'Payment Date', selector: row => row.paymentDate },
-        { name: 'Payment Type', selector: row => row.paymentType },
+        { name: 'Payment Type', selector: row => row.paymentMethod },
         // {
         //     name: 'Payslip',
         //     cell: (row) => (
@@ -380,7 +391,8 @@ const PaymentHistory = () => {
 
                     <DataTable
                         columns={columns}
-                        data={paginated}
+                        data={mergedData}
+                        // data={paginated}
                         fixedHeader
                         highlightOnHover
                         customStyles={customStyles}

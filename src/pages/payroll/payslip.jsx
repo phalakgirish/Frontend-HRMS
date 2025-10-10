@@ -14,15 +14,41 @@ const Payslip = () => {
 
 
 
-    useEffect(() => {
-        axios.get(`http://localhost:3000/employee`)
-            .then(res => {
-                //   console.log("API response:", res.data);
-                const emp = res.data.find(e => e._id === empId || e.id === empId);
-                setEmployee(emp || null);
-            })
-            .catch(err => console.error(err));
-    }, [empId]);
+useEffect(() => {
+    const fetchData = async () => {
+        try {
+            const empRes = await axios.get(`http://localhost:3000/employee`);
+            const payrollRes = await axios.get(`http://localhost:3000/payroll`);
+
+            const emp = empRes.data.find(e => e._id === empId || e.id === empId);
+            const payroll = payrollRes.data.find(p => p.empId === empId || p._id === empId);
+
+            if (emp) {
+                setEmployee({
+                    ...emp,
+                    basic:  payroll?.basic,
+                    hra: payroll?.hra,
+                    executive: payroll?.executive,
+                    conveyance: payroll?.conveyance,
+                    medical: payroll?.medical,
+                    pfEmployer: payroll?.pfEmployer,
+                    pt:payroll?.pt,
+                    grossSalary:payroll?.grossSalary,
+                    netSalary:payroll?.netSalary,
+                    totalDeductions:payroll?.totalDeductions
+                });
+            } else {
+                setEmployee(null);
+            }
+        } catch (err) {
+            console.error(err);
+            setEmployee(null);
+        }
+    };
+
+    fetchData();
+}, [empId]);
+
 
 
     const handleDownloadPdf = () => {
@@ -109,13 +135,13 @@ const Payslip = () => {
                         <div className="card-header text-dark">Earning</div>
                         <div className="card-body p-0">
                             <ul className="list-group list-group-flush">
-                                <li className="list-group-item"><strong>Payroll Template</strong> { }</li>
-                                <li className="list-group-item"><strong>Basic Salary:</strong> { }</li>
-                                <li className="list-group-item"><strong>House Rent Allowance:</strong> { }</li>
-                                <li className="list-group-item"><strong>Medical Allowance:</strong> { }</li>
-                                <li className="list-group-item"><strong>Travelling Allowance:</strong> { }</li>
-                                <li className="list-group-item"><strong>Conveyance Allowance:</strong> { }</li>
-                                <li className="list-group-item"><strong>Executive Allowance:</strong> { }</li>
+                                <li className="list-group-item"><strong>Payroll Template</strong></li>
+                                <li className="list-group-item"><strong>Basic Salary: </strong> {employee?.basic }</li>
+                                <li className="list-group-item"><strong>House Rent Allowance: </strong>{employee?.hra }</li>
+                                <li className="list-group-item"><strong>Medical Allowance: </strong> {employee?.medical }</li>
+                                <li className="list-group-item"><strong>Travelling Allowance: </strong> {employee?.tr }</li>
+                                <li className="list-group-item"><strong>Conveyance Allowance: </strong> {employee?.conveyance }</li>
+                                <li className="list-group-item"><strong>Executive Allowance: </strong> {employee?.executive }</li>
                             </ul>
                         </div>
                     </div>
@@ -124,9 +150,9 @@ const Payslip = () => {
                         <div className="card-header text-dark">Deduction</div>
                         <div className="card-body p-0">
                             <ul className="list-group list-group-flush">
-                                <li className="list-group-item"><strong>PF:</strong> { }</li>
-                                <li className="list-group-item"><strong>PT:</strong> { }</li>
-                                <li className="list-group-item"><strong>LOP:</strong> { }</li>
+                                <li className="list-group-item"><strong>PF:</strong> {employee?.pfEmployer}</li>
+                                <li className="list-group-item"><strong>PT:</strong> {employee?.pt}</li>
+                                <li className="list-group-item"><strong>LOP:</strong> {}</li>
                             </ul>
                         </div>
                     </div>
@@ -138,7 +164,7 @@ const Payslip = () => {
                         <div className="card-header text-dark">Gross Earning</div>
                         <div className="card-body p-0">
                             <ul className="list-group list-group-flush">
-                                <li className="list-group-item"><strong>Rs.</strong> { }</li>
+                                <li className="list-group-item"><strong>Rs.</strong> {employee?.grossSalary}</li>
                             </ul>
                         </div>
                     </div>
@@ -146,7 +172,7 @@ const Payslip = () => {
                     <div className="card no-radius m5-4 w-50">
                         <div className="card-header text-dark">Total Deduction</div>
                         <ul className="list-group list-group-flush">
-                            <li className="list-group-item"><strong>Rs.</strong> { }</li>
+                            <li className="list-group-item"><strong>Rs.</strong> {employee?.totalDeductions}</li>
                         </ul>
                     </div>
                 </div>
@@ -154,7 +180,7 @@ const Payslip = () => {
                 <div className="card no-radius mt-5 w-100">
                     <div className="card-header text-dark">Net Salary</div>
                     <ul className="list-group list-group-flush">
-                        <li className="list-group-item"><strong>Rs.</strong> { }</li>
+                        <li className="list-group-item"><strong>Rs.</strong> {employee?.netSalary}</li>
                     </ul>
                 </div>
             </div>

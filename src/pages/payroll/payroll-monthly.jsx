@@ -97,43 +97,38 @@ const PayrollMonthly = () => {
     loadPayroll();
   }, [empId]);
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      // ✅ Prefer calculated formData, then override with user-input form
       const merged = { ...form, ...formData };
-
-      // ✅ Clean only numeric fields, leave strings intact
       const cleanForm = Object.fromEntries(
-        Object.entries(merged).map(([key, value]) => {
-          if (typeof value === "string" && isNaN(Number(value))) {
-            return [key, value]; // keep string (like "Online")
-          }
-          return [key, value === "" || value == null ? 0 : Number(value)];
-        })
+        Object.entries(merged).map(([key, value]) =>
+          [key, typeof value === "string" && isNaN(Number(value)) ? value : (value == null || value === '' ? 0 : Number(value))]
+        )
       );
 
       const payload = { empId, ...cleanForm };
 
-      console.log("📤 Sending payload:", payload);
-
-      // ✅ Send to API
-      const res = await createPayroll(payload);
+      // 1️⃣ Save payroll
+      await createPayroll(payload);
       toast.success("Payroll saved successfully!");
 
-      // ✅ Don't overwrite calculated data with backend defaults
-      if (res?.data) {
-        setFormData(prev => ({ ...prev, ...payload })); // keep frontend-calculated
-        setForm(prev => ({ ...prev, ...payload }));
-      }
+      // 2️⃣ Update paymentStatus in backend
+      await axios.patch(`http://localhost:3000/payroll/${empId}/status`, {
+        paymentStatus: 'Paid'
+      });
+      // toast.success("Employee status updated to Paid!");
+
+      // ✅ No need to call getAllPayrolls or setPayrolls here
+      // GeneratePayslip page will fetch updated data when loaded or refreshed
 
     } catch (err) {
-      console.error("❌ Error saving Payroll:", err.response?.data || err.message);
-      toast.error("Payroll failed to save!");
+      console.error("❌ Error saving/updating Payroll:", err.response?.data || err.message);
+      toast.error("Payroll save/update failed!");
     }
   };
+
 
   useEffect(() => {
     if (!employee?.employeeCode) return;
@@ -203,9 +198,9 @@ const PayrollMonthly = () => {
 
     const grossSalary = Math.round(total + totalAllow);
 
- let pfEmployer = grossSalary > 15000 
-  ? 1800 
-  : Math.round(grossSalary * 0.12);
+    let pfEmployer = grossSalary > 15000
+      ? 1800
+      : Math.round(grossSalary * 0.12);
 
 
 

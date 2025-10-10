@@ -65,6 +65,31 @@ const GeneratePayslip = () => {
         navigate(`/payroll-monthly/${row.id}`);
     };
 
+    useEffect(() => {
+        if (employees.length && payrolls.length) {
+            const payrollMap = payrolls.reduce((acc, p) => {
+                acc[p.empId] = p;
+                return acc;
+            }, {});
+
+            const merged = employees.map(emp => ({
+                ...emp,
+                netSalary: payrollMap[emp.id]?.netSalary || "—",
+                paymentStatus: payrollMap[emp.id]?.paymentStatus || 'Unpaid',
+            }));
+
+            setMergedData(merged);
+        } else {
+            const merged = employees.map(emp => ({
+                ...emp,
+                netSalary: "—",
+                paymentStatus: 'Unpaid',
+            }));
+            setMergedData(merged);
+        }
+    }, [employees, payrolls]);
+
+
 
     const columns = [
         { name: 'Employee ID', selector: row => row.id },
@@ -87,15 +112,12 @@ const GeneratePayslip = () => {
         },
         {
             name: 'Status',
-            // cell: (row) => (
-            //     <span
-            //         className={`badge ${row.status?.toLowerCase() === "paid" ? "bg-success" : "bg-danger"
-            //             }`}
-            //     >
-            //         {row.status || "Unpaid"}
-            //     </span>
-            // ),
-            // selector: (row) => row.status
+            cell: row => (
+                <span className={`badge ${row.paymentStatus.toLowerCase() === 'paid' ? 'bg-success' : 'bg-danger'}`}>
+                    {row.paymentStatus}
+                </span>
+            ),
+            selector: row => row.paymentStatus,
         },
         {
             name: 'Action',
@@ -113,6 +135,19 @@ const GeneratePayslip = () => {
             selector: row => row.action
         },
     ];
+
+    useEffect(() => {
+        if (employees.length && payrolls.length) {
+            const payrollMap = payrolls.reduce((acc, p) => { acc[p.empId] = p; return acc; }, {});
+            const merged = employees.map(emp => ({
+                ...emp,
+                netSalary: payrollMap[emp.id]?.netSalary || "—",
+                paymentStatus: payrollMap[emp.id]?.paymentStatus || 'Unpaid',
+            }));
+            setMergedData(merged);
+        }
+    }, [employees, payrolls]);
+
 
     const customStyles = {
         headCells: {
@@ -230,9 +265,12 @@ const GeneratePayslip = () => {
 
 
             <div className="card no-radius">
-                <div className="card-header d-flex justify-content-between align-items-center text-white new-emp-bg">
-                    <span>Payment Info for</span>
-                    {/* <button className="btn btn-sm add-btn" onClick={toggleAddForm}>{showAddForm ? '- Hide' : '+ Add New'}</button> */}
+                <div className="card-header text-white new-emp-bg d-flex">
+                    <span>Payment Info for &nbsp;</span>
+                    {`${new Date().toLocaleString("default", {
+                        month: "long",
+                        year: "numeric",
+                    })}`}
                 </div>
 
 
