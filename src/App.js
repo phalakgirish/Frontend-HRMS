@@ -74,6 +74,7 @@ import ProfilePicture from './pages/employees/details.jsx/ProfilePicture';
 import BasicInformationForm from './pages/employees/details.jsx/BasicInformation';
 import ChangePassword from './pages/employees/details.jsx/ChangePassword';
 import PayrollMonthly from './pages/payroll/payroll-monthly';
+import Directory from './pages/directory';
 
 function Layout({ children, collapsed, toggleSidebar }) {
   const location = useLocation();
@@ -222,6 +223,10 @@ function App() {
 
           {/* Files */}
           <Route path="/filesmanager" element={<FilesManager />} />
+
+          {/* Employees Dirrectory */}
+          <Route path="/directory" element={<Directory />} />
+
 
           {/* Recruitment */}
           <Route path="/jobcandidates" element={<JobCandidates />} />

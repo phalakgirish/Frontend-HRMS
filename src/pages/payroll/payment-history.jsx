@@ -8,7 +8,7 @@ import axios from 'axios';
 
 
 
-const PaymentHistory = () => {
+const PaymentHistory = ({ empId }) => {
     const navigate = useNavigate();
 
     const [showModal, setShowModal] = useState(false);
@@ -19,6 +19,7 @@ const PaymentHistory = () => {
     const [data, setData] = useState([]);
     const [employees, setEmployees] = useState([]);
     const [payrolls, setPayrolls] = useState([]);
+    const [paidDate, setPaidDate] = useState(null);
 
     const handleView = (row) => {
         setSelectedRow(row);
@@ -42,15 +43,26 @@ const PaymentHistory = () => {
             .catch(err => console.error(err));
     }, []);
 
-    const mergedData = employees.map(emp => {
-        const payroll = payrolls.find(p => p.empId === emp.id) || {};
-        return {
-            ...emp,
-            netSalary: payroll.netSalary || "-",
-            paymentStatus: payroll.paymentStatus || "Unpaid",
-            paymentMethod: payroll.paymentMethod || "-"
-        };
-    });
+   const [mergedData, setMergedData] = useState([]);
+
+useEffect(() => {
+    if (employees.length && payrolls.length) {
+        const data = employees.map(emp => {
+            const payroll = payrolls.find(p => p.empId === emp.id) || {};
+            const paidDate = payroll.paidDate ? new Date(payroll.paidDate) : null;
+
+            return {
+                ...emp,
+                netSalary: payroll.netSalary || "-",
+                paymentStatus: payroll.paymentStatus || "Unpaid",
+                paymentMethod: payroll.paymentMethod || "-",
+                paidDate: paidDate ? paidDate.toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' }) : '-',
+                paymentMonth: paidDate ? paidDate.toLocaleString('default', { month: 'long', year: 'numeric' }) : '-'
+            };
+        });
+        setMergedData(data);  
+    }
+}, [employees, payrolls]);
 
 
     const columns = [
@@ -193,7 +205,7 @@ const PaymentHistory = () => {
         { name: 'Employee Name', selector: row => `${row.firstName} ${row.lastName}` },
         { name: 'Paid Amount', selector: row => row.netSalary },
         { name: 'Payment Month', selector: row => row.paymentMonth },
-        { name: 'Payment Date', selector: row => row.paymentDate },
+        { name: 'Payment Date', selector: row => row.paidDate },
         { name: 'Payment Type', selector: row => row.paymentMethod },
         // {
         //     name: 'Payslip',
@@ -248,56 +260,6 @@ const PaymentHistory = () => {
         }
 
     ];
-
-    // const data = [
-    //     {
-    //         action: '-',
-    //         empId: 'ATOZ053',
-    //         empName: 'Mahendra Chaudhary',
-    //         paidAmt: 'Rs.27164',
-    //         paymentMonth: 'November, 2021',
-    //         paymentDate: '18-Nov-2021',
-    //         paymentType: 'Cash',
-    //         payslip: 'Generate Payslip'
-    //     },
-    //     {
-    //         action: '-',
-    //         empId: 'ATOZ057',
-    //         empName: 'Mahendra Chaudhary',
-    //         paidAmt: 'Rs.27164',
-    //         paymentMonth: 'November, 2021',
-    //         paymentDate: '18-Nov-2021',
-    //         paymentType: 'Cash',
-    //         payslip: 'Generate Payslip'
-    //     }, {
-    //         action: '-',
-    //         empId: 'ATOZ023',
-    //         empName: 'Mahendra Chaudhary',
-    //         paidAmt: 'Rs.27164',
-    //         paymentMonth: 'November, 2021',
-    //         paymentDate: '18-Nov-2021',
-    //         paymentType: 'Cash',
-    //         payslip: 'Generate Payslip'
-    //     }, {
-    //         action: '-',
-    //         empId: 'ATOZ056',
-    //         empName: 'Mahendra Chaudhary',
-    //         paidAmt: 'Rs.27164',
-    //         paymentMonth: 'November, 2021',
-    //         paymentDate: '18-Nov-2021',
-    //         paymentType: 'Cash',
-    //         payslip: 'Generate Payslip'
-    //     }, {
-    //         action: '-',
-    //         empId: 'ATOZ051',
-    //         empName: 'Mahendra Chaudhary',
-    //         paidAmt: 'Rs.27164',
-    //         paymentMonth: 'November, 2021',
-    //         paymentDate: '18-Nov-2021',
-    //         paymentType: 'Cash',
-    //         payslip: 'Generate Payslip'
-    //     },
-    // ];
 
     const customStyles = {
         headCells: {

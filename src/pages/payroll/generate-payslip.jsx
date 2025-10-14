@@ -3,6 +3,7 @@ import DataTable from 'react-data-table-component';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { getAllPayrolls } from '../../api/payrollApi';
+import { FaFilter } from 'react-icons/fa';
 
 const GeneratePayslip = () => {
 
@@ -10,11 +11,12 @@ const GeneratePayslip = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [description, setDescription] = useState('<div class="mb-3"><label>Hello, Your Payslip is generated</label></div>');
     const navigate = useNavigate();
-    // const [paginated, setPaginated] = useState([]);
-
-    const [employees, setEmployees] = useState([]);
     const [payrolls, setPayrolls] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [employees, setEmployees] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
+    const [sortMenuOpen, setSortMenuOpen] = useState(false);
+    const [sortOrder, setSortOrder] = useState('newest');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -56,7 +58,7 @@ const GeneratePayslip = () => {
 
             setMergedData(merged);
         } else {
-            setMergedData(employees); // fallback when no payrolls yet
+            setMergedData(employees);
         }
     }, [employees, payrolls]);
 
@@ -197,6 +199,44 @@ const GeneratePayslip = () => {
         setPaginated(data.slice(start, end));
     }, [data, currentPage, rowsPerPage]);
 
+    const [selectedEmployee, setSelectedEmployee] = useState('');
+    const [selectedMonth, setSelectedMonth] = useState('');
+    const [filteredPayrolls, setFilteredPayrolls] = useState([]);
+
+    const handleSearch = () => {
+        const results = mergedData.filter(row => {
+            const matchesEmployee = selectedEmployee ? row._id === selectedEmployee : true;
+
+            let matchesMonth = true;
+            if (selectedMonth && row.paidDate) {
+                const selected = new Date(selectedMonth); // input: yyyy-mm
+                const paid = new Date(row.paidDate); // from DB
+
+                matchesMonth =
+                    paid.getMonth() === selected.getMonth() &&
+                    paid.getFullYear() === selected.getFullYear();
+            }
+
+            return matchesEmployee && matchesMonth;
+        });
+
+        // if no filter applied, show all data
+        setFilteredData(results.length > 0 ? results : mergedData);
+    };
+
+    const handleSortChange = (order) => {
+        setSortOrder(order);
+        setSortMenuOpen(false);
+
+        const sorted = [...mergedData].sort((a, b) => {
+            const dateA = new Date(a.paidDate || 0);
+            const dateB = new Date(b.paidDate || 0);
+
+            return order === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+
+        setMergedData(sorted);
+    };
 
     return (
         <div className="custom-container">
@@ -214,14 +254,20 @@ const GeneratePayslip = () => {
                     <div className="card-body">
                         <div className="mb-3">
                             <label htmlFor="employee" className="form-label">Employee</label>
-                            <select id="employee" className="form-control">
+                            <select
+                                id="employee"
+                                className="form-control"
+                                value={selectedEmployee}
+                                onChange={(e) => setSelectedEmployee(e.target.value)}
+                            >
                                 <option value="">All Employees</option>
-                                {data.map(emp => (
-                                    <option key={emp.id} value={emp.id}>
+                                {employees.map(emp => (
+                                    <option key={emp._id} value={emp._id}>
                                         {emp.firstName} {emp.lastName}
                                     </option>
                                 ))}
                             </select>
+
 
                         </div>
 
@@ -231,11 +277,13 @@ const GeneratePayslip = () => {
                                 type="month"
                                 id="monthPayslip"
                                 className="form-control"
+                                value={selectedMonth}
+                                onChange={(e) => setSelectedMonth(e.target.value)}
                             />
                         </div>
 
                         <div className="text-start">
-                            <button className="btn btn-sm add-btn">Search</button>
+                            <button className="btn btn-sm add-btn" onClick={handleSearch}>Search</button>
                         </div>
                     </div>
                 </div>
@@ -292,11 +340,69 @@ const GeneratePayslip = () => {
                             </select>
                             <span className="ms-1">entries</span>
                         </div>
+
+
+                        <div style={{ position: 'relative', display: 'inline-block' }}>
+                            <button className="btn btn-outline-secondary btn-sm me-3" onClick={() => setSortMenuOpen(!sortMenuOpen)} > <FaFilter /> </button>
+
+                            {sortMenuOpen && (
+                                <div
+                                    style={{
+                                        position: 'absolute',
+                                        top: '35px',
+                                        right: 0,
+                                        backgroundColor: 'white',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '6px',
+                                        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                                        zIndex: 100,
+                                        minWidth: '160px',
+                                        overflow: 'hidden',
+                                    }}
+                                >
+                                    <button
+                                        className="dropdown-item"
+                                        style={{
+                                            padding: '8px 16px',
+                                            width: '100%',
+                                            textAlign: 'left',
+                                            borderBottom: '1px solid #eee',
+                                            background: 'white',
+                                            cursor: 'pointer',
+                                        }}
+                                        onClick={() => {
+                                            handleSortChange('newest');
+                                            setSortMenuOpen(false);
+                                        }}
+                                    >
+                                        Newest to Oldest
+                                    </button>
+                                    <button
+                                        className="dropdown-item"
+                                        style={{
+                                            padding: '8px 16px',
+                                            width: '100%',
+                                            textAlign: 'left',
+                                            background: 'white',
+                                            cursor: 'pointer',
+                                        }}
+                                        onClick={() => {
+                                            handleSortChange('oldest');
+                                            setSortMenuOpen(false);
+                                        }}
+                                    >
+                                        Oldest to Newest
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
                     </div>
 
                     <DataTable
                         columns={columns}
-                        data={mergedData}
+                        // data={mergedData}
+                        data={filteredData.length > 0 ? filteredData : mergedData}
                         progressPending={loading}
                         fixedHeader
                         highlightOnHover
@@ -332,6 +438,7 @@ const GeneratePayslip = () => {
                     <p className="mb-0 text-muted" style={{ fontSize: '0.9rem' }}>
                         Showing {startEntry} to {endEntry} of {totalEntries} entries
                     </p>
+
                 </div>
 
                 <div className="d-flex justify-content-end align-items-center p-3">
