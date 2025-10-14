@@ -255,7 +255,9 @@ const Sidebar = ({ collapsed, expanded }) => {
                 </li>
 
                 <li className="sidebar-item">
-                    <FaDatabase className="me-2 sideicon" /> {!collapsed && <span className="label">Employees Directory</span>}
+                    <Link to="/directory">
+                        <FaDatabase className="me-2 sideicon" /> {!collapsed && <span className="label">Employees Directory</span>}
+                    </Link>
                 </li>
 
                 <li
