@@ -43,26 +43,27 @@ const PaymentHistory = ({ empId }) => {
             .catch(err => console.error(err));
     }, []);
 
-   const [mergedData, setMergedData] = useState([]);
+    const [mergedData, setMergedData] = useState([]);
 
-useEffect(() => {
-    if (employees.length && payrolls.length) {
-        const data = employees.map(emp => {
-            const payroll = payrolls.find(p => p.empId === emp.id) || {};
-            const paidDate = payroll.paidDate ? new Date(payroll.paidDate) : null;
+    useEffect(() => {
+        if (employees.length && payrolls.length) {
+            const data = payrolls.map(payroll => {
+                const emp = employees.find(e => e.id === payroll.empId) || {};
 
-            return {
-                ...emp,
-                netSalary: payroll.netSalary || "-",
-                paymentStatus: payroll.paymentStatus || "Unpaid",
-                paymentMethod: payroll.paymentMethod || "-",
-                paidDate: paidDate ? paidDate.toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' }) : '-',
-                paymentMonth: paidDate ? paidDate.toLocaleString('default', { month: 'long', year: 'numeric' }) : '-'
-            };
-        });
-        setMergedData(data);  
-    }
-}, [employees, payrolls]);
+                const paidDate = payroll.paidDate ? new Date(payroll.paidDate) : null;
+
+                return {
+                    ...emp,
+                    ...payroll, 
+                    paidDate: paidDate ? paidDate.toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' }) : '-',
+                    paymentMonth: payroll.month ? `${payroll.month} ${payroll.year}` : '-'
+                };
+            });
+
+            setMergedData(data);
+            setLoading(false);
+        }
+    }, [employees, payrolls]);
 
 
     const columns = [
@@ -76,116 +77,70 @@ useEffect(() => {
                     >
                         <i className="fas fa-arrow-right"></i>
                     </button>
-                    {showModal && (
-                        <>
-                            <div className="modal-backdrop fade show"></div>
 
-                            <div className={`modal fade ${showModal ? 'show d-block' : ''}`} tabIndex="-1" role="dialog" style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)', transition: 'opacity 0.3s ease-in-out' }}>
-
-                                <div className="modal-dialog modal-dialog-centered" role="document">
-                                    <div className="modal-content">
-
-                                        <div className="modal-header">
-                                            <h5 className="modal-title">Salary Details</h5>
-                                            <button type="button" className="btn-close" onClick={handleClose}></button>
-                                        </div>
-
-                                        <div className="modal-body">
-                                            <div className="card-header d-flex justify-content-between align-items-center text-dark">
-                                                <span className='fw-bold'>Employee</span>
-                                            </div>
-
-                                            <div className="d-flex align-items-start gap-3 mt-2">
-                                                <img
-                                                    src="/avatar2.jpg"
-                                                    alt="avatar"
-                                                    style={{ height: '70px', width: '70px' }}
-                                                    className="mt-2"
-                                                />
-                                                <div className="mt-2">
-                                                    <p className="mb-1">EMP ID :</p>
-                                                    <p className="mb-1">Department :</p>
-                                                    <p className="mb-1">Designation :</p>
-                                                    <p className="mb-1">Joining Date :</p>
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                        <div className="modal-body">
-                                            <div className="card-header d-flex justify-content-between align-items-center text-dark">
-                                                <span className='fw-bold'>SALARY DETAILS</span>
-                                            </div>
-
-                                            <div className="align-items-start gap-3 mt-2">
-                                                <div className='ms-3'>
-                                                    <p className="mb-1 mt-2">Salary Month :</p>
-                                                    <p className="mb-1 mt-2">Grooss Salary :</p>
-                                                    <p className="mb-1 mt-2">Overtime Per Hour :</p>
-                                                    <p className="mb-1 mt-2">Status :</p>
-                                                </div>
+                    {showModal && selectedRow && (
+                        <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(56, 56, 56, 0.2)', zIndex: 2000 }}>
+                            <div className="modal-dialog modal-dialog-centered modal-lg">
+                                <div className="modal-content">
+                                    <div className="modal-header">
+                                        <h5 className="modal-title">Salary Details</h5>
+                                        <button type="button" className="btn-close" onClick={handleClose}></button>
+                                    </div>
+                                    <div className="modal-body">
+                                        <div className="d-flex align-items-start gap-3 mb-3">
+                                            <img src="/avatar2.jpg" alt="avatar" style={{ height: '70px', width: '70px' }} />
+                                            <div>
+                                                <p className="mb-1">EMP ID: {selectedRow.id}</p>
+                                                <p className="mb-1">Department: {selectedRow.department || '-'}</p>
+                                                <p className="mb-1">Designation: {selectedRow.designation || '-'}</p>
+                                                <p className="mb-1">Joining Date: {selectedRow.joiningDate || '-'}</p>
                                             </div>
                                         </div>
 
-                                        <div className="modal-body">
-                                            <div className="card-header d-flex justify-content-between align-items-center text-dark">
-                                                <span className='fw-bold'>ALLOWANCES</span>
-                                            </div>
-
-                                            <div className="align-items-start gap-3 mt-2">
-                                                <div className='ms-3'>
-                                                    <p className="mb-1 mt-2">House Rental Allowance :</p>
-                                                    <p className="mb-1 mt-2">Medical Allowance :</p>
-                                                    <p className="mb-1 mt-2">Travelling Allowance :</p>
-                                                    <p className="mb-1 mt-2">Dearness Allowance :</p>
-                                                </div>
-                                            </div>
+                                        <h6 className="fw-bold">SALARY DETAILS</h6>
+                                        <div className="ms-3 mb-3">
+                                            <p className="mb-1">Salary Month: {selectedRow.paymentMonth}</p>
+                                            <p className="mb-1">Gross Salary: {selectedRow.grossSalary}</p>
+                                            <p className="mb-1">Overtime Per Hour: {selectedRow.overtime || '-'}</p>
+                                            <p className="mb-1">Status: {selectedRow.paymentStatus}</p>
                                         </div>
 
-                                        <div className="modal-body">
-                                            <div className="card-header d-flex justify-content-between align-items-center text-dark">
-                                                <span className='fw-bold'>DEDUCTIONS</span>
-                                            </div>
-
-                                            <div className="align-items-start gap-3 mt-2">
-                                                <div className='ms-3'>
-                                                    <p className="mb-1 mt-2">Provident Fund :</p>
-                                                    <p className="mb-1 mt-2">Tax Deduction :</p>
-                                                    <p className="mb-1 mt-2">Security Deposit :</p>
-                                                </div>
-                                            </div>
+                                        <h6 className="fw-bold">ALLOWANCES</h6>
+                                        <div className="ms-3 mb-3">
+                                            <p className="mb-1">House Rental Allowance: {selectedRow.hra}</p>
+                                            <p className="mb-1">Medical Allowance: {selectedRow.medical}</p>
+                                            <p className="mb-1">Travelling Allowance: {selectedRow.lta}</p>
+                                            <p className="mb-1">Dearness Allowance: {selectedRow.allowance}</p>
                                         </div>
 
-                                        <div className="modal-body">
-                                            <div className="card-header d-flex justify-content-between align-items-center text-dark">
-                                                <span className='fw-bold'>TOTAL SALARY DETAILS</span>
-                                            </div>
-
-                                            <div className="align-items-start gap-3 mt-2">
-                                                <div className='ms-3'>
-                                                    <p className="mb-1 mt-2">Gross Salary :</p>
-                                                    <p className="mb-1 mt-2">Total Allowance :</p>
-                                                    <p className="mb-1 mt-2">Total Deduction :</p>
-                                                    <p className="mb-1 mt-2">Net Salary :</p>
-                                                    <p className="mb-1 mt-2">Paid Amount :</p>
-                                                    <p className="mb-1 mt-2">Payment Method :</p>
-                                                    <p className="mb-1 mt-2">Comments :</p>
-
-                                                </div>
-                                            </div>
+                                        <h6 className="fw-bold">DEDUCTIONS</h6>
+                                        <div className="ms-3 mb-3">
+                                            <p className="mb-1">Provident Fund: {selectedRow.pfEmployer}</p>
+                                            <p className="mb-1">Tax Deduction: {selectedRow.tds}</p>
+                                            <p className="mb-1">Security Deposit: {selectedRow.esc}</p>
                                         </div>
 
-                                        <div className="modal-footer">
-                                            <button type="button" className="btn btn-secondary btn-sm" onClick={handleClose}>Close</button>
+                                        <h6 className="fw-bold">TOTAL SALARY DETAILS</h6>
+                                        <div className="ms-3 mb-3">
+                                            <p className="mb-1">Gross Salary: {selectedRow.grossSalary}</p>
+                                            <p className="mb-1">Total Allowance: {selectedRow.allowance + selectedRow.hra + selectedRow.medical + selectedRow.lta}</p>
+                                            <p className="mb-1">Total Deduction: {selectedRow.totalDeductions}</p>
+                                            <p className="mb-1">Net Salary: {selectedRow.netSalary}</p>
+                                            <p className="mb-1">Paid Amount: {selectedRow.netSalary}</p>
+                                            <p className="mb-1">Payment Method: {selectedRow.paymentMethod}</p>
+                                            <p className="mb-1">Comments: {selectedRow.comments || '-'}</p>
                                         </div>
-
+                                    </div>
+                                    <div className="modal-footer">
+                                        <button type="button" className="btn btn-secondary btn-sm" onClick={handleClose}>Close</button>
                                     </div>
                                 </div>
                             </div>
-                        </>
-                    )}
+                        </div>
+                    )}  
 
                 </div>
+
             ),
             ignoreRowClick: true,
             allowOverflow: true,

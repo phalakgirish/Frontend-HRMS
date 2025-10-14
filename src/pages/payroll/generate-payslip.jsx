@@ -8,6 +8,7 @@ import { FaFilter } from 'react-icons/fa';
 const GeneratePayslip = () => {
 
     const [selectedRow, setSelectedRow] = useState(null);
+    const [selectedMonth, setSelectedMonth] = useState('');
     const [showEditModal, setShowEditModal] = useState(false);
     const [description, setDescription] = useState('<div class="mb-3"><label>Hello, Your Payslip is generated</label></div>');
     const navigate = useNavigate();
@@ -17,6 +18,7 @@ const GeneratePayslip = () => {
     const [filteredData, setFilteredData] = useState([]);
     const [sortMenuOpen, setSortMenuOpen] = useState(false);
     const [sortOrder, setSortOrder] = useState('newest');
+    const [searchClicked, setSearchClicked] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -37,10 +39,6 @@ const GeneratePayslip = () => {
         fetchData();
     }, []);
 
-    const payrollMap = payrolls.reduce((acc, p) => {
-        acc[p.empId] = p.netSalary;
-        return acc;
-    }, {});
 
     const [mergedData, setMergedData] = useState([]);
 
@@ -67,30 +65,44 @@ const GeneratePayslip = () => {
         navigate(`/payroll-monthly/${row.id}`);
     };
 
+    const payrollMap = payrolls.reduce((acc, p) => {
+        const key = `${p.empId}-${p.month}-${p.year}`;
+        acc[key] = p;
+        return acc;
+    }, {});
+
+
     useEffect(() => {
         if (employees.length && payrolls.length) {
-            const payrollMap = payrolls.reduce((acc, p) => {
-                acc[p.empId] = p;
-                return acc;
-            }, {});
+            const merged = employees.map(emp => {
+                const currentMonth = selectedMonth
+                    ? new Date(selectedMonth).toLocaleString('default', { month: 'long' })
+                    : new Date().toLocaleString('default', { month: 'long' });
 
-            const merged = employees.map(emp => ({
-                ...emp,
-                netSalary: payrollMap[emp.id]?.netSalary || "—",
-                paymentStatus: payrollMap[emp.id]?.paymentStatus || 'Unpaid',
-            }));
+                const currentYear = selectedMonth
+                    ? new Date(selectedMonth).getFullYear()
+                    : new Date().getFullYear();
+
+                const key = `${emp.id}-${currentMonth}-${currentYear}`;
+                const payrollForMonth = payrollMap[key];
+
+                return {
+                    ...emp,
+                    netSalary: payrollForMonth?.netSalary || '—',
+                    paymentStatus: payrollForMonth?.paymentStatus || 'Unpaid',
+                    paidDate: payrollForMonth?.paidDate || null,
+                    month: payrollForMonth?.month || currentMonth,
+                    year: payrollForMonth?.year || currentYear,
+                };
+            });
 
             setMergedData(merged);
+            setFilteredData(merged); // initially show same as merged
         } else {
-            const merged = employees.map(emp => ({
-                ...emp,
-                netSalary: "—",
-                paymentStatus: 'Unpaid',
-            }));
-            setMergedData(merged);
+            setMergedData(employees);
+            setFilteredData(employees);
         }
-    }, [employees, payrolls]);
-
+    }, [employees, payrolls, selectedMonth]);
 
 
     const columns = [
@@ -115,7 +127,7 @@ const GeneratePayslip = () => {
         {
             name: 'Status',
             cell: row => (
-                <span className={`badge ${row.paymentStatus.toLowerCase() === 'paid' ? 'bg-success' : 'bg-danger'}`}>
+                <span className={`badge ${row.paymentStatus?.toLowerCase() === 'paid' ? 'bg-success' : 'bg-danger'}`}>
                     {row.paymentStatus}
                 </span>
             ),
@@ -200,43 +212,88 @@ const GeneratePayslip = () => {
     }, [data, currentPage, rowsPerPage]);
 
     const [selectedEmployee, setSelectedEmployee] = useState('');
-    const [selectedMonth, setSelectedMonth] = useState('');
     const [filteredPayrolls, setFilteredPayrolls] = useState([]);
 
     const handleSearch = () => {
-        const results = mergedData.filter(row => {
-            const matchesEmployee = selectedEmployee ? row._id === selectedEmployee : true;
+        setSearchClicked(true);
 
-            let matchesMonth = true;
-            if (selectedMonth && row.paidDate) {
-                const selected = new Date(selectedMonth); // input: yyyy-mm
-                const paid = new Date(row.paidDate); // from DB
-
-                matchesMonth =
-                    paid.getMonth() === selected.getMonth() &&
-                    paid.getFullYear() === selected.getFullYear();
+        let results = employees.map(emp => {
+            if (!selectedMonth) {
+                return {
+                    ...emp,
+                    netSalary: '—',
+                    paymentStatus: 'Unpaid',
+                    paidDate: null,
+                    month: null,
+                    year: null,
+                };
             }
 
-            return matchesEmployee && matchesMonth;
-        });
+            const selected = new Date(selectedMonth);
+            const selectedMonthName = selected.toLocaleString('default', { month: 'long' });
+            const selectedYearNum = selected.getFullYear();
 
-        // if no filter applied, show all data
-        setFilteredData(results.length > 0 ? results : mergedData);
+            const payrollForMonth = payrolls.find(
+                p => p.empId === emp.id && p.month === selectedMonthName && p.year === selectedYearNum
+            );
+
+            if (selectedEmployee && emp._id !== selectedEmployee) return null;
+
+            return {
+                ...emp,
+                netSalary: payrollForMonth?.netSalary || '—',
+                paymentStatus: payrollForMonth?.paymentStatus || 'Unpaid',
+                paidDate: payrollForMonth?.paidDate || null,
+                month: payrollForMonth?.month || selectedMonthName,
+                year: payrollForMonth?.year || selectedYearNum,
+            };
+        }).filter(r => r !== null);
+
+        setFilteredData(results);
     };
 
-    const handleSortChange = (order) => {
-        setSortOrder(order);
-        setSortMenuOpen(false);
 
-        const sorted = [...mergedData].sort((a, b) => {
-            const dateA = new Date(a.paidDate || 0);
-            const dateB = new Date(b.paidDate || 0);
+    useEffect(() => {
+        setMergedData(employees);
+    }, [employees]);
 
-            return order === 'newest' ? dateB - dateA : dateA - dateB;
-        });
 
-        setMergedData(sorted);
+    const [tableData, setTableData] = useState([]);
+
+    // export function below
+    const exportToCSV = () => {
+        const dataToExport = searchClicked ? filteredData : mergedData;
+
+        if (!dataToExport || dataToExport.length === 0) {
+            alert("No data to export!");
+            return;
+        }
+
+        if (!selectedMonth) {
+            alert("Please select a month before exporting!");
+            return;
+        }
+
+        const headers = Object.keys(dataToExport[0]).join(",");
+        const rows = dataToExport
+            .map((row) =>
+                Object.values(row)
+                    .map((val) => `"${val}"`)
+                    .join(",")
+            )
+            .join("\n");
+
+        const csvContent = `${headers}\n${rows}`;
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", `payslip_${selectedMonth}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
+
+
 
     return (
         <div className="custom-container">
@@ -295,16 +352,23 @@ const GeneratePayslip = () => {
 
                     <div className="card-body">
                         <div className="mb-3">
-                            <label htmlFor="monthNeft" className="form-label">Select Month</label>
+                            <label htmlFor="monthPayslip" className="form-label">
+                                Select Month
+                            </label>
                             <input
                                 type="month"
-                                id="monthNeft"
+                                id="monthPayslip"
                                 className="form-control"
+                                value={selectedMonth}
+                                onChange={(e) => setSelectedMonth(e.target.value)}
+                                style={{ width: "600px" }}
                             />
                         </div>
 
                         <div className="text-start">
-                            <button className="btn btn-sm add-btn">Export</button>
+                            <button className="btn btn-sm add-btn" onClick={exportToCSV}>
+                                Export
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -341,68 +405,11 @@ const GeneratePayslip = () => {
                             <span className="ms-1">entries</span>
                         </div>
 
-
-                        <div style={{ position: 'relative', display: 'inline-block' }}>
-                            <button className="btn btn-outline-secondary btn-sm me-3" onClick={() => setSortMenuOpen(!sortMenuOpen)} > <FaFilter /> </button>
-
-                            {sortMenuOpen && (
-                                <div
-                                    style={{
-                                        position: 'absolute',
-                                        top: '35px',
-                                        right: 0,
-                                        backgroundColor: 'white',
-                                        border: '1px solid #ccc',
-                                        borderRadius: '6px',
-                                        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                                        zIndex: 100,
-                                        minWidth: '160px',
-                                        overflow: 'hidden',
-                                    }}
-                                >
-                                    <button
-                                        className="dropdown-item"
-                                        style={{
-                                            padding: '8px 16px',
-                                            width: '100%',
-                                            textAlign: 'left',
-                                            borderBottom: '1px solid #eee',
-                                            background: 'white',
-                                            cursor: 'pointer',
-                                        }}
-                                        onClick={() => {
-                                            handleSortChange('newest');
-                                            setSortMenuOpen(false);
-                                        }}
-                                    >
-                                        Newest to Oldest
-                                    </button>
-                                    <button
-                                        className="dropdown-item"
-                                        style={{
-                                            padding: '8px 16px',
-                                            width: '100%',
-                                            textAlign: 'left',
-                                            background: 'white',
-                                            cursor: 'pointer',
-                                        }}
-                                        onClick={() => {
-                                            handleSortChange('oldest');
-                                            setSortMenuOpen(false);
-                                        }}
-                                    >
-                                        Oldest to Newest
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-
                     </div>
 
                     <DataTable
                         columns={columns}
-                        // data={mergedData}
-                        data={filteredData.length > 0 ? filteredData : mergedData}
+                        data={searchClicked ? filteredData : mergedData}
                         progressPending={loading}
                         fixedHeader
                         highlightOnHover
