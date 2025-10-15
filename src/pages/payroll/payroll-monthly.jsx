@@ -34,6 +34,8 @@ const PayrollMonthly = () => {
     allowance: 0,
     medical: 1250,
     executive: 0,
+    bonus: 0,
+    incentive: 0,
 
     pfEmployer: 0,
     gratuity: 0,
@@ -41,14 +43,16 @@ const PayrollMonthly = () => {
 
     // pfEmployee: 0,
     pt: 200,
-    tds: 0,
-    advance: 0,
     arrierAdjustmentPlus: 0,
     arrierAdjustmentMinus: 0,
     bonus: 0,
     incentive: 0,
-    lwf: 0,
     lop: 0,
+
+    tds: 0,
+    advance: 0,
+    groupInsPremium: 0,
+    lwf: 0,
 
     grossSalary: 0,
     totalDeductions: 0,
@@ -84,10 +88,10 @@ const PayrollMonthly = () => {
   useEffect(() => {
     const loadPayroll = async () => {
       try {
-        const payroll = await getPayrollByEmpId(empId); // already res.data
+        const payroll = await getPayrollByEmpId(empId);
         if (payroll) {
           setForm(payroll);
-          setFormData(prev => ({ ...prev, ...payroll })); // merge safely
+          setFormData(prev => ({ ...prev, ...payroll }));
         }
       } catch (err) {
         console.error("❌ Failed to load payroll:", err);
@@ -161,88 +165,152 @@ const PayrollMonthly = () => {
 
 
 
+  // useEffect(() => {
+  //   if (!employee?.employeeCtc) return;
+
+  //   const totalCtc = Number(employee.employeeCtc);
+  //   const monthlyCTC = totalCtc / 12;
+
+  //   const basic = Math.round(totalCtc / 12 * 0.5);
+  //   const hra = Math.round(basic * 0.5);
+  //   const lta = Math.round(basic * 0.0833);
+
+  //   const total = Math.round(basic + hra + lta)
+
+  //   let conveyance = 1600;
+  //   let medical = 1250;
+
+  //   let executive = Math.ceil(basic * 0.1826);
+  //   let warning = "";
+  //   if (executive < 0) {
+  //     executive = 0;
+  //     warning = "Low CTC – deductions adjusted, executive allowance set to 0.";
+  //   }
+
+  //   const totalAllow = Math.round(conveyance + medical + executive);
+  //   const gratuity = Math.round(basic * 0.0481);
+
+  //   const bonus = Number(formData.bonus) || 0;
+  //   const incentive = Number(formData.incentive) || 0;
+  //   const arrierAdjustmentPlus = Number(formData.arrierAdjustmentPlus) || 0;
+  //   const arrierAdjustmentMinus = Number(formData.arrierAdjustmentMinus) || 0;
+
+  //   const grossSalary = Math.round(total + totalAllow + bonus + incentive + arrierAdjustmentPlus - arrierAdjustmentMinus);
+
+  //   let pfEmployer = grossSalary > 15000
+  //     ? 1800
+  //     : Math.round(grossSalary * 0.12);
+
+  //   let esi = grossSalary < 21000 ? Math.round(grossSalary * 0.0325) : 0;
+
+  //   const pt = 200;
+  //   const tds = 0;
+  //   const totalDeductions = Math.round(pfEmployer + pt + tds);
+  //   const netSalary = Math.round(grossSalary - totalDeductions);
+
+  //   // const workingDays = 30;
+  //   // const lopDeduction = Math.round((grossSalary / workingDays) * (formData.lopDays || 0));
+  //   // const netSalaryAfterLOP = netSalary - lopDeduction;
+
+  //   const totalExtra = Math.round(pfEmployer + gratuity + esi);
+
+
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     basic,
+  //     hra,
+  //     lta,
+  //     conveyance,
+  //     medical,
+  //     executive,
+  //     pfEmployer,
+  //     gratuity,
+  //     esi,
+  //     pt,
+  //     grossSalary,
+  //     totalDeductions,
+  //     netSalary,
+  //     totalCtc: Math.round(monthlyCTC),
+  //     warning,
+  //     // lopDays: prev.lopDays || 0,
+  //     // lopDeduction,
+  //     // netSalaryAfterLOP
+  //     bonus
+  //   }));
+  // }, [employee, formData.lopDays]);
+
   useEffect(() => {
-    if (!employee?.employeeCtc) return;
+  if (!employee?.employeeCtc) return;
 
-    const totalCtc = Number(employee.employeeCtc);
-    const monthlyCTC = totalCtc / 12;
+  const totalCtc = Number(employee.employeeCtc);
+  const monthlyCTC = totalCtc / 12;
 
-    const basic = Math.round(totalCtc / 12 * 0.5);
-    const hra = Math.round(basic * 0.5);
-    const lta = Math.round(basic * 0.0833);
+  const basic = Math.round(monthlyCTC * 0.5);
+  const hra = Math.round(basic * 0.5);
+  const lta = Math.round(basic * 0.0833);
+  const total = Math.round(basic + hra + lta);
 
-    const total = Math.round(basic + hra + lta)
-    // console.log("total is ",total);
+  const conveyance = 1600;
+  const medical = 1250;
 
-    // let conveyance = monthlyCTC <= 15000 ? 500 : 1600;
-    let conveyance = 1600;
-    // let medical = monthlyCTC <= 15000 ? 250 : 1250;
-    let medical = 1250;
+  let executive = Math.ceil(basic * 0.1826);
+  let warning = "";
+  if (executive < 0) executive = 0;
 
-    let executive = Math.ceil(basic * 0.1826);
-    let warning = "";
-    if (executive < 0) {
-      executive = 0;
-      warning = "Low CTC – deductions adjusted, executive allowance set to 0.";
-    }
+  const totalAllow = Math.round(conveyance + medical + executive);
+  const gratuity = Math.round(basic * 0.0481);
 
-    const totalAllow = Math.round(conveyance + medical + executive);
-    // console.log("total allowance is ",totalAllow);
+  const bonus = Number(formData.bonus) || 0;
+  const incentive = Number(formData.incentive) || 0;
+  const arrierAdjustmentPlus = Number(formData.arrierAdjustmentPlus) || 0;
+  const arrierAdjustmentMinus = Number(formData.arrierAdjustmentMinus) || 0;
 
+  const grossSalary = Math.round(
+    total + totalAllow + bonus + incentive + arrierAdjustmentPlus - arrierAdjustmentMinus
+  );
 
+  const pfEmployer = grossSalary > 15000 ? 1800 : Math.round(grossSalary * 0.12);
+  const esi = grossSalary < 21000 ? Math.round(grossSalary * 0.0325) : 0;
 
-    const gratuity = Math.round(basic * 0.0481);
+  const pt = 200;
+  const tds = Number(formData.tds) || 0;
+  const advance = Number(formData.advance) || 0;
+  const groupInsPremium = Number(formData.groupInsPremium) || 0;
+  const lwf = Number(formData.lwf) || 0;
 
+  // Total deductions now include new fields
+  const totalDeductions = Math.round(pfEmployer + pt + tds + advance + groupInsPremium + lwf);
+  const netSalary = Math.round(grossSalary - totalDeductions);
 
-
-
-    const grossSalary = Math.round(total + totalAllow);
-
-    let pfEmployer = grossSalary > 15000
-      ? 1800
-      : Math.round(grossSalary * 0.12);
-
-
-
-    let esi = grossSalary < 21000 ? Math.round(grossSalary * 0.0325) : 0;
-
-    const pt = 200;
-    const tds = 0;
-    const totalDeductions = Math.round(pfEmployer + pt + tds);
-    const netSalary = Math.round(grossSalary - totalDeductions);
-
-    // const workingDays = 30;
-    // const lopDeduction = Math.round((grossSalary / workingDays) * (formData.lopDays || 0));
-    // const netSalaryAfterLOP = netSalary - lopDeduction;
-
-    const totalExtra = Math.round(pfEmployer + gratuity + esi);
-    // console.log("total allowance is ",totalExtra);
-
-
-    setFormData(prev => ({
-      ...prev,
-      basic,
-      hra,
-      lta,
-      conveyance,
-      medical,
-      executive,
-      pfEmployer,
-      gratuity,
-      esi,
-      // pfEmployee,
-      pt,
-      grossSalary,
-      totalDeductions,
-      netSalary,
-      totalCtc: Math.round(monthlyCTC),
-      warning,
-      // lopDays: prev.lopDays || 0,
-      // lopDeduction,
-      // netSalaryAfterLOP
-    }));
-  }, [employee, formData.lopDays]);
-
+  setFormData((prev) => ({
+    ...prev,
+    basic,
+    hra,
+    lta,
+    conveyance,
+    medical,
+    executive,
+    pfEmployer,
+    gratuity,
+    esi,
+    pt,
+    grossSalary,
+    totalDeductions,
+    netSalary,
+    totalCtc: Math.round(monthlyCTC),
+    warning,
+  }));
+}, [
+  employee,
+  formData.bonus,
+  formData.incentive,
+  formData.arrierAdjustmentPlus,
+  formData.arrierAdjustmentMinus,
+  formData.tds,
+  formData.advance,
+  formData.groupInsPremium,
+  formData.lwf
+]);
 
 
   if (loading) return <div>Loading payroll details...</div>;
@@ -364,12 +432,11 @@ const PayrollMonthly = () => {
               <div className="col-md-6 mb-3">
                 <label>TDS</label>
                 <input
-                  type="text"
-                  // value={form.tds}
-                  // onChange={(e) => {
-                  //   const { value } = e.target;
-                  //   setForm({ ...form, tds: value });
-                  // }}
+                  type="number"
+                  value={formData.tds}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, tds: Number(e.target.value) || 0 }))
+                  }
                   className="form-control"
                   placeholder="TDS"
                 />
@@ -393,12 +460,11 @@ const PayrollMonthly = () => {
               <div className="col-md-6 mb-3">
                 <label>Advance</label>
                 <input
-                  type="text"
-                  // value={form.advance}
-                  // onChange={(e) => {
-                  //   const { value } = e.target;
-                  //   setForm({ ...form, advance: value });
-                  // }}
+                  type="number"
+                  value={formData.advance}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, advance: Number(e.target.value) || 0 }))
+                  }
                   className="form-control"
                   placeholder="Advance"
                 />
@@ -407,82 +473,77 @@ const PayrollMonthly = () => {
               <div className="col-md-6 mb-3">
                 <label>Arrier/Adjustment (+)</label>
                 <input
-                  type="text"
-                  // value={form.arrierAdjustmentPlus}
-                  // onChange={(e) => {
-                  //   const { value } = e.target;
-                  //   setForm({ ...form, arrierAdjustmentPlus: value });
-                  // }}
+                  type="number"
+                  value={formData.arrierAdjustmentPlus}
                   className="form-control"
-                  placeholder="Arrier/Adjustment (+)"
+                  onChange={(e) => {
+                    const value = Number(e.target.value) || 0;
+                    setFormData((prev) => ({ ...prev, arrierAdjustmentPlus: value }));
+                  }}
                 />
               </div>
 
               <div className="col-md-6 mb-3">
                 <label>Arrier/Adjustment (-)</label>
                 <input
-                  type="text"
-                  // value={form.arrierAdjustmentMinus}
-                  // onChange={(e) => {
-                  //   const { value } = e.target;
-                  //   setForm({ ...form, arrierAdjustmentMinus: value });
-                  // }}
+                  type="number"
+                  value={formData.arrierAdjustmentMinus}
                   className="form-control"
-                  placeholder="Arrier/Adjustment (-)"
+                  onChange={(e) => {
+                    const value = Number(e.target.value) || 0;
+                    setFormData((prev) => ({ ...prev, arrierAdjustmentMinus: value }));
+                  }}
                 />
               </div>
 
               <div className="col-md-6 mb-3">
                 <label>Bonus</label>
                 <input
-                  type="text"
-                  // value={form.bonus}
-                  // onChange={(e) => {
-                  //   const { value } = e.target;
-                  //   setForm({ ...form, bonus: value });
-                  // }}
+                  type="number"
+                  value={formData.bonus}
                   className="form-control"
-                  placeholder="Bonus"
+                  onChange={(e) => {
+                    const value = Number(e.target.value) || 0;
+                    setFormData((prev) => ({ ...prev, bonus: value }));
+                  }}
                 />
               </div>
 
               <div className="col-md-6 mb-3">
                 <label>Group Ins Premium</label>
                 <input
-                  type="text"
-                  // value={form.groupInsPremium}
-                  // onChange={(e) => {
-                  //   const { value } = e.target;
-                  //   setForm({ ...form, groupInsPremium: value });
-                  // }}
+                  type="number"
+                  value={formData.groupInsPremium}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, groupInsPremium: Number(e.target.value) || 0 }))
+                  }
                   className="form-control"
-                  placeholder="Group Ins Premium"
+                  placeholder="Group Insurance Premium"
                 />
               </div>
 
               <div className="col-md-6 mb-3">
                 <label>Incentive</label>
                 <input
-                  type="text"
-                  // value={form.incentive}
-                  // onChange={(e) => {
-                  //   const { value } = e.target;
-                  //   setForm({ ...form, incentive: value });
-                  // }}
+                  type="number"
+                  value={formData.incentive}
+
                   className="form-control"
-                  placeholder="Incentive"
+                  onChange={(e) => {
+                    const value = Number(e.target.value) || 0;
+                    setFormData((prev) => ({ ...prev, incentive: value }));
+                  }}
                 />
               </div>
 
               <div className="col-md-6 mb-3">
                 <label>LWF</label>
                 <input
-                  type="text"
-                  // value={form.lwf}
-                  // onChange={(e) => {
-                  //   const { value } = e.target;
-                  //   setForm({ ...form, lwf: value });
-                  // }}
+                  type="number"
+                  value={formData.lwf}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, lwf: Number(e.target.value) || 0 }))
+                  }
                   className="form-control"
                   placeholder="LWF"
                 />

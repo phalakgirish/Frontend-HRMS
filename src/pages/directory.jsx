@@ -98,7 +98,7 @@ const Directory = () => {
                                     textOverflow: 'ellipsis',
                                 }}
                             >
-                                {emp.name}
+                                {emp.name || `${emp.firstName ?? ''} ${emp.lastName ?? ''}`}
                             </h3>
 
                             <p style={{ fontSize: '15px', color: '#666' }}>
