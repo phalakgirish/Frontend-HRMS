@@ -11,6 +11,8 @@ const PayrollMonthly = () => {
   const [loading, setLoading] = useState(true);
   const [employee, setEmployee] = useState(null);
   const [data, setData] = useState([]);
+  const [lopDays, setLopDays] = useState(0);
+  const [lopAmount, setlopAmount] = useState(0);
 
   const [form, setForm] = useState({});
 
@@ -47,7 +49,8 @@ const PayrollMonthly = () => {
     arrierAdjustmentMinus: 0,
     bonus: 0,
     incentive: 0,
-    lop: 0,
+    lopDays: 0,
+    lopAmount: 0,
 
     tds: 0,
     advance: 0,
@@ -60,6 +63,30 @@ const PayrollMonthly = () => {
     totalCtc: 0,
     // paymentMethod: ''
   });
+
+//   useEffect(() => {
+//   if (!employee || !employee._id) return;
+
+//   axios
+//     .get("http://localhost:3000/leave")
+//     .then((res) => {
+//       const leaves = res.data;
+
+//       const empLeaves = leaves.filter(item => item.employeeId === employee._id);
+//       const totalLopDays = empLeaves.reduce((sum, leave) => sum + (leave.days || 0), 0);
+//       const dailyPay = (formData.basic || 0) / 30;
+//       const lopAmount = Math.round(dailyPay * totalLopDays);
+
+//       console.log("📆 LOP Days:", totalLopDays, "💰 LOP Amount:", lopAmount);
+
+//       setFormData((prev) => ({
+//         ...prev,
+//         lopDays: totalLopDays,
+//         lopAmount,
+//       }));
+//     })
+//     .catch((err) => console.error("Error fetching leaves:", err));
+// }, [employee, formData.totalCtc]);
 
 
   useEffect(() => {
@@ -82,8 +109,6 @@ const PayrollMonthly = () => {
 
     fetchEmployee();
   }, [empId]);
-
-
 
   useEffect(() => {
     const loadPayroll = async () => {
@@ -133,37 +158,88 @@ const PayrollMonthly = () => {
     }
   };
 
+useEffect(() => {
+  if (!employee || !employee._id) return;
 
-  useEffect(() => {
-    if (!employee?.employeeCode) return;
+  // Fetch leaves and calculate LOP first
+  axios.get("http://localhost:3000/leave")
+    .then((res) => {
+      const leaves = res.data;
+      const empLeaves = leaves.filter(item => item.employeeId === employee._id);
+      const totalLopDays = empLeaves.reduce((sum, leave) => sum + (leave.days || 0), 0);
 
-    // 📅 get current YYYY-MM
-    const monthStr = new Date().toISOString().slice(0, 7);
+      const totalCtc = Number(employee.employeeCtc);
+      const monthlyCTC = totalCtc / 12;
+      const basic = Math.round(monthlyCTC * 0.5);
+      const hra = Math.round(basic * 0.5);
+      const lta = Math.round(basic * 0.0833);
+      const total = Math.round(basic + hra + lta);
 
-    fetch(`/leave/employee/${employee.employeeCode}/${monthStr}`)
-      .then(res => res.json())
-      .then(data => {
-        const lopDays = data?.lopDays || 0;
+      const conveyance = 1600;
+      const medical = 1250;
+      let executive = Math.ceil(basic * 0.1826);
+      if (executive < 0) executive = 0;
 
-        setFormData(prev => {
-          // calculate lopDeduction here also
-          const workingDays = 30; // 👈 make this dynamic if you want
-          const lopDeduction = Math.round(
-            ((prev.grossSalary || 0) / workingDays) * lopDays
-          );
+      const totalAllow = Math.round(conveyance + medical + executive);
+      const gratuity = Math.round(basic * 0.0481);
 
-          return {
-            ...prev,
-            lopDays,
-            lopDeduction,
-            netSalaryAfterLOP: (prev.netSalary || 0) - lopDeduction,
-          };
-        });
-      })
-      .catch(err => console.error("❌ Error fetching LOP:", err));
-  }, [employee]);
+      const bonus = Number(formData.bonus) || 0;
+      const incentive = Number(formData.incentive) || 0;
+      const arrierAdjustmentPlus = Number(formData.arrierAdjustmentPlus) || 0;
+      const arrierAdjustmentMinus = Number(formData.arrierAdjustmentMinus) || 0;
+
+      const grossSalary = Math.round(
+        total + totalAllow + bonus + incentive + arrierAdjustmentPlus - arrierAdjustmentMinus
+      );
+
+      const pfEmployer = grossSalary > 15000 ? 1800 : Math.round(grossSalary * 0.12);
+      const esi = grossSalary < 21000 ? Math.round(grossSalary * 0.0325) : 0;
+
+      const pt = 200;
+      const tds = Number(formData.tds) || 0;
+      const advance = Number(formData.advance) || 0;
+      const groupInsPremium = Number(formData.groupInsPremium) || 0;
+      const lwf = Number(formData.lwf) || 0;
+
+      // Calculate LOP amount based on basic
+      const dailyBasic = basic / 30;
+      const lopAmount = Math.round(dailyBasic * totalLopDays);
+
+      const totalDeductions = Math.round(
+        pfEmployer + pt + tds + advance + groupInsPremium + lwf + lopAmount
+      );
+
+      const netSalary = Math.round(grossSalary - totalDeductions);
+
+      setFormData({
+        ...formData,
+        basic,
+        hra,
+        lta,
+        conveyance,
+        medical,
+        executive,
+        pfEmployer,
+        gratuity,
+        esi,
+        pt,
+        grossSalary,
+        totalDeductions,
+        lopDays: totalLopDays,
+        lopAmount,
+        netSalary,
+        totalCtc: Math.round(monthlyCTC),
+      });
+
+      console.log("📆 LOP Days:", totalLopDays, "💰 LOP Amount:", lopAmount, "Net Salary:", netSalary);
+    })
+    .catch(err => console.error("Error fetching leaves:", err));
+}, [employee, formData.bonus, formData.incentive, formData.arrierAdjustmentPlus, formData.arrierAdjustmentMinus, formData.tds, formData.advance, formData.groupInsPremium, formData.lwf]);
 
 
+// useEffect(() => {
+//   console.log("🧑‍💼 Employee ID:", employee?._id);
+// }, [employee]);
 
   // useEffect(() => {
   //   if (!employee?.employeeCtc) return;
@@ -240,77 +316,82 @@ const PayrollMonthly = () => {
   // }, [employee, formData.lopDays]);
 
   useEffect(() => {
-  if (!employee?.employeeCtc) return;
+    if (!employee?.employeeCtc) return;
 
-  const totalCtc = Number(employee.employeeCtc);
-  const monthlyCTC = totalCtc / 12;
+    const totalCtc = Number(employee.employeeCtc);
+    const monthlyCTC = totalCtc / 12;
 
-  const basic = Math.round(monthlyCTC * 0.5);
-  const hra = Math.round(basic * 0.5);
-  const lta = Math.round(basic * 0.0833);
-  const total = Math.round(basic + hra + lta);
+    const basic = Math.round(monthlyCTC * 0.5);
+    const hra = Math.round(basic * 0.5);
+    const lta = Math.round(basic * 0.0833);
+    const total = Math.round(basic + hra + lta);
 
-  const conveyance = 1600;
-  const medical = 1250;
+    const conveyance = 1600;
+    const medical = 1250;
 
-  let executive = Math.ceil(basic * 0.1826);
-  let warning = "";
-  if (executive < 0) executive = 0;
+    let executive = Math.ceil(basic * 0.1826);
+    let warning = "";
+    if (executive < 0) executive = 0;
 
-  const totalAllow = Math.round(conveyance + medical + executive);
-  const gratuity = Math.round(basic * 0.0481);
+    const totalAllow = Math.round(conveyance + medical + executive);
+    const gratuity = Math.round(basic * 0.0481);
 
-  const bonus = Number(formData.bonus) || 0;
-  const incentive = Number(formData.incentive) || 0;
-  const arrierAdjustmentPlus = Number(formData.arrierAdjustmentPlus) || 0;
-  const arrierAdjustmentMinus = Number(formData.arrierAdjustmentMinus) || 0;
+    const bonus = Number(formData.bonus) || 0;
+    const incentive = Number(formData.incentive) || 0;
+    const arrierAdjustmentPlus = Number(formData.arrierAdjustmentPlus) || 0;
+    const arrierAdjustmentMinus = Number(formData.arrierAdjustmentMinus) || 0;
 
-  const grossSalary = Math.round(
-    total + totalAllow + bonus + incentive + arrierAdjustmentPlus - arrierAdjustmentMinus
-  );
+    const grossSalary = Math.round(
+      total + totalAllow + bonus + incentive + arrierAdjustmentPlus - arrierAdjustmentMinus
+    );
 
-  const pfEmployer = grossSalary > 15000 ? 1800 : Math.round(grossSalary * 0.12);
-  const esi = grossSalary < 21000 ? Math.round(grossSalary * 0.0325) : 0;
+    const pfEmployer = grossSalary > 15000 ? 1800 : Math.round(grossSalary * 0.12);
+    const esi = grossSalary < 21000 ? Math.round(grossSalary * 0.0325) : 0;
 
-  const pt = 200;
-  const tds = Number(formData.tds) || 0;
-  const advance = Number(formData.advance) || 0;
-  const groupInsPremium = Number(formData.groupInsPremium) || 0;
-  const lwf = Number(formData.lwf) || 0;
+    const pt = 200;
+    const tds = Number(formData.tds) || 0;
+    const advance = Number(formData.advance) || 0;
+    const groupInsPremium = Number(formData.groupInsPremium) || 0;
+    const lwf = Number(formData.lwf) || 0;
 
-  // Total deductions now include new fields
-  const totalDeductions = Math.round(pfEmployer + pt + tds + advance + groupInsPremium + lwf);
-  const netSalary = Math.round(grossSalary - totalDeductions);
+    const totalDeductions = Math.round(pfEmployer + pt + tds + advance + groupInsPremium + lwf + lopAmount);
+    const netSalary = Math.round(grossSalary - totalDeductions);
 
-  setFormData((prev) => ({
-    ...prev,
-    basic,
-    hra,
-    lta,
-    conveyance,
-    medical,
-    executive,
-    pfEmployer,
-    gratuity,
-    esi,
-    pt,
-    grossSalary,
-    totalDeductions,
-    netSalary,
-    totalCtc: Math.round(monthlyCTC),
-    warning,
-  }));
-}, [
-  employee,
-  formData.bonus,
-  formData.incentive,
-  formData.arrierAdjustmentPlus,
-  formData.arrierAdjustmentMinus,
-  formData.tds,
-  formData.advance,
-  formData.groupInsPremium,
-  formData.lwf
-]);
+
+
+    setFormData((prev) => ({
+      ...prev,
+      basic,
+      hra,
+      lta,
+      conveyance,
+      medical,
+      executive,
+      pfEmployer,
+      gratuity,
+      esi,
+      pt,
+      grossSalary,
+      totalDeductions,
+      lopAmount,
+      netSalary,
+      // netSalary: adjustedNetSalary,
+      totalCtc: Math.round(monthlyCTC),
+      warning,
+    }));
+  }, [
+    employee,
+    formData.bonus,
+    formData.incentive,
+    formData.arrierAdjustmentPlus,
+    formData.arrierAdjustmentMinus,
+    formData.tds,
+    formData.advance,
+    formData.groupInsPremium,
+    formData.lwf,
+    lopDays,
+    lopAmount
+  ]);
 
 
   if (loading) return <div>Loading payroll details...</div>;
@@ -573,7 +654,7 @@ const PayrollMonthly = () => {
 
               <div className="col-md-6 mb-3">
                 <label>LOP</label>
-                <input type="text" value={formData.lopDeduction || 0} className='form-control' placeholder='LOP' disabled />
+                <input type="text" value={formData.lopAmount || 0} className='form-control' placeholder='LOP' disabled />
               </div>
 
               <div className="col-md-6 mb-3">
