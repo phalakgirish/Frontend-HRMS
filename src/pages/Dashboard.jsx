@@ -53,7 +53,7 @@ const Dashboard = () => {
             <div className="row g-3 mb-4">
                 <StatCard value={employeeCount} label="TOTAL EMPLOYEES" icon="user" valueColor="#fff" labelColor="#fff" iconColor="rgba(219, 219, 219, 0.71)" index={0} />
                 <StatCard value={`Rs. ${expenseTotal}`} label="TOTAL EXPENSES" icon="chart-line" valueColor="#fff" labelColor="#fff" iconColor="rgba(219, 219, 219, 0.71)" index={1} />
-                <StatCard value="Rs.335322" label="TOTAL SALARIES PAID" icon="wallet" valueColor="#fff" labelColor="#fff" iconColor="rgba(219, 219, 219, 0.71)" index={2} />
+                <StatCard value="Rs. 335322" label="TOTAL SALARIES PAID" icon="wallet" valueColor="#fff" labelColor="#fff" iconColor="rgba(219, 219, 219, 0.71)" index={2} />
                 <StatCard value="1" label="TOTAL JOBS" icon="file-invoice" valueColor="#fff" labelColor="#fff" iconColor="rgba(219, 219, 219, 0.71)" index={3} />
             </div>
 

@@ -72,8 +72,46 @@ const GeneratePayslip = () => {
     }, {});
 
 
+    // useEffect(() => {
+    //     if (employees.length && payrolls.length) {
+    //         const merged = employees.map(emp => {
+    //             const currentMonth = selectedMonth
+    //                 ? new Date(selectedMonth).toLocaleString('default', { month: 'long' })
+    //                 : new Date().toLocaleString('default', { month: 'long' });
+
+    //             const currentYear = selectedMonth
+    //                 ? new Date(selectedMonth).getFullYear()
+    //                 : new Date().getFullYear();
+
+    //             const key = `${emp.id}-${currentMonth}-${currentYear}`;
+    //             const payrollForMonth = payrollMap[key];
+
+    //             return {
+    //                 ...emp,
+    //                 netSalary: payrollForMonth?.netSalary || '—',
+    //                 paymentStatus: payrollForMonth?.paymentStatus || 'Unpaid',
+    //                 paidDate: payrollForMonth?.paidDate || null,
+    //                 month: payrollForMonth?.month || currentMonth,
+    //                 year: payrollForMonth?.year || currentYear,
+    //             };
+    //         });
+
+    //         setMergedData(merged);
+    //         setFilteredData(merged); // initially show same as merged
+    //     } else {
+    //         setMergedData(employees);
+    //         setFilteredData(employees);
+    //     }
+    // }, [employees, payrolls, selectedMonth]);
+
     useEffect(() => {
         if (employees.length && payrolls.length) {
+            const payrollMap = payrolls.reduce((acc, p) => {
+                const key = `${p.empId}-${p.month}-${p.year}`;
+                acc[key] = p;
+                return acc;
+            }, {});
+
             const merged = employees.map(emp => {
                 const currentMonth = selectedMonth
                     ? new Date(selectedMonth).toLocaleString('default', { month: 'long' })
@@ -97,10 +135,21 @@ const GeneratePayslip = () => {
             });
 
             setMergedData(merged);
-            setFilteredData(merged); // initially show same as merged
+            setFilteredData(merged);
         } else {
-            setMergedData(employees);
-            setFilteredData(employees);
+            // fallback so employees still have month/year
+            const currentMonth = new Date().toLocaleString('default', { month: 'long' });
+            const currentYear = new Date().getFullYear();
+
+            setMergedData(
+                employees.map(emp => ({
+                    ...emp,
+                    month: currentMonth,
+                    year: currentYear,
+                    netSalary: '—',
+                    paymentStatus: 'Unpaid',
+                }))
+            );
         }
     }, [employees, payrolls, selectedMonth]);
 
@@ -378,11 +427,11 @@ const GeneratePayslip = () => {
 
             <div className="card no-radius">
                 <div className="card-header text-white new-emp-bg d-flex">
-                    <span>Payment Info for &nbsp;</span>
-                    {`${new Date().toLocaleString("default", {
+                    <span>Payment Info&nbsp;</span>
+                    {/* {`${new Date().toLocaleString("default", {
                         month: "long",
                         year: "numeric",
-                    })}`}
+                    })}`} */}
                 </div>
 
 
@@ -409,7 +458,26 @@ const GeneratePayslip = () => {
 
                     <DataTable
                         columns={columns}
-                        data={searchClicked ? filteredData : mergedData}
+                        // data={searchClicked ? filteredData : mergedData}
+                        //                          data={
+                        //     searchClicked
+                        //       ? filteredData
+                        //       : mergedData.filter(
+                        //           (row) =>
+                        //             row.month === new Date().toLocaleString("default", { month: "long" }) &&
+                        //             row.year === new Date().getFullYear()
+                        //         )
+                        //   }
+                        data={
+                            searchClicked
+                                ? filteredData
+                                : mergedData.filter(
+                                    (row) =>
+                                        row.month === new Date().toLocaleString("default", { month: "long" }) &&
+                                        row.year === new Date().getFullYear()
+                                )
+                        }
+
                         progressPending={loading}
                         fixedHeader
                         highlightOnHover
