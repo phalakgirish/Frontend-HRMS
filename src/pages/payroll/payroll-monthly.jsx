@@ -231,7 +231,7 @@ useEffect(() => {
         totalCtc: Math.round(monthlyCTC),
       });
 
-      console.log("📆 LOP Days:", totalLopDays, "💰 LOP Amount:", lopAmount, "Net Salary:", netSalary);
+      // console.log("LOP Days:", totalLopDays, "LOP Amount:", lopAmount, "Net Salary:", netSalary);
     })
     .catch(err => console.error("Error fetching leaves:", err));
 }, [employee, formData.bonus, formData.incentive, formData.arrierAdjustmentPlus, formData.arrierAdjustmentMinus, formData.tds, formData.advance, formData.groupInsPremium, formData.lwf]);
