@@ -6,6 +6,7 @@ export const getEmployeeBankAccount = (employeeId) => {
   return axios.get(`${BASE_URL}/employee/${employeeId}`);
 };
 
+
 export const createEmployeeBankAccount = (payload) => {
   return axios.post(BASE_URL, payload, {
     headers: {

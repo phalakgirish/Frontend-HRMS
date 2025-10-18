@@ -92,7 +92,7 @@ const BankAccount = ({ employeeId, mode }) => {
                 toast.success("BankAccount detail added!");
             }
 
-            fetchBankAccount();
+            await fetchBankAccount();
             resetForm();
             setSelectedFile(null);
             setShowEditModal(false);
@@ -103,16 +103,25 @@ const BankAccount = ({ employeeId, mode }) => {
     };
 
 
-    const fetchBankAccount = async () => {
-        if (!employeeId) return;
-        try {
-            const res = await getEmployeeBankAccount(employeeId);
-            console.log("BankAccount list:", res.data);
-            setBankAccountList(res.data);
-        } catch (err) {
-            console.error("Error fetching BankAccount:", err);
-        }
-    };
+   const fetchBankAccount = async () => {
+  if (!employeeId) return;
+  try {
+    const res = await getEmployeeBankAccount(employeeId);
+    console.log("Full response:", res); // res should have res.data
+    console.log("Data received:", res.data); // should be an array
+
+    if (!Array.isArray(res.data)) {
+      console.error("Expected array but got:", res.data);
+      setBankAccountList([]);
+      return;
+    }
+
+    setBankAccountList(res.data); // use directly
+  } catch (err) {
+    console.error("Error fetching BankAccount:", err);
+  }
+};
+
 
     useEffect(() => {
         fetchBankAccount();
