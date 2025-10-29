@@ -107,8 +107,8 @@ const BankAccount = ({ employeeId, mode }) => {
   if (!employeeId) return;
   try {
     const res = await getEmployeeBankAccount(employeeId);
-    console.log("Full response:", res); // res should have res.data
-    console.log("Data received:", res.data); // should be an array
+    console.log("Full response:", res); 
+    console.log("Data received:", res.data);
 
     if (!Array.isArray(res.data)) {
       console.error("Expected array but got:", res.data);
@@ -116,7 +116,7 @@ const BankAccount = ({ employeeId, mode }) => {
       return;
     }
 
-    setBankAccountList(res.data); // use directly
+    setBankAccountList(res.data);
   } catch (err) {
     console.error("Error fetching BankAccount:", err);
   }
