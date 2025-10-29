@@ -20,10 +20,12 @@ const Payslip = () => {
                 const empRes = await axios.get(`http://localhost:3000/employee`);
                 const payrollRes = await axios.get(`http://localhost:3000/payroll`);
                 const bankRes = await axios.get(`http://localhost:3000/employee-bankaccount/employee/${empId}`);
+      console.log("🏦 Bank API response:", bankRes.data);
 
                 const emp = empRes.data.find(e => e._id === empId || e.id === empId);
                 const payroll = payrollRes.data.find(p => p.empId === empId || p._id === empId);
-                const bank = bankRes.data; // because we’re fetching a single record now
+               const bank = Array.isArray(bankRes.data) ? bankRes.data[0] : bankRes.data;
+
 
                 if (emp) {
                     setEmployee({
